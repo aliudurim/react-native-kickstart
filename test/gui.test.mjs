@@ -2,7 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
+import { resolve } from 'node:path';
 import { hostIsLoopback, tokenMatches } from '../src/guard.mjs';
+import { imageType, projectDir, shotPath, storeModuleName } from '../src/gui-paths.mjs';
 import { GROUPS, MODULES, PRESETS, normalizeChoices } from '../src/context.mjs';
 import { libraries } from '../src/resolver/index.mjs';
 
@@ -47,8 +49,34 @@ test('every API call from the page goes through api() and carries the token', ()
   assert.deepEqual(raw, [], `bypass api(): ${raw.join(', ')}`);
   assert.match(script, /const TOKEN = '__RNK_TOKEN__'/);
   assert.match(script, /u\.searchParams\.set\('t', TOKEN\)/);
-  const calls = script.match(/api\('\/api\/[a-z-]+'/g) ?? [];
+  const calls = script.match(/api\('\/api\/[a-z/-]+'/g) ?? [];
   for (const path of ['/api/init', '/api/preview', '/api/pick-folder', '/api/create', '/api/ping', '/api/bye']) assert.ok(calls.some((c) => c.includes(`'${path}'`)), `page never calls ${path}`);
+  for (const path of ['/api/store/open', '/api/store/shot', '/api/store/check', '/api/store/save', '/api/store/capture', '/api/store/upload', '/api/store/render']) assert.ok(calls.some((c) => c.includes(`'${path}'`)), `page never calls ${path} through api()`);
+  const server = readFileSync(new URL('../bin/gui.mjs', import.meta.url), 'utf8');
+  for (const path of ['/api/store/open', '/api/store/shot', '/api/store/check', '/api/store/save', '/api/store/capture', '/api/store/upload', '/api/store/render']) assert.ok(server.includes(`'${path}'`), `server has no route for ${path}`);
+});
+
+test('the renderer reaches the page as dynamic imports of the allow-listed /store modules', () => {
+  const script = scripts[0];
+  assert.match(script, /import\('\/store\/scene\.mjs'\)/);
+  assert.match(script, /import\('\/store\/presets\.mjs'\)/);
+  const server = readFileSync(new URL('../bin/gui.mjs', import.meta.url), 'utf8');
+  assert.match(server, /storeModuleName\(url\.pathname\)/, 'the /store route goes through the allow-list');
+  assert.match(server, /shotPath\(url\.searchParams\.get\('project'\), url\.searchParams\.get\('path'\)\)/, 'shots are resolved through shotPath');
+});
+
+test('store path helpers: module allow-list, absolute project without .., images only inside it', () => {
+  assert.equal(storeModuleName('/store/scene.mjs'), 'scene');
+  assert.equal(storeModuleName('/store/presets.mjs'), 'presets');
+  for (const bad of ['/store/cdp.mjs', '/store/export.mjs', '/store/../gui.mjs', '/store/scene.js', '/store/Scene.mjs', '/store/scene.mjs/x']) assert.equal(storeModuleName(bad), null, bad);
+  const root = process.platform === 'win32' ? 'C:\\proj\\app' : '/proj/app';
+  assert.equal(projectDir(root), resolve(root));
+  for (const bad of ['', '   ', 'relative/app', `${root}/../other`, '../app', undefined, 42]) assert.throws(() => projectDir(bad), String(bad));
+  assert.equal(shotPath(root, 'store/shots/en-US/home.ios.png'), resolve(root, 'store/shots/en-US/home.ios.png'));
+  assert.equal(shotPath(root, 'store/icon.JPG'), resolve(root, 'store/icon.JPG'));
+  for (const bad of ['../x.png', 'store/../../x.png', '/etc/passwd.png', 'store/kickstart.store.json', 'store/shots/a.svg', '']) assert.throws(() => shotPath(root, bad), bad);
+  assert.equal(imageType('/a/b.png'), 'image/png');
+  assert.equal(imageType('/a/b.jpeg'), 'image/jpeg');
 });
 
 test('every preset sets every group to a valid value and names only real modules', () => {
@@ -116,7 +144,10 @@ test('the page hides navigation and data options the CLI would reject', () => {
   assert.equal(ctx.optionHidden('data', 'fetch'), false);
 });
 
-test('tab bar has New project active and Store assets as a disabled placeholder', () => {
-  assert.match(html, /role="tab" aria-selected="true">New project</);
-  assert.match(html, /role="tab"[^>]*disabled[^>]*title="coming next">Store assets</);
+test('tab bar has New project active and Store assets as a live tab', () => {
+  assert.match(html, /role="tab" aria-selected="true" data-tab="new">New project</);
+  assert.match(html, /role="tab" aria-selected="false" data-tab="store">Store assets</);
+  assert.ok(!/data-tab="store"[^>]*disabled/.test(html), 'store tab is enabled');
+  assert.match(html, /<main class="main" id="newMain">/);
+  assert.match(html, /<main class="main" id="storeMain" hidden>/);
 });

@@ -207,20 +207,105 @@
   .pop a { color: var(--signal-deep); text-decoration: none; font-weight: 500; }
   .pop a:hover { text-decoration: underline; }
 
+  /* store assets tab: same sheet + readout, the headline is the app name from the config */
+  .main[hidden] { display: none; }
+  .title .big { font: 600 44px/1.1 var(--sans); letter-spacing: -.025em; color: var(--ink); overflow-wrap: anywhere; }
+  .title .big .sub { display: block; font: 400 13px/1.4 var(--sans); letter-spacing: 0; color: var(--ink-3); margin-top: 6px; }
+  .title .line.one { grid-template-columns: minmax(0, 1fr); }
+  .projin { display: flex; align-items: center; gap: 14px; border-bottom: 1px solid var(--rule-2); min-width: 0; }
+  .projin input { flex: 1; min-width: 0; border: 0; background: none; padding: 4px 0; font: 400 13px/1.4 var(--mono); border-radius: 0; }
+  .projin input:focus { outline: none; }
+  .projin:focus-within { border-bottom-color: var(--signal); }
+  .projin button { border: 0; background: none; padding: 4px 0; color: var(--signal-deep); font-weight: 500; white-space: nowrap; }
+  .projin button:hover:not(:disabled) { text-decoration: underline; }
+  .empty { margin: 16px 0 0; color: var(--ink-2); font-size: 13px; line-height: 1.5; max-width: 62ch; }
+  .empty code, .markup code, .ready code { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+  .hint.ok { color: var(--ok); } .hint.neutral { color: var(--ink-3); }
+  .section[hidden] { display: none; }
+  .row .d { color: var(--ink-3); font-size: 12px; }
+  .row .seg#stRhythm { flex: 0 1 auto; min-width: 0; }
+  .chip .dim { color: var(--ink-3); font-family: var(--mono); font-size: 11px; }
+  .chip[aria-pressed="true"] .dim { color: inherit; opacity: .75; }
+  .sel { position: relative; display: inline-block; border-bottom: 1px solid var(--rule-2); min-width: 180px; max-width: 100%; }
+  .sel select { appearance: none; -webkit-appearance: none; width: 100%; border: 0; background: none; padding: 4px 22px 4px 0; color: var(--ink); border-radius: 0; cursor: pointer; }
+  .sel select:focus { outline: none; }
+  .sel:focus-within { border-bottom-color: var(--signal); }
+  .sel::after { content: ''; position: absolute; right: 4px; top: 50%; width: 7px; height: 7px; border-right: 1.5px solid var(--ink-2); border-bottom: 1.5px solid var(--ink-2); transform: translateY(-70%) rotate(45deg); pointer-events: none; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .sw { width: 24px; height: 24px; border-radius: 999px; border: 1px solid rgba(0,0,0,.14); padding: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.35); }
+  .sw:hover { transform: scale(1.1); }
+  .sw[aria-pressed="true"] { outline: 2px solid var(--signal); outline-offset: 2px; }
+  .sw.reset { background: none; border: 1.5px dashed var(--ink-3); }
+  .swatches .gap { width: 1px; height: 20px; background: var(--rule-2); margin: 0 4px; }
+  .colors { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; }
+  .color { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+  .color input[type="color"] { width: 28px; height: 28px; padding: 0; border: 1px solid var(--rule-2); border-radius: 6px; background: none; cursor: pointer; }
+  .color input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
+  .color input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 4px; }
+  .locbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 14px; }
+  .locbar .add { display: inline-flex; align-items: center; gap: 8px; }
+  .locbar .add input { width: 90px; border: 0; border-bottom: 1px solid var(--rule-2); background: none; padding: 4px 0; font: 400 13px/1.4 var(--mono); border-radius: 0; }
+  .locbar .add input:focus { outline: none; border-bottom-color: var(--signal); }
+  .locbar .add .btn { height: 30px; font-size: 13px; }
+  .shots { display: flex; flex-direction: column; gap: 12px; }
+  .shot { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 14px; padding: 12px; border: 1px solid var(--rule-2); border-radius: 8px; background: var(--paper); }
+  .shot .thumb { width: 72px; height: 150px; border-radius: 8px; background: var(--well); border: 1px solid var(--rule); overflow: hidden; display: flex; align-items: center; justify-content: center; color: var(--ink-3); font-size: 11px; line-height: 1.35; text-align: center; padding: 6px; }
+  .shot .thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .shot .fields { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .shot .head { display: flex; align-items: center; gap: 8px; }
+  .shot .head .n { color: var(--ink-3); font-family: var(--mono); font-size: 12px; width: 18px; flex: none; }
+  .shot input.id { width: 150px; max-width: 100%; border: 0; border-bottom: 1px solid var(--rule-2); background: none; padding: 3px 0; font: 500 13px/1.4 var(--mono); border-radius: 0; }
+  .shot input.id.bad { border-bottom-color: var(--err); color: var(--err); }
+  .shot input.copy { width: 100%; border: 0; border-bottom: 1px solid var(--rule-2); background: none; padding: 4px 0; border-radius: 0; }
+  .shot input.copy.sub { font-size: 13px; color: var(--ink-2); }
+  .shot input:focus { outline: none; border-bottom-color: var(--signal); }
+  .shot .tools { margin-left: auto; display: inline-flex; gap: 2px; }
+  .shot .tools button { border: 0; background: none; padding: 2px 7px; color: var(--ink-2); border-radius: 4px; font-size: 13px; line-height: 20px; white-space: nowrap; }
+  .shot .tools button:hover:not(:disabled) { background: var(--well); color: var(--ink); }
+  .shot .tools button.rm:hover:not(:disabled) { color: var(--err); }
+  .shot .src { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-top: 4px; position: relative; }
+  .shot .src .btn { height: 28px; padding: 0 10px; font-size: 12px; font-weight: 500; }
+  .shot .src label.btn:focus-within { outline: 2px solid var(--signal); outline-offset: 2px; }
+  .shot .src input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+  .shot .src .file { font-family: var(--mono); font-size: 11px; color: var(--ink-3); overflow-wrap: anywhere; }
+  .shot .src .file.none { font-family: var(--sans); font-size: 12px; }
+  .addrow { margin-top: 12px; }
+  .markup { font-size: 12px; color: var(--ink-3); margin: 10px 0 0; }
+  .strip { display: flex; gap: 10px; overflow-x: auto; padding: 2px 18px 12px; margin: 0 -18px; scroll-snap-type: x proximity; }
+  .strip .tile { flex: none; scroll-snap-align: start; }
+  .strip canvas { display: block; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.18); background: var(--well); }
+  .strip .cap { font: 400 11px/1.4 var(--mono); color: var(--ink-3); margin-top: 5px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .strip .none, .ready .none { color: var(--ink-3); font-size: 13px; }
+  .ready { display: flex; flex-direction: column; gap: 7px; font-size: 13px; }
+  .ready .r { display: flex; gap: 8px; align-items: flex-start; color: var(--ink-2); line-height: 1.4; }
+  .ready .r .mark { width: 14px; height: 14px; flex: none; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; border: 1px solid currentColor; margin-top: 2px; }
+  .ready .ok .mark { color: var(--ok); } .ready .warn .mark { color: var(--warn); } .ready .err .mark { color: var(--err); }
+  .ready .err { color: var(--err); }
+  .actions .hint2 { font-size: 12px; color: var(--ink-3); }
+  .actions .hint2:empty { display: none; }
+  .fastpath { font: 400 12px/1.5 var(--mono); color: var(--ink); margin-bottom: 8px; overflow-wrap: anywhere; }
+  .files { margin: 0; padding: 0; list-style: none; font: 400 12px/1.6 var(--mono); color: var(--ink-2); max-height: 220px; overflow: auto; }
+  .files li { overflow-wrap: anywhere; }
+  #toStore[hidden] { display: none; }
+
   @media (max-width: 1100px) { .main { grid-template-columns: 1fr; gap: 28px; } .readout { position: static; max-height: none; overflow: visible; } }
   @media (max-width: 680px) {
     .main { padding: 24px 16px 56px; } .hdr { padding: 0 16px; gap: 12px; } .brand span { display: none; } .tabs { gap: 0; } .tab { padding: 0 8px; font-size: 13px; } .seg.theme button { padding: 0 8px; }
-    .title input#name { font-size: 32px; } .title .line { grid-template-columns: 1fr; }
+    .title input#name, .title .big { font-size: 32px; } .title .line { grid-template-columns: 1fr; }
     .section { grid-template-columns: 1fr; gap: 8px; } .section h2 { padding-top: 0; } .row { flex-wrap: wrap; }
+    .projin { flex-wrap: wrap; gap: 4px 14px; } .projin input { flex-basis: 100%; }
+    .shot { grid-template-columns: 1fr; } .shot .thumb { width: 72px; height: 150px; }
   }
   @media (max-width: 480px) {
     .hdr { gap: 10px; } .tab:disabled { display: none; } .seg.theme button { padding: 0 7px; font-size: 12px; height: 26px; }
-    .title input#name { font-size: 28px; } .presets { grid-template-columns: 1fr; }
+    .title input#name, .title .big { font-size: 28px; } .presets { grid-template-columns: 1fr; }
     .row { flex-direction: column; align-items: flex-start; gap: 6px; } .row .lbl { width: auto; }
     .env { grid-template-columns: 1fr; gap: 2px 0; } .env .v { margin: 0 0 8px 22px; }
     .panel { padding: 14px 16px; } pre.pkg, pre.log { margin: 0 -16px -14px; padding: 12px 16px 14px; }
+    .strip { margin: 0 -16px; padding: 2px 16px 12px; }
     .btns { flex-direction: column; } .btns .btn { width: 100%; flex: 0 0 auto; }
     .panel h2 .right { gap: 8px; } .panel h2 .right .check { font-size: 12px; }
+    .shot .src .btn { height: 30px; } .shot input.id { width: 100%; }
   }
   @media (prefers-reduced-motion: reduce) { .spin { animation-duration: 2s; } .switch input, .switch input::after { transition: none; } }
 </style>
@@ -232,8 +317,8 @@
     <span>react-native-kickstart</span>
   </div>
   <nav class="tabs" role="tablist" aria-label="Sections">
-    <button type="button" class="tab" role="tab" aria-selected="true">New project</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" disabled title="coming next">Store assets</button>
+    <button type="button" class="tab" role="tab" aria-selected="true" data-tab="new">New project</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="store">Store assets</button>
   </nav>
   <span class="spacer"></span>
   <div class="seg theme" role="group" aria-label="Theme">
@@ -243,7 +328,7 @@
   </div>
 </header>
 
-<main class="main">
+<main class="main" id="newMain">
   <div class="col sheet">
     <section class="title">
       <div class="field">
@@ -309,6 +394,7 @@
         <button type="button" class="btn primary" id="create">Set up project</button>
       </div>
       <div class="status" id="status"></div>
+      <button type="button" class="btn" id="toStore" hidden>Continue to store assets</button>
     </section>
     <section class="panel">
       <h2>On this machine</h2>
@@ -337,6 +423,93 @@
       <h2>Log <span class="right"><button type="button" class="btn" id="logClear">Clear</button></span></h2>
       <div class="steps" id="steps"></div>
       <pre class="log" id="log"></pre>
+    </section>
+  </aside>
+</main>
+
+<main class="main" id="storeMain" hidden>
+  <div class="col sheet">
+    <section class="title">
+      <div class="big"><span id="stApp">Store assets</span><span class="sub" id="stAppSub">framed screenshots, icons and listing text, written straight into fastlane/</span></div>
+      <div class="line one">
+        <div class="field">
+          <label for="stProject">Project</label>
+          <div class="projin">
+            <input id="stProject" placeholder="/path/to/your/app" autocomplete="off" spellcheck="false" aria-describedby="stProjectHint">
+            <button type="button" id="stPick">Choose folder</button>
+            <button type="button" id="stOpen">Open</button>
+          </div>
+          <div class="hint" id="stProjectHint"></div>
+        </div>
+      </div>
+      <p class="empty" id="stEmpty">Set up a project on the New project tab first, or open a folder that has <code>store/kickstart.store.json</code>. Opening a project without one writes a starter config you can edit here.</p>
+    </section>
+
+    <section class="section" id="stTarget" hidden>
+      <h2>Target <span class="sub">which store, which sizes, which frame</span></h2>
+      <div class="body stack">
+        <div class="row"><span class="lbl">Store</span><span class="seg" id="stStoreSeg"><button type="button" data-store="App Store" aria-pressed="true">App Store</button><button type="button" data-store="Google Play" aria-pressed="false">Google Play</button></span></div>
+        <div class="row"><span class="lbl">Sizes</span><span class="chips" id="stSizes"></span></div>
+        <div class="row"><span class="lbl" id="stDeviceLbl">Phone frame</span><span class="sel"><select id="stDevice" aria-label="Phone frame"></select></span></div>
+        <div class="row"><span class="lbl">Format</span><span class="seg" id="stFormatSeg"><button type="button" data-format="jpeg" aria-pressed="true">JPEG</button><button type="button" data-format="png" aria-pressed="false">PNG</button></span><span class="d" id="stFormatHint"></span></div>
+      </div>
+    </section>
+
+    <section class="section" id="stLook" hidden>
+      <h2>Look <span class="sub">template, rhythm and colours for every tile</span></h2>
+      <div class="body stack">
+        <div class="presets" id="stTemplates"></div>
+        <div class="row"><span class="lbl">Rhythm</span><span class="seg" id="stRhythm"></span></div>
+        <div class="row"><span class="lbl">Background</span><div class="swatches" id="stSwatches"></div></div>
+        <div class="row"><span class="lbl">Custom gradient</span><div class="colors"><label class="color"><input type="color" id="stGradFrom"> from</label><label class="color"><input type="color" id="stGradTo"> to</label></div></div>
+        <div class="row"><span class="lbl">Text</span><div class="colors"><label class="color"><input type="color" id="stTextColor"> text colour</label><label class="color"><input type="color" id="stHighlight"> highlight</label></div></div>
+        <div class="row"><span class="lbl">Font</span><span class="sel"><select id="stFont" aria-label="Font"></select></span></div>
+      </div>
+    </section>
+
+    <section class="section" id="stScreensSec" hidden>
+      <h2>Screens <span class="sub">one entry per store screenshot, in order</span></h2>
+      <div class="body">
+        <div class="locbar">
+          <span class="sel"><select id="stLocale" aria-label="Locale"></select></span>
+          <span class="add"><input id="stLocaleNew" placeholder="de-DE" aria-label="New locale"><button type="button" class="btn" id="stLocaleAdd">Add locale</button></span>
+        </div>
+        <div class="shots" id="stScreens"></div>
+        <div class="addrow"><button type="button" class="btn" id="stAddScreen">Add screen</button></div>
+        <p class="markup">Wrap a word in asterisks to highlight it: <code>Plan the week in *seconds*</code></p>
+      </div>
+    </section>
+  </div>
+
+  <aside class="col readout" aria-label="Store readout">
+    <section class="panel">
+      <h2>Preview <span class="right" id="stStripMeta"></span></h2>
+      <div class="strip" id="stStrip"><span class="none">Open a project to see its tiles.</span></div>
+    </section>
+    <section class="panel">
+      <h2>Readiness</h2>
+      <div class="ready" id="stReady"><span class="none">nothing to check yet</span></div>
+    </section>
+    <section class="panel actions">
+      <div class="opts">
+        <label class="check"><input type="checkbox" id="stIcons" disabled> Generate icons from the master icon</label>
+        <span class="hint2" id="stIconHint"></span>
+      </div>
+      <div class="btns">
+        <button type="button" class="btn" id="stSave" disabled>Save config</button>
+        <button type="button" class="btn primary" id="stRender" disabled>Render to fastlane</button>
+      </div>
+      <div class="status" id="stStatus"></div>
+    </section>
+    <section class="panel logwrap" id="stLogwrap" hidden>
+      <h2>Log <span class="right"><button type="button" class="btn" id="stLogClear">Clear</button></span></h2>
+      <div class="steps" id="stSteps"></div>
+      <pre class="log" id="stLog"></pre>
+    </section>
+    <section class="panel" id="stLastWrap" hidden>
+      <h2>Last render</h2>
+      <div class="fastpath" id="stLastPath"></div>
+      <ul class="files" id="stLast"></ul>
     </section>
   </aside>
 </main>
@@ -600,16 +773,16 @@ function setBusy(on) {
   for (const id of ['create', 'dryRun', 'pick', 'refresh']) $(id).disabled = on;
   $('create').textContent = on ? 'Setting up…' : 'Set up project';
 }
-function logLine(text, cls) {
+function logLine(text, cls, log = $('log')) {
   const s = document.createElement('span');
   if (cls) s.className = cls;
   s.textContent = text + '\n';
-  $('log').appendChild(s);
-  $('log').scrollTop = $('log').scrollHeight;
+  log.appendChild(s);
+  log.scrollTop = log.scrollHeight;
 }
-function setStep(name, text, state) {
-  let el = $('steps').querySelector('[data-step="' + name + '"]');
-  if (!el) { el = document.createElement('span'); el.className = 'step'; el.dataset.step = name; $('steps').appendChild(el); }
+function setStep(name, text, state, steps = $('steps')) {
+  let el = steps.querySelector('[data-step="' + name + '"]');
+  if (!el) { el = document.createElement('span'); el.className = 'step'; el.dataset.step = name; steps.appendChild(el); }
   el.textContent = text;
   el.className = 'step ' + state;
 }
@@ -642,6 +815,7 @@ $('create').addEventListener('click', () => {
     logLine('✓ ' + d.message, 'ok');
     if (d.next) logLine('next: ' + d.next);
     setStatus(d.message, 'ok'); setBusy(false); es.close();
+    if (d.dir) offerStore(d.dir, appName());
   });
   es.addEventListener('error', (e) => {
     if (!e.data) { logLine('connection lost', 'err'); setStatus('connection lost', 'err'); }
@@ -649,6 +823,494 @@ $('create').addEventListener('click', () => {
     setBusy(false); es.close();
   });
 });
+
+/* ---------------- tabs ---------------- */
+function showTab(name) {
+  for (const b of document.querySelectorAll('.tab')) b.setAttribute('aria-selected', String(b.dataset.tab === name));
+  $('newMain').hidden = name !== 'new';
+  $('storeMain').hidden = name !== 'store';
+  try { localStorage.setItem('rnk-tab', name); } catch { /* private mode */ }
+  if (name === 'store') storeShown();
+}
+for (const b of document.querySelectorAll('.tab')) b.addEventListener('click', () => showTab(b.dataset.tab));
+
+/* ---------------- store assets ---------------- */
+// S is the server's view of the open project; S.config is edited in place and pushed back on save.
+let S = null, scene = null, sLocale = null, sStore = 'App Store', sDirty = false, storeAutoOpened = false;
+let stripTimer = null, stripSeq = 0, checkTimer = null, checkSeq = 0, placeholder = null;
+const imgCache = new Map(), imgVersion = new Map();
+const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+const cfg = () => S.config;
+const sizeById = (id) => S.options.sizes.find((s) => s.id === id);
+const platformOf = () => (sStore === 'Google Play' ? 'android' : 'ios');
+const LOCALE_RE = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
+const ID_RE = /^[a-z0-9][a-z0-9-]{0,39}$/;
+const hex6 = (v, d) => (/^#[0-9a-f]{6}$/i.test(v || '') ? v : d);
+const capturePathOf = (locale, id, platform) => 'store/shots/' + locale + '/' + id + '.' + platform + '.png';
+
+async function postJson(url, body) {
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+function setStHint(text, cls) { $('stProjectHint').className = 'hint' + (cls ? ' ' + cls : ''); $('stProjectHint').textContent = text; }
+function setStStatus(text, cls) { $('stStatus').className = 'status' + (cls ? ' ' + cls : ''); $('stStatus').textContent = text; }
+function setStBusy(on) {
+  for (const id of ['stSave', 'stOpen', 'stPick', 'stAddScreen', 'stLocaleAdd']) $(id).disabled = on;
+  $('stRender').disabled = on || !S || !S.chrome;
+  $('stRender').textContent = on ? 'Working…' : 'Render to fastlane';
+  for (const b of $('stScreens').querySelectorAll('[data-cap], [data-file]')) if (on) b.disabled = true;
+  if (!on && S) renderScreens();
+}
+
+// Same resolution as settingsFor / screensFor in src/store/config.mjs, on the browser-safe presets.
+function deviceFor(c, size) {
+  if (c.devices && c.devices[size.id]) return c.devices[size.id];
+  if (size.id === 'ipad-13' || size.id === 'android-tablet') return size.device;
+  return size.platform === 'android' ? c.androidDevice : c.device;
+}
+function settingsFor(c, sizeId) {
+  const size = scene.getSize(sizeId);
+  const template = scene.getTemplate(c.template);
+  return { ...scene.DEFAULT_SETTINGS, ...template.settings, ...(c.settings || {}), ...(c.background ? { background: c.background } : {}), deviceId: deviceFor(c, size), sizeId };
+}
+function screensFor(c, locale) {
+  const template = scene.getTemplate(c.template);
+  const rid = c.rhythm || template.rhythm || 'template';
+  const rhythm = rid === 'template' ? null : scene.getRhythm(rid);
+  return c.screens.map((s, i) => {
+    const copy = (s.copy && (s.copy[locale] || s.copy[c.locales[0]])) || {};
+    return { id: s.id, headline: copy.headline || '', subhead: copy.subhead || '', overrides: { ...scene.variantFor(template, i), ...(rhythm ? scene.rhythmStep(rhythm, i) || {} : {}), ...(s.overrides || {}) } };
+  });
+}
+function previewSize() {
+  const mine = S.options.sizes.filter((s) => s.store === sStore && s.kind === 'screenshot');
+  return mine.find((s) => cfg().sizes.includes(s.id)) || mine[0];
+}
+
+function offerStore(dir, name) {
+  try { localStorage.setItem('rnk-last-project', dir); } catch { /* private mode */ }
+  $('toStore').hidden = false;
+  $('toStore').textContent = 'Continue to store assets for ' + name;
+  $('toStore').onclick = () => { $('stProject').value = dir; showTab('store'); openProject(dir); };
+}
+function storeShown() {
+  if (!S && !storeAutoOpened && $('stProject').value.trim()) { storeAutoOpened = true; openProject($('stProject').value); }
+}
+
+async function openProject(path) {
+  path = String(path || '').trim();
+  if (!path) { setStHint('type or choose the project folder first', 'err'); $('stProject').focus(); return; }
+  $('stOpen').disabled = true;
+  setStHint('opening…', 'neutral');
+  try {
+    if (!scene) {
+      const [presets, sc] = await Promise.all([import('/store/presets.mjs'), import('/store/scene.mjs')]);
+      scene = { ...presets, ...sc };
+    }
+    const data = await (await fetch(api('/api/store/open', { project: path }))).json();
+    if (data.error) throw new Error(data.error);
+    S = data; sDirty = false; imgCache.clear();
+    try { localStorage.setItem('rnk-last-project', data.project); } catch { /* private mode */ }
+    sLocale = cfg().locales[0];
+    const stores = cfg().sizes.map((id) => sizeById(id) && sizeById(id).store);
+    sStore = stores.includes('App Store') || !stores.includes('Google Play') ? 'App Store' : 'Google Play';
+    $('stProject').value = data.project;
+    setStHint(data.created ? 'wrote ' + data.configPath + ' from the starter template' : data.configPath + ' loaded', 'ok');
+    setStStatus('');
+    renderStore();
+  } catch (e) {
+    setStHint(e.message, 'err');
+  } finally {
+    $('stOpen').disabled = false;
+  }
+}
+$('stOpen').addEventListener('click', () => openProject($('stProject').value));
+$('stProject').addEventListener('keydown', (e) => { if (e.key === 'Enter') openProject($('stProject').value); });
+$('stPick').addEventListener('click', async () => {
+  $('stPick').disabled = true;
+  setStHint('waiting for the folder dialog…', 'neutral');
+  try {
+    const data = await (await fetch(api('/api/pick-folder'), { method: 'POST' })).json();
+    if (data.path) { $('stProject').value = data.path; await openProject(data.path); }
+    else setStHint(data.error ? 'folder picker: ' + data.error : '', data.error ? 'err' : '');
+  } catch (e) { setStHint('folder picker failed: ' + e.message, 'err'); }
+  finally { $('stPick').disabled = false; }
+});
+
+function renderStore() {
+  const has = !!S;
+  $('stEmpty').hidden = has;
+  for (const id of ['stTarget', 'stLook', 'stScreensSec']) $(id).hidden = !has;
+  $('stSave').disabled = !has;
+  $('stRender').disabled = !has || !S.chrome;
+  if (!has) return;
+  $('stApp').textContent = cfg().app;
+  renderTarget(); renderLook(); renderLocales(); renderScreens(); renderIconsOpt(); renderReady(); scheduleStrip();
+}
+function changed() {
+  sDirty = true;
+  setStStatus('unsaved changes');
+  $('stAppSub').textContent = subline();
+  scheduleStrip(); scheduleCheck();
+}
+const subline = () => cfg().locales.length + ' locale' + (cfg().locales.length === 1 ? '' : 's') + ' · ' + cfg().screens.length + ' screen' + (cfg().screens.length === 1 ? '' : 's') + ' · ' + S.configPath;
+
+/* target */
+function renderTarget() {
+  const c = cfg();
+  for (const b of $('stStoreSeg').querySelectorAll('button')) b.setAttribute('aria-pressed', String(b.dataset.store === sStore));
+  $('stSizes').innerHTML = S.options.sizes.filter((s) => s.store === sStore).map((s) => '<button type="button" class="chip" data-size="' + s.id + '" aria-pressed="' + c.sizes.includes(s.id) + '"><span class="plus"></span>' + esc(s.label) + ' <span class="dim">' + s.w + '×' + s.h + '</span></button>').join('');
+  for (const b of $('stSizes').querySelectorAll('button')) b.addEventListener('click', () => {
+    const id = b.dataset.size;
+    c.sizes = c.sizes.includes(id) ? c.sizes.filter((x) => x !== id) : [...c.sizes, id];
+    changed(); renderTarget(); renderReady();
+  });
+  const android = sStore === 'Google Play';
+  const key = android ? 'androidDevice' : 'device';
+  $('stDeviceLbl').textContent = android ? 'Phone frame' : 'iPhone frame';
+  $('stDevice').innerHTML = S.options.devices.filter((d) => d.group === (android ? 'Android' : 'iPhone') || d.id === 'none').map((d) => '<option value="' + d.id + '"' + (c[key] === d.id ? ' selected' : '') + '>' + esc(d.label) + '</option>').join('');
+  $('stDevice').onchange = () => { c[key] = $('stDevice').value; changed(); };
+  for (const b of $('stFormatSeg').querySelectorAll('button')) { b.setAttribute('aria-pressed', String(b.dataset.format === c.format)); b.disabled = android; }
+  $('stFormatHint').textContent = android ? 'Google Play images are always PNG' : c.format === 'png' ? 'App Store rejects PNGs with transparency; JPEG is the safe choice' : 'JPEG at 95% quality';
+}
+for (const b of $('stStoreSeg').querySelectorAll('button')) b.addEventListener('click', () => { sStore = b.dataset.store; renderTarget(); renderLook(); renderScreens(); renderReady(); scheduleStrip(); });
+for (const b of $('stFormatSeg').querySelectorAll('button')) b.addEventListener('click', () => { if (!S) return; cfg().format = b.dataset.format; changed(); renderTarget(); });
+
+/* look */
+const sameBg = (a, b) => JSON.stringify(a || null) === JSON.stringify(b || null);
+function renderLook() {
+  const c = cfg();
+  c.settings = c.settings || {};
+  $('stTemplates').innerHTML = S.options.templates.map((t) => '<button type="button" class="preset" data-template="' + t.id + '" aria-pressed="' + (c.template === t.id) + '"><span class="t">' + esc(t.label) + '<span class="tick">' + TICK + '</span></span><p>' + esc(t.description) + '</p></button>').join('');
+  for (const b of $('stTemplates').querySelectorAll('button')) b.addEventListener('click', () => { c.template = b.dataset.template; changed(); renderLook(); });
+  const tmpl = S.options.templates.find((t) => t.id === c.template) || {};
+  const rid = c.rhythm || 'template';
+  const rhythms = [{ id: 'template', label: 'Template default', description: tmpl.rhythm ? 'This template comes with the ' + tmpl.rhythm + ' rhythm.' : 'This template uses one layout for every tile.' }, ...S.options.rhythms];
+  $('stRhythm').innerHTML = rhythms.map((r) => '<button type="button" data-rhythm="' + r.id + '" aria-pressed="' + (rid === r.id) + '" title="' + esc(r.description || '') + '">' + esc(r.label) + '</button>').join('');
+  for (const b of $('stRhythm').querySelectorAll('button')) b.addEventListener('click', () => { c.rhythm = b.dataset.rhythm === 'template' ? undefined : b.dataset.rhythm; changed(); renderLook(); });
+  const grads = S.options.backgrounds.gradients, solids = S.options.backgrounds.solids;
+  $('stSwatches').innerHTML = '<button type="button" class="sw reset" data-reset aria-pressed="' + (!c.background && c.settings.textColor === undefined && c.settings.highlights === undefined) + '" title="Use the template\'s own colours" aria-label="Use the template\'s own colours"></button><span class="gap"></span>'
+    + grads.map((g, i) => '<button type="button" class="sw" data-grad="' + i + '" aria-pressed="' + sameBg(c.background, g) + '" title="' + g.from + ' → ' + g.to + '" aria-label="gradient ' + g.from + ' to ' + g.to + '" style="background: linear-gradient(' + g.angle + 'deg, ' + g.from + ', ' + g.to + ')"></button>').join('')
+    + '<span class="gap"></span>'
+    + solids.map((s) => '<button type="button" class="sw" data-solid="' + s + '" aria-pressed="' + sameBg(c.background, { kind: 'solid', color: s }) + '" title="' + s + '" aria-label="solid ' + s + '" style="background: ' + s + '"></button>').join('');
+  for (const b of $('stSwatches').querySelectorAll('button')) b.addEventListener('click', () => {
+    if (b.dataset.reset !== undefined) { delete c.background; delete c.settings.textColor; delete c.settings.highlights; delete c.settings.fontId; }
+    else c.background = b.dataset.grad !== undefined ? { ...grads[+b.dataset.grad] } : { kind: 'solid', color: b.dataset.solid };
+    changed(); renderLook();
+  });
+  const eff = settingsFor(c, previewSize().id);
+  const bg = eff.background || {};
+  $('stGradFrom').value = hex6(bg.from, '#6366f1');
+  $('stGradTo').value = hex6(bg.to, '#a855f7');
+  $('stTextColor').value = hex6(eff.textColor, '#111114');
+  $('stHighlight').value = hex6(eff.highlights && eff.highlights[0], '#ffe27a');
+  $('stFont').innerHTML = S.options.fonts.map((f) => '<option value="' + f.id + '"' + (eff.fontId === f.id ? ' selected' : '') + (f.available ? '' : ' disabled') + '>' + esc(f.label) + (f.available ? '' : ' (not installed on this machine)') + '</option>').join('');
+}
+function customGradient() {
+  const c = cfg();
+  const angle = c.background && c.background.kind === 'gradient' ? c.background.angle : 135;
+  c.background = { kind: 'gradient', from: $('stGradFrom').value, to: $('stGradTo').value, angle };
+  sDirty = true; setStStatus('unsaved changes'); scheduleStrip(); scheduleCheck();
+}
+for (const id of ['stGradFrom', 'stGradTo']) { $(id).addEventListener('input', () => { if (S) customGradient(); }); $(id).addEventListener('change', () => { if (S) renderLook(); }); }
+$('stTextColor').addEventListener('input', () => { if (!S) return; cfg().settings.textColor = $('stTextColor').value; sDirty = true; setStStatus('unsaved changes'); scheduleStrip(); scheduleCheck(); });
+$('stHighlight').addEventListener('input', () => { if (!S) return; cfg().settings.highlights = [$('stHighlight').value]; sDirty = true; setStStatus('unsaved changes'); scheduleStrip(); scheduleCheck(); });
+for (const id of ['stTextColor', 'stHighlight']) $(id).addEventListener('change', () => { if (S) renderLook(); });
+$('stFont').addEventListener('change', () => { if (!S) return; cfg().settings.fontId = $('stFont').value; changed(); });
+
+/* screens */
+function renderLocales() {
+  $('stLocale').innerHTML = cfg().locales.map((l) => '<option' + (l === sLocale ? ' selected' : '') + '>' + esc(l) + '</option>').join('');
+  $('stAppSub').textContent = subline();
+}
+$('stLocale').addEventListener('change', () => { sLocale = $('stLocale').value; renderScreens(); renderReady(); scheduleStrip(); });
+$('stLocaleAdd').addEventListener('click', () => {
+  if (!S) return;
+  const l = $('stLocaleNew').value.trim();
+  if (!LOCALE_RE.test(l)) { setStStatus('a locale looks like de-DE or fr', 'err'); $('stLocaleNew').focus(); return; }
+  if (!cfg().locales.includes(l)) cfg().locales.push(l);
+  $('stLocaleNew').value = '';
+  sLocale = l;
+  changed(); renderLocales(); renderScreens(); renderReady();
+});
+$('stLocaleNew').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); $('stLocaleAdd').click(); } });
+
+const shotUrl = (p) => api('/api/store/shot', { project: S.project, path: p, v: imgVersion.get(p) || 0 });
+const sourceOf = (id, platform) => (S.sources[id] && S.sources[id][sLocale] && S.sources[id][sLocale][platform]) || null;
+const thumbHtml = (src, platform) => (src ? '<img alt="" src="' + esc(shotUrl(src)) + '">' : 'no ' + platform + ' shot yet');
+const fileText = (src, platform) => src || 'no ' + platform + ' shot; capture one or replace it with a file';
+
+function renderScreens() {
+  const c = cfg(), platform = platformOf();
+  const ios = S.devices.ios[0], and = S.devices.android[0];
+  $('stScreens').innerHTML = c.screens.map((s, i) => {
+    const copy = (s.copy && s.copy[sLocale]) || {};
+    const fb = sLocale !== c.locales[0] ? (s.copy && s.copy[c.locales[0]]) || {} : {};
+    const src = sourceOf(s.id, platform);
+    return '<div class="shot" data-i="' + i + '">'
+      + '<div class="thumb">' + thumbHtml(src, platform) + '</div>'
+      + '<div class="fields">'
+      + '<div class="head"><span class="n">' + (i + 1) + '</span><input class="id' + (ID_RE.test(s.id) ? '' : ' bad') + '" data-k="id" value="' + esc(s.id) + '" aria-label="Screen id" spellcheck="false" autocomplete="off">'
+      + '<span class="tools"><button type="button" data-move="-1" aria-label="Move up" title="Move up"' + (i === 0 ? ' disabled' : '') + '>↑</button><button type="button" data-move="1" aria-label="Move down" title="Move down"' + (i === c.screens.length - 1 ? ' disabled' : '') + '>↓</button><button type="button" class="rm" data-rm>Remove screen</button></span></div>'
+      + '<input class="copy" data-k="headline" value="' + esc(copy.headline || '') + '" placeholder="' + esc(fb.headline ? 'Headline (falls back to ' + c.locales[0] + ': ' + fb.headline + ')' : 'Headline, *word* to highlight') + '" aria-label="Headline">'
+      + '<input class="copy sub" data-k="subhead" value="' + esc(copy.subhead || '') + '" placeholder="' + esc(fb.subhead ? 'Subhead (falls back to ' + c.locales[0] + ': ' + fb.subhead + ')' : 'Subhead (optional)') + '" aria-label="Subhead">'
+      + '<div class="src">'
+      + '<button type="button" class="btn" data-cap="ios"' + (ios ? '' : ' disabled title="boot an iOS simulator with the app running first"') + '>Capture from ' + esc(ios ? ios.name : 'iPhone simulator') + '</button>'
+      + '<button type="button" class="btn" data-cap="android"' + (and ? '' : ' disabled title="start an Android emulator or connect a device first"') + '>Capture from ' + esc(and ? and.name : 'Android device') + '</button>'
+      + '<label class="btn">Replace<input type="file" accept="image/png,image/jpeg" data-file aria-label="Replace the ' + platform + ' shot with a file"></label>'
+      + '<span class="file' + (src ? '' : ' none') + '">' + esc(fileText(src, platform)) + '</span>'
+      + '</div></div></div>';
+  }).join('') || '<span class="none">No screens yet. Add one for every screenshot the listing should show.</span>';
+}
+function refreshSources() {
+  const platform = platformOf();
+  for (const row of $('stScreens').querySelectorAll('.shot')) {
+    const s = cfg().screens[+row.dataset.i];
+    if (!s) continue;
+    const src = sourceOf(s.id, platform);
+    row.querySelector('.thumb').innerHTML = thumbHtml(src, platform);
+    const f = row.querySelector('.file');
+    f.textContent = fileText(src, platform);
+    f.classList.toggle('none', !src);
+  }
+}
+const rowIndex = (el) => +el.closest('.shot').dataset.i;
+$('stScreens').addEventListener('input', (e) => {
+  const k = e.target.dataset.k;
+  if (!k) return;
+  const s = cfg().screens[rowIndex(e.target)];
+  if (k === 'id') { s.id = e.target.value.trim(); e.target.classList.toggle('bad', !ID_RE.test(s.id)); }
+  else { s.copy = s.copy || {}; s.copy[sLocale] = s.copy[sLocale] || {}; s.copy[sLocale][k] = e.target.value; }
+  changed();
+});
+$('stScreens').addEventListener('change', (e) => {
+  if (e.target.dataset.k === 'id') renderScreens();
+  if (e.target.dataset.file !== undefined && e.target.files[0]) uploadShot(rowIndex(e.target), platformOf(), e.target.files[0]).catch((err) => setStStatus(err.message, 'err'));
+});
+$('stScreens').addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn || btn.disabled) return;
+  const c = cfg(), i = rowIndex(btn);
+  if (btn.dataset.move) {
+    const j = i + Number(btn.dataset.move);
+    [c.screens[i], c.screens[j]] = [c.screens[j], c.screens[i]];
+    changed(); renderScreens();
+  } else if (btn.dataset.rm !== undefined) {
+    c.screens.splice(i, 1);
+    changed(); renderScreens(); renderReady();
+  } else if (btn.dataset.cap) {
+    captureShot(i, btn.dataset.cap).catch((err) => setStStatus(err.message, 'err'));
+  }
+});
+$('stAddScreen').addEventListener('click', () => {
+  if (!S) return;
+  const c = cfg();
+  let n = c.screens.length + 1, id = 'screen-' + n;
+  while (c.screens.some((s) => s.id === id)) id = 'screen-' + ++n;
+  c.screens.push({ id, copy: { [sLocale]: { headline: '', subhead: '' } } });
+  changed(); renderScreens(); renderReady();
+  const last = $('stScreens').querySelector('.shot:last-child input.id');
+  if (last) last.focus();
+});
+
+async function captureShot(i, platform) {
+  const s = cfg().screens[i];
+  const dev = S.devices[platform][0];
+  if (!dev) throw new Error('no booted ' + (platform === 'ios' ? 'iOS simulator' : 'Android device') + '; start one and reopen the project');
+  setStStatus('capturing ' + s.id + ' from ' + dev.name + '…');
+  const data = await postJson(api('/api/store/capture'), { project: S.project, platform, screen: s.id, locale: sLocale, udid: dev.udid, serial: dev.serial });
+  afterShot(s, platform, data);
+}
+async function uploadShot(i, platform, file) {
+  const s = cfg().screens[i];
+  setStStatus('uploading ' + file.name + '…');
+  const dataUrl = await new Promise((ok, fail) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = () => fail(new Error('could not read ' + file.name)); r.readAsDataURL(file); });
+  const data = await postJson(api('/api/store/upload'), { project: S.project, screen: s.id, locale: sLocale, platform, dataUrl });
+  afterShot(s, platform, data);
+}
+// Shots land on the default path; only a JPEG upload needs an explicit source entry, and an old string
+// or platform-only source is widened to the per-locale form so one platform can be replaced alone.
+function afterShot(s, platform, data) {
+  const c = cfg();
+  const def = capturePathOf(sLocale, s.id, platform);
+  if (typeof s.source === 'string') s.source = { [c.locales[0]]: { ios: s.source, android: s.source } };
+  if (isObj(s.source) && !Object.keys(s.source).some((k) => c.locales.includes(k))) s.source = { [c.locales[0]]: s.source };
+  if (!isObj(s.source)) delete s.source;
+  const cur = s.source && s.source[sLocale];
+  const map = typeof cur === 'string' ? { ios: cur, android: cur } : isObj(cur) ? { ...cur } : {};
+  if (data.path !== def) map[platform] = data.path; else delete map[platform];
+  if (Object.keys(map).length) { s.source = s.source || {}; s.source[sLocale] = map; }
+  else if (s.source) { delete s.source[sLocale]; if (!Object.keys(s.source).length) delete s.source; }
+  imgVersion.set(data.path, Date.now());
+  S.sources[s.id] = S.sources[s.id] || {};
+  S.sources[s.id][sLocale] = S.sources[s.id][sLocale] || {};
+  S.sources[s.id][sLocale][platform] = data.path;
+  setStStatus(data.path + ' · ' + data.width + '×' + data.height, 'ok');
+  sDirty = true; refreshSources(); scheduleStrip(); scheduleCheck();
+}
+
+/* readiness: the server's reading, refreshed for the unsaved config */
+function scheduleCheck() { clearTimeout(checkTimer); checkTimer = setTimeout(runCheck, 400); }
+async function runCheck() {
+  if (!S) return;
+  const mine = ++checkSeq;
+  try {
+    const data = await postJson(api('/api/store/check'), { project: S.project, config: cfg() });
+    if (mine !== checkSeq) return;
+    S.readiness = data.readiness; S.sources = data.sources; S.configError = null;
+  } catch (e) {
+    if (mine !== checkSeq) return;
+    S.configError = e.message;
+  }
+  renderReady(); refreshSources(); scheduleStrip();
+}
+function renderReady() {
+  const list = [];
+  const add = (state, text) => list.push({ state, text });
+  const c = cfg(), size = previewSize();
+  if (S.configError) for (const line of S.configError.split('\n')) add('err', 'Fix the config: ' + line);
+  if (!c.screens.length) add('err', 'Add a screen; a listing needs at least one screenshot.');
+  const rows = S.readiness.rows.filter((r) => r.locale === sLocale);
+  const seen = new Set();
+  for (const r of rows) {
+    const platform = sizeById(r.sizeId).platform;
+    if (seen.has(platform)) continue;
+    seen.add(platform);
+    const which = platform === 'ios' ? 'an iOS' : 'an Android';
+    add(r.filled === r.total ? 'ok' : 'err', r.filled + ' of ' + r.total + ' screens have ' + which + ' screenshot');
+    for (const m of r.missing) { const id = (/\/([^/]+)\.(ios|android)\.png$/.exec(m) || [])[1]; if (id) add('err', 'Capture or replace the ' + platform + ' shot for \'' + id + '\''); }
+  }
+  if (scene && c.screens.length) {
+    const settings = settingsFor(c, size.id);
+    for (const s of screensFor(c, sLocale)) if (scene.getLayout(scene.effectiveSettings(s, settings).layout).text !== null && !s.headline.trim()) add('warn', 'Add a headline to \'' + s.id + '\'' + (sLocale !== c.locales[0] ? ' for ' + sLocale : ''));
+  }
+  const row = rows.find((r) => r.sizeId === size.id) || rows.find((r) => sizeById(r.sizeId).store === sStore);
+  if (row) {
+    const t = row.tiles + ' tile' + (row.tiles === 1 ? '' : 's'), range = sStore + ' accepts ' + row.limit.min + '–' + row.limit.max + ' screenshots';
+    if (row.overLimit) add('err', range + '; this set makes ' + t + '. Remove a screen or pick a single-tile rhythm.');
+    else if (row.underMin) add('warn', sStore + ' needs at least ' + row.limit.min + ' screenshots; this set makes ' + t + '. Add a screen.');
+    else add('ok', range + '; this set makes ' + t + '.');
+  } else if (!c.sizes.some((id) => sizeById(id) && sizeById(id).store === sStore)) add('warn', 'No ' + sStore + ' size is ticked under Target, so nothing renders for it.');
+  for (const w of S.readiness.warnings) add('warn', w);
+  if (!S.chrome) add('err', 'No Chrome, Chromium or Edge found; install Google Chrome to render.');
+  if (S.readiness.canExport && !list.some((x) => x.state === 'err')) add('ok', 'Every slot is filled; render when the copy reads right.');
+  $('stReady').innerHTML = list.map((x) => '<div class="r ' + x.state + '"><span class="mark">' + (x.state === 'ok' ? '✓' : '!') + '</span><span>' + esc(x.text) + '</span></div>').join('');
+}
+function renderIconsOpt() {
+  $('stIcons').disabled = !S.hasIcon;
+  if (!S.hasIcon) $('stIcons').checked = false;
+  $('stIconHint').textContent = S.hasIcon ? '' : 'Add a square PNG of at least 1024×1024 at ' + cfg().icon + ' to generate the iOS, Android and Play icons.';
+}
+
+/* live strip */
+function scheduleStrip() { clearTimeout(stripTimer); stripTimer = setTimeout(renderStrip, 150); }
+function loadImg(p) {
+  const key = p + '@' + (imgVersion.get(p) || 0);
+  if (!imgCache.has(key)) imgCache.set(key, new Promise((ok) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = shotUrl(p); }));
+  return imgCache.get(key);
+}
+function placeholderImage() {
+  if (placeholder) return placeholder;
+  const c = document.createElement('canvas');
+  c.width = 660; c.height = 1434;
+  const x = c.getContext('2d');
+  x.fillStyle = '#e6e9ee'; x.fillRect(0, 0, c.width, c.height);
+  x.strokeStyle = '#d2d7de'; x.lineWidth = 8;
+  for (let d = -c.height; d < c.width; d += 72) { x.beginPath(); x.moveTo(d, 0); x.lineTo(d + c.height, c.height); x.stroke(); }
+  x.fillStyle = '#6f7a85'; x.font = '600 46px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'; x.textAlign = 'center';
+  x.fillText('no screenshot yet', c.width / 2, c.height / 2);
+  return (placeholder = c);
+}
+async function renderStrip() {
+  if (!S || !scene) return;
+  const mine = ++stripSeq;
+  const c = cfg(), size = previewSize(), locale = sLocale;
+  const settings = settingsFor(c, size.id);
+  const screens = screensFor(c, locale);
+  const paths = c.screens.map((s) => sourceOf(s.id, size.platform));
+  const images = await Promise.all(paths.map((p) => (p ? loadImg(p) : null)));
+  if (mine !== stripSeq) return;
+  const strip = $('stStrip');
+  strip.innerHTML = '';
+  if (!screens.length) { strip.innerHTML = '<span class="none">Add a screen to see a tile.</span>'; $('stStripMeta').textContent = ''; return; }
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const tileW = 150, tileH = Math.round((tileW * size.h) / size.w);
+  const at = (i) => images[(i + images.length) % images.length] || placeholderImage();
+  let tiles = 0;
+  screens.forEach((screen, i) => {
+    const span = scene.sceneSpan(screen, settings);
+    const cv = document.createElement('canvas');
+    cv.width = tileW * span * dpr; cv.height = tileH * dpr;
+    cv.style.width = tileW * span + 'px'; cv.style.height = tileH + 'px';
+    cv.setAttribute('role', 'img');
+    cv.setAttribute('aria-label', 'tile ' + (tiles + 1) + ': ' + (screen.headline || screen.id));
+    try { scene.renderScene(cv.getContext('2d'), tileW * dpr, tileH * dpr, screen, settings, { self: at(i), next: at(i + 1), prev: at(i - 1) }); } catch (e) { setStStatus('preview failed: ' + e.message, 'err'); }
+    const wrap = document.createElement('div');
+    wrap.className = 'tile';
+    wrap.appendChild(cv);
+    const cap = document.createElement('div');
+    cap.className = 'cap';
+    cap.textContent = (span > 1 ? (tiles + 1) + '–' + (tiles + span) : tiles + 1) + ' · ' + screen.id;
+    wrap.appendChild(cap);
+    strip.appendChild(wrap);
+    tiles += span;
+  });
+  $('stStripMeta').textContent = size.label + ' ' + size.w + '×' + size.h + ' · ' + locale + ' · ' + tiles + ' tile' + (tiles === 1 ? '' : 's');
+}
+
+/* save + render */
+async function saveConfig() {
+  const data = await postJson(api('/api/store/save'), { project: S.project, config: cfg() });
+  S.readiness = data.readiness; S.sources = data.sources; S.configError = null; sDirty = false;
+  renderReady(); refreshSources();
+  return data;
+}
+$('stSave').addEventListener('click', async () => {
+  if (!S) return;
+  setStBusy(true);
+  try { const d = await saveConfig(); setStStatus('saved ' + d.path, 'ok'); }
+  catch (e) { setStStatus(e.message, 'err'); }
+  finally { setStBusy(false); }
+});
+$('stLogClear').addEventListener('click', () => { $('stLog').textContent = ''; $('stSteps').innerHTML = ''; });
+$('stRender').addEventListener('click', async () => {
+  if (!S) return;
+  setStBusy(true); setStStatus('');
+  try { await saveConfig(); } catch (e) { setStStatus(e.message, 'err'); setStBusy(false); return; }
+  $('stLogwrap').hidden = false;
+  $('stLog').textContent = ''; $('stSteps').innerHTML = '';
+  const params = { project: S.project, sizes: cfg().sizes.join(','), icons: $('stIcons').checked ? '1' : '0' };
+  let current = null;
+  const es = new EventSource(api('/api/store/render', params));
+  const finish = () => { if (current) setStep(current.name, current.text, 'ok', $('stSteps')); };
+  es.addEventListener('step', (e) => {
+    const d = JSON.parse(e.data);
+    finish(); current = d; setStep(d.name, d.text, 'run', $('stSteps')); logLine('▸ ' + d.text, 'cmd', $('stLog'));
+  });
+  es.addEventListener('log', (e) => {
+    const t = JSON.parse(e.data).text;
+    logLine(t, /^warn /.test(t) ? 'warn' : /^✓/.test(t) ? 'ok' : '', $('stLog'));
+  });
+  es.addEventListener('done', (e) => {
+    const d = JSON.parse(e.data);
+    finish();
+    logLine('✓ ' + d.message, 'ok', $('stLog'));
+    setStStatus(d.message, 'ok'); setStBusy(false); es.close();
+    renderLast(d);
+  });
+  es.addEventListener('error', (e) => {
+    if (!e.data) { logLine('connection lost', 'err', $('stLog')); setStStatus('connection lost', 'err'); }
+    else { const d = JSON.parse(e.data); if (current) setStep(current.name, current.text, 'fail', $('stSteps')); logLine('✗ ' + d.message, 'err', $('stLog')); setStStatus(d.message, 'err'); }
+    setStBusy(false); es.close();
+  });
+});
+function renderLast(d) {
+  $('stLastWrap').hidden = false;
+  $('stLastPath').textContent = d.fastlane;
+  $('stLast').innerHTML = (d.files || []).map((f) => '<li>' + esc(f) + '</li>').join('');
+}
 
 /* ---------------- init ---------------- */
 async function init() {
@@ -665,6 +1327,8 @@ async function init() {
 
 setInterval(() => { fetch(api('/api/ping')).catch(() => {}); }, 5000);
 window.addEventListener('pagehide', () => { navigator.sendBeacon(api('/api/bye')); });
+$('stProject').value = (() => { try { return localStorage.getItem('rnk-last-project') || ''; } catch { return ''; } })();
+showTab((() => { try { return localStorage.getItem('rnk-tab'); } catch { return null; } })() === 'store' ? 'store' : 'new');
 init().catch((e) => { $('meta').className = 'meta err'; $('meta').textContent = 'could not start: ' + e.message; });
 </script>
 </body>

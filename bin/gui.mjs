@@ -4,8 +4,9 @@
 // never hands a page a real filesystem path.
 
 import { createServer } from 'node:http';
-import { readFileSync, existsSync } from 'node:fs';
-import { dirname, join, resolve as pathResolve } from 'node:path';
+import { readFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { dirname, join, relative, resolve as pathResolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
@@ -13,9 +14,19 @@ import { GROUPS, MODULES, PRESETS, DEFAULTS, normalizeChoices, slugify, buildCon
 import { keysFor, resolveAll, pinned, rnRow, rnCeilingForXcode, libraries } from '../src/resolver/index.mjs';
 import { scaffold, validateIdentifiers, dirIsEmpty, planFiles } from '../src/scaffold.mjs';
 import { fetchTemplate } from '../src/native.mjs';
-import { detectAll, defaultOutRoot } from '../src/detect.mjs';
+import { detectAll, defaultOutRoot, detectChrome } from '../src/detect.mjs';
 import { buildPackageJson } from '../src/packagejson.mjs';
 import { hostIsLoopback, tokenMatches } from '../src/guard.mjs';
+import { render as renderTemplate } from '../src/render.mjs';
+import { imageType, projectDir, shotPath, storeModuleName } from '../src/gui-paths.mjs';
+import { CONFIG_REL, capturePath, loadConfig, normalizeConfig, readiness, resolveSource, validateConfig } from '../src/store/config.mjs';
+import { captureAndroid, captureIos, listBooted } from '../src/store/capture.mjs';
+import { planRender, renderAll } from '../src/store/export.mjs';
+import { generateIcons } from '../src/store/icons.mjs';
+import { safePath, writeProjectFile } from '../src/store/fastlane.mjs';
+import { jpegInfo, pngInfo } from '../src/store/png.mjs';
+import { DEVICES, FONTS, FRAME_COLORS, GRADIENT_PRESETS, LAYOUTS, POSITIONS, RHYTHMS, SIZES, SOLID_PRESETS, STORE_LIMITS, TEMPLATES, getSize } from '../src/store/presets.mjs';
+import { sceneSpan } from '../src/store/scene.mjs';
 
 const toolRoot = pathResolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -175,9 +186,9 @@ function openInVsCode(dir) {
   try { spawn(cmd, args, { detached: true, stdio: 'ignore', shell: process.platform === 'win32' }).unref(); return true; } catch { return false; }
 }
 
-const readBody = (req) => new Promise((resolve, reject) => {
+const readBody = (req, limit = 1e6) => new Promise((resolve, reject) => {
   let b = '';
-  req.on('data', (d) => { b += d; if (b.length > 1e6) reject(new Error('body too large')); });
+  req.on('data', (d) => { b += d; if (b.length > limit) reject(new Error('body too large')); });
   req.on('end', () => { try { resolve(b ? JSON.parse(b) : {}); } catch (e) { reject(e); } });
 });
 
@@ -220,6 +231,125 @@ async function create(q, stream) {
   if (q.open === '1') { opened = openInVsCode(outDir); stream.log(opened ? 'opening in VS Code' : 'VS Code not found; open the folder manually'); }
   const next = `cd ${outDir} && ${pm} install && ${pm} run ios`;
   return { dir: outDir, pm, files: written.length, opened, next };
+}
+
+/* ---------------- store assets ---------------- */
+const storeTemplates = join(toolRoot, 'templates', 'store');
+
+// Same as `rn-kickstart-store init`: the config and README come from the templates, existing files are kept.
+function ensureStoreConfig(project) {
+  const cfgPath = join(project, CONFIG_REL);
+  if (existsSync(cfgPath)) return false;
+  const pkgPath = join(project, 'package.json');
+  const pkg = existsSync(pkgPath) ? JSON.parse(readFileSync(pkgPath, 'utf8')) : {};
+  const name = typeof pkg.name === 'string' ? pkg.name.replace(/^@.*\//, '') : 'App';
+  const ctx = { APP_NAME: name, BUNDLE_ID: `com.example.${name.toLowerCase().replace(/[^a-z0-9]/g, '')}` };
+  mkdirSync(join(project, 'store'), { recursive: true });
+  for (const [tmpl, dest] of [['kickstart.store.json.tmpl', CONFIG_REL], ['README.md.tmpl', 'store/README.md']]) {
+    const out = join(project, dest);
+    if (!existsSync(out)) writeFileSync(out, renderTemplate(readFileSync(join(storeTemplates, tmpl), 'utf8'), ctx));
+  }
+  return true;
+}
+
+const rel = (project, abs) => (abs ? relative(project, abs).split('\\').join('/') : null);
+
+function storeSources(project, cfg) {
+  const out = {};
+  for (const s of cfg.screens) {
+    out[s.id] = {};
+    for (const locale of cfg.locales) {
+      out[s.id][locale] = {};
+      for (const platform of ['ios', 'android']) out[s.id][locale][platform] = rel(project, resolveSource(cfg, s, locale, platform, project));
+    }
+  }
+  return out;
+}
+
+let fontFilesCache = null;
+function installedFontFiles() {
+  if (fontFilesCache) return fontFilesCache;
+  const dirs = process.platform === 'darwin' ? ['/Library/Fonts', '/System/Library/Fonts', join(homedir(), 'Library/Fonts')]
+    : process.platform === 'win32' ? [join(process.env.WINDIR ?? 'C:\\Windows', 'Fonts'), join(process.env.LOCALAPPDATA ?? '', 'Microsoft/Windows/Fonts')]
+      : ['/usr/share/fonts', '/usr/local/share/fonts', join(homedir(), '.fonts'), join(homedir(), '.local/share/fonts')];
+  const names = [];
+  for (const d of dirs) { try { names.push(...readdirSync(d, { recursive: true }).map((f) => String(f).split(/[\\/]/).pop().toLowerCase())); } catch {} }
+  return (fontFilesCache = names);
+}
+const fontInstalled = (family) => !family || installedFontFiles().some((f) => f.startsWith(family.toLowerCase().replace(/\s+/g, '')) || f.startsWith(family.toLowerCase()));
+
+function storeOptions() {
+  return {
+    devices: DEVICES, sizes: SIZES, layouts: LAYOUTS, positions: POSITIONS, rhythms: RHYTHMS, frameColors: FRAME_COLORS, limits: STORE_LIMITS,
+    templates: TEMPLATES.map(({ id, label, description, rhythm }) => ({ id, label, description, rhythm: rhythm ?? null })),
+    backgrounds: { gradients: GRADIENT_PRESETS, solids: SOLID_PRESETS },
+    fonts: FONTS.map((f) => ({ id: f.id, label: f.label, family: f.family, available: fontInstalled(f.family) })),
+  };
+}
+
+function storeState(project, cfg) {
+  return {
+    project, config: cfg, configPath: CONFIG_REL,
+    readiness: readiness(cfg, project),
+    devices: listBooted(),
+    sources: storeSources(project, cfg),
+    options: storeOptions(),
+    chrome: detectChrome(),
+    hasIcon: existsSync(join(project, cfg.icon)),
+    fastlane: join(project, 'fastlane'),
+  };
+}
+
+function configFromBody(body) {
+  const errors = validateConfig(body.config);
+  if (errors.length) throw new Error(errors.join('\n'));
+  return normalizeConfig(body.config);
+}
+
+function shotSlot(body) {
+  const screen = String(body.screen ?? ''), locale = String(body.locale ?? '');
+  if (!/^[a-z0-9][a-z0-9-]{0,39}$/.test(screen)) throw new Error('screen id must be lowercase letters, digits and dashes');
+  if (!/^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(locale)) throw new Error('locale must look like en-US or de-DE');
+  return { screen, locale, platform: body.platform === 'android' ? 'android' : 'ios' };
+}
+
+function imageDims(buf) {
+  if (buf[0] === 0x89 && buf[1] === 0x50) return { ...pngInfo(buf), format: 'png' };
+  if (buf[0] === 0xff && buf[1] === 0xd8) return { ...jpegInfo(buf), format: 'jpeg' };
+  throw new Error('the file is not a PNG or JPEG');
+}
+
+async function storeRender(q, stream) {
+  const project = projectDir(q.project);
+  const cfg = loadConfig(project);
+  const locales = q.locales ? q.locales.split(',').filter(Boolean) : undefined;
+  const sizes = q.sizes ? q.sizes.split(',').filter(Boolean) : undefined;
+  for (const l of locales ?? []) if (!cfg.locales.includes(l)) throw new Error(`locale "${l}" is not in the config`);
+  for (const s of sizes ?? []) if (!getSize(s)) throw new Error(`unknown size "${s}"`);
+  const chromePath = detectChrome();
+  if (!chromePath) throw new Error('No Chrome, Chromium or Edge found. Install Google Chrome (or set CHROME_PATH) and render again.');
+
+  stream.step('check', 'checking shots and copy');
+  const ready = readiness(cfg, project, { locales, sizes });
+  for (const r of ready.rows) stream.log(`${r.locale} ${r.sizeId}: ${r.canExport ? 'ready' : `${r.missingShots} shot${r.missingShots === 1 ? '' : 's'} missing`}${r.missingCopy ? `, ${r.missingCopy} without headline` : ''}`);
+  for (const w of ready.warnings) stream.log(`warn ${w}`);
+  const plan = planRender(project, cfg, { locales, sizes });
+  for (const w of plan.warnings) stream.log(`warn ${w}`);
+  if (!plan.jobs.some((j) => j.type === 'scene')) throw new Error('Nothing to render yet: every screen needs a screenshot for at least one locale and size. Capture or replace the missing ones first.');
+
+  const tiles = plan.jobs.reduce((n, j) => n + (j.type === 'scene' ? sceneSpan(j.screen, j.settings) : 1), 0);
+  stream.step('render', `rendering ${tiles} tile${tiles === 1 ? '' : 's'} in headless Chrome`);
+  let n = 0;
+  const { written, warnings } = await renderAll(project, cfg, { locales, sizes, chromePath, log: (s) => stream.log(/^warning: /.test(s) ? `warn ${s.slice(9)}` : `${/\.(png|jpg)\s/.test(s) ? `[${++n}/${tiles}] ` : ''}${s}`) });
+  const files = written.map((f) => rel(project, f));
+
+  if (q.icons === '1') {
+    stream.step('icons', `generating icons from ${cfg.icon}`);
+    const icons = await generateIcons(project, cfg, { chromePath, log: (s) => stream.log(`warn ${s}`) });
+    for (const f of icons.written) { files.push(rel(project, f)); stream.log(rel(project, f)); }
+  }
+  stream.log(`✓ ${files.length} files written under ${project}`);
+  return { project, files, fastlane: join(project, 'fastlane'), warnings };
 }
 
 const server = createServer(async (req, res) => {
@@ -306,6 +436,103 @@ const server = createServer(async (req, res) => {
         job = null; lastSeen = Date.now();
       }
       return undefined;
+    }
+
+    if (url.pathname.startsWith('/store/')) {
+      const name = storeModuleName(url.pathname);
+      if (!name) return text(404, 'not found');
+      res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache' });
+      return res.end(readFileSync(join(toolRoot, 'src', 'store', `${name}.mjs`)));
+    }
+
+    if (url.pathname.startsWith('/api/store/')) {
+      const fail = (e) => json(400, { error: e.message });
+      if (url.pathname === '/api/store/open') {
+        let project;
+        try { project = projectDir(url.searchParams.get('project')); } catch (e) { return fail(e); }
+        if (!existsSync(project)) return json(404, { error: `${project} does not exist` });
+        try {
+          const created = ensureStoreConfig(project);
+          return json(200, { ...storeState(project, loadConfig(project)), created });
+        } catch (e) { return fail(e); }
+      }
+
+      if (url.pathname === '/api/store/shot') {
+        let file;
+        try { file = shotPath(url.searchParams.get('project'), url.searchParams.get('path')); } catch (e) { return fail(e); }
+        if (!existsSync(file)) return text(404, 'not found');
+        res.writeHead(200, { 'Content-Type': imageType(file), 'Cache-Control': 'no-cache' });
+        return res.end(readFileSync(file));
+      }
+
+      if (url.pathname === '/api/store/check' && req.method === 'POST') {
+        const body = await readBody(req);
+        try {
+          const project = projectDir(body.project);
+          const cfg = configFromBody(body);
+          return json(200, { readiness: readiness(cfg, project), sources: storeSources(project, cfg) });
+        } catch (e) { return fail(e); }
+      }
+
+      if (url.pathname === '/api/store/save' && req.method === 'POST') {
+        const body = await readBody(req);
+        try {
+          const project = projectDir(body.project);
+          const cfg = configFromBody(body);
+          const first = ['app', 'bundleId', 'locales', 'template', 'rhythm', 'device', 'androidDevice', 'devices', 'sizes', 'format', 'background', 'settings', 'icon', 'iconBackground', 'listing', 'feature', 'screens'];
+          const out = {};
+          for (const k of first) if (body.config[k] !== undefined && body.config[k] !== null) out[k] = body.config[k];
+          for (const k of Object.keys(body.config)) if (!(k in out) && body.config[k] !== undefined && body.config[k] !== null) out[k] = body.config[k];
+          writeProjectFile(project, CONFIG_REL, `${JSON.stringify(out, null, 2)}\n`);
+          return json(200, { ok: true, path: CONFIG_REL, readiness: readiness(cfg, project), sources: storeSources(project, cfg) });
+        } catch (e) { return fail(e); }
+      }
+
+      if (url.pathname === '/api/store/capture' && req.method === 'POST') {
+        const body = await readBody(req);
+        try {
+          const project = projectDir(body.project);
+          const { screen, locale, platform } = shotSlot(body);
+          const relPath = capturePath(locale, screen, platform);
+          const out = safePath(project, relPath);
+          if (platform === 'ios') captureIos({ udid: body.udid || 'booted', out });
+          else captureAndroid({ serial: body.serial || undefined, out });
+          const { width, height } = imageDims(readFileSync(out));
+          return json(200, { ok: true, path: relPath, width, height });
+        } catch (e) { return fail(e); }
+      }
+
+      if (url.pathname === '/api/store/upload' && req.method === 'POST') {
+        const body = await readBody(req, 48e6);
+        try {
+          const project = projectDir(body.project);
+          const { screen, locale, platform } = shotSlot(body);
+          const m = /^data:image\/(png|jpeg);base64,(.+)$/s.exec(String(body.dataUrl ?? ''));
+          if (!m) throw new Error('upload a PNG or JPEG');
+          const buf = Buffer.from(m[2], 'base64');
+          const info = imageDims(buf);
+          const relPath = capturePath(locale, screen, platform).replace(/\.png$/, info.format === 'jpeg' ? '.jpg' : '.png');
+          writeProjectFile(project, relPath, buf);
+          return json(200, { ok: true, path: relPath, width: info.width, height: info.height, format: info.format });
+        } catch (e) { return fail(e); }
+      }
+
+      if (url.pathname === '/api/store/render') {
+        if (job) return json(409, { error: 'another job is already running' });
+        const q = Object.fromEntries(url.searchParams);
+        const stream = sse(res);
+        job = { startedAt: Date.now() };
+        try {
+          const result = await storeRender(q, stream);
+          stream.done(`${result.files.length} files written to ${result.fastlane}`, result);
+        } catch (e) {
+          stream.error(e.message);
+        } finally {
+          job = null; lastSeen = Date.now();
+        }
+        return undefined;
+      }
+      return text(404, 'not found');
     }
 
     return text(404, 'not found');
