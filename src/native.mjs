@@ -4,7 +4,7 @@
 import { execFileSync } from 'node:child_process';
 import { createWriteStream, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync, cpSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
+import { join, dirname, basename } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { Readable } from 'node:stream';
 import { manifest } from './resolver/npm.mjs';
@@ -41,7 +41,7 @@ function readTemplate(dir) {
 // into outDir with every placeholder replaced.
 export function copyNative(tpl, outDir, { name, displayName, bundleId }) {
   const lower = tpl.placeholderName.toLowerCase();
-  const androidPkgPath = bundleId.split('.').join('/');
+  const androidPkgPath = join(...bundleId.split('.'));
   const copies = ['ios', 'android', 'Gemfile', '_bundle', '_watchmanconfig'];
   for (const entry of copies) {
     const src = join(tpl.templateDir, entry);
@@ -53,7 +53,7 @@ export function copyNative(tpl, outDir, { name, displayName, bundleId }) {
   // Rename paths containing the placeholder, deepest first.
   const all = walk(outDir).sort((a, b) => b.length - a.length);
   for (const p of all) {
-    const base = p.slice(p.lastIndexOf('/') + 1);
+    const base = basename(p);
     if (base.includes(tpl.placeholderName)) renameSync(p, join(dirname(p), base.replaceAll(tpl.placeholderName, name)));
   }
   // Move the Android package directory to the bundle id's path.

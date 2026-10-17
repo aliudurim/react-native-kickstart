@@ -37,7 +37,9 @@ const files = (dir, out = []) => { for (const e of readdirSync(dir)) { const p =
 
 // 1. Standard preset: scaffold + install + tsc + eslint + jest (+ native when asked).
 const stdDir = join(outRoot, 'e2eapp');
+const fresh = (dir) => { for (const e of existsSync(dir) ? readdirSync(dir) : []) if (e !== 'node_modules') rmSync(join(dir, e), { recursive: true, force: true }); };
 await step('scaffold:standard', async () => {
+  fresh(stdDir);
   const out = await kickstart(['--name=E2EApp', '--package=com.durim.e2eapp', `--out=${stdDir}`, ...(build ? [has('native') ? '--build=native' : '--build'] : [])]);
   assert(/wrote \d+ files/.test(out), 'no files written');
   for (const f of ['package.json', 'App.tsx', 'CLAUDE.md', 'ios/E2EApp.xcodeproj/project.pbxproj', 'android/app/build.gradle', 'src/store/store.ts', 'src/screens/login/LoginScreen.tsx', '.github/workflows/ci.yml', 'store/kickstart.store.json'])
@@ -52,6 +54,7 @@ await step('scaffold:standard', async () => {
 // 2. Expo preset: scaffold + verify.
 const expoDir = join(outRoot, 'e2eexpo');
 await step('expo:scaffold', async () => {
+  fresh(expoDir);
   const out = await kickstart(['--preset=expo', '--name=E2EExpo', '--package=com.durim.e2eexpo', `--out=${expoDir}`, ...(build ? ['--build'] : [])]);
   assert(existsSync(join(expoDir, 'app.config.ts')) && existsSync(join(expoDir, 'app/_layout.tsx')), 'expo files missing');
   assert(!existsSync(join(expoDir, 'ios')), 'expo must not have ios/');
