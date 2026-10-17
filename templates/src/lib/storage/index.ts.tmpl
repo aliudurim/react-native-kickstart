@@ -47,12 +47,13 @@ function wrap(namespace: string): KeyValueStorage & { hydrate(): Promise<void> }
     clearAll: () => {
       const keys = [...cache.keys()].map((k) => prefix + k)
       cache.clear()
-      void AsyncStorage.removeMany(keys)
+      void Promise.all(keys.map((k) => AsyncStorage.removeItem(k)))
     },
     hydrate: async () => {
       const keys = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith(prefix))
-      for (const [k, v] of Object.entries(await AsyncStorage.getMany(keys))) {
-        if (v !== null) cache.set(k.slice(prefix.length), v)
+      for (const k of keys) {
+        const v = await AsyncStorage.getItem(k)
+        if (typeof v === 'string') cache.set(k.slice(prefix.length), v)
       }
     },
   }

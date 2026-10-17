@@ -23,7 +23,8 @@ export async function fetchTemplate(rnVersion) {
   const res = await fetch(m.dist.tarball);
   if (!res.ok) throw new Error(`${res.status} downloading ${m.dist.tarball}`);
   await pipeline(Readable.fromWeb(res.body), createWriteStream(tgz));
-  execFileSync('tar', ['-xzf', tgz, '-C', dir], { stdio: 'ignore' });
+  // Relative paths only: Windows bsdtar reads a "C:" prefix as a remote host.
+  execFileSync('tar', ['-xzf', 'template.tgz'], { cwd: dir, stdio: 'ignore' });
   rmSync(tgz, { force: true });
   return readTemplate(dir);
 }

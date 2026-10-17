@@ -77,13 +77,14 @@
     "expoStatusBar":   { "pkg": "expo-status-bar", "native": true, "tag": "expo" },
     "expoLinking":     { "pkg": "expo-linking", "native": true, "tag": "expo" },
     "expoConstants":   { "pkg": "expo-constants", "native": true, "tag": "expo" },
+    "expoSplash":      { "pkg": "expo-splash-screen", "native": true, "tag": "expo" },
     "babelPresetExpo": { "pkg": "babel-preset-expo", "dev": true, "tag": "expo" },
     "reactDom":        { "pkg": "react-dom", "native": true, "tag": "expo", "note": "expo-router's web deps peer on react-dom; it must match the SDK's react pin exactly" }
   },
   "profiles": {
-    "base": ["rn", "react", "typesReact", "rnBabelPreset", "rnMetroConfig", "rnEslintConfig", "rnTsConfig", "rnJestPreset", "typesJest", "typescript", "jest", "rntl", "testRenderer", "eslint", "prettier", "babelCore", "babelRuntime", "babelPresetEnv", "safeArea", "reanimated", "worklets", "gestureHandler", "dateFns", "esToolkit", "svg", "bootsplash", "keyboard"],
-    "bare": ["rnCli", "rnCliAndroid", "rnCliIos", "rnConfig"],
-    "expo": ["expo", "expoStatusBar", "expoLinking", "expoConstants", "babelPresetExpo", "reactDom"],
+    "base": ["rn", "react", "typesReact", "rnBabelPreset", "rnMetroConfig", "rnEslintConfig", "rnTsConfig", "rnJestPreset", "typesJest", "typescript", "jest", "rntl", "testRenderer", "eslint", "prettier", "babelCore", "babelRuntime", "babelPresetEnv", "safeArea", "reanimated", "worklets", "gestureHandler", "dateFns", "esToolkit", "svg", "keyboard"],
+    "bare": ["rnCli", "rnCliAndroid", "rnCliIos", "rnConfig", "bootsplash"],
+    "expo": ["expo", "expoStatusBar", "expoLinking", "expoConstants", "expoSplash", "babelPresetExpo", "reactDom"],
     "nav": {
       "react-navigation": ["navNative", "navStack", "navTabs", "screens"],
       "expo-router": ["expoRouter", "screens"]

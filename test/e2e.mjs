@@ -58,6 +58,27 @@ await step('expo:scaffold', async () => {
   if (build) assert(/✓ build passed/.test(out), 'expo build gate did not pass');
 });
 
+// 2b. Expo prebuild must succeed from the generated config (needs node_modules).
+await step('expo:prebuild', async () => {
+  if (!build) return;
+  rmSync(join(expoDir, 'ios'), { recursive: true, force: true });
+  const out = await run('npx', ['expo', 'prebuild', '--platform', 'ios', '--no-install'], expoDir, { CI: '1' });
+  assert(/Finished prebuild/.test(out) && existsSync(join(expoDir, 'ios/Podfile')), `prebuild failed\n${out.slice(-600)}`);
+});
+
+// 2c. Simulator / emulator capture, only for devices that are already booted.
+await step('store:capture', async () => {
+  const { listBooted, captureIos, captureAndroid } = await import(join(root, 'src/store/capture.mjs'));
+  const { pngInfo } = await import(join(root, 'src/store/png.mjs'));
+  const booted = await listBooted();
+  const dir = join(stdDir, 'store/shots/captured');
+  mkdirSync(dir, { recursive: true });
+  let n = 0;
+  if (booted.ios?.length) { const out = join(dir, 'ios.png'); await captureIos({ udid: booted.ios[0].udid, out }); const i = pngInfo(readFileSync(out)); assert(i.width > 500 && i.height > i.width, 'ios capture shape'); n++; }
+  if (booted.android?.length) { const out = join(dir, 'android.png'); await captureAndroid({ serial: booted.android[0].serial, out }); const i = pngInfo(readFileSync(out)); assert(i.width > 500 && i.height > i.width, 'android capture shape'); n++; }
+  console.log(`  captured from ${n} booted device(s)${n ? '' : ' (none booted; skipped)'}`);
+});
+
 // 3. GUI server: init → preview → create, all over HTTP with the token.
 await step('gui:api', async () => {
   const gui = spawn('node', [join(root, 'bin/gui.mjs'), '--no-open', '--port=0', '--keep-alive'], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
