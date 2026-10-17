@@ -12,7 +12,11 @@
   "scripts": {
     "test": "node --test 'test/*.test.mjs' && node tools/audit_templates.mjs",
     "pin": "node tools/pin_versions.mjs",
-    "matrix": "node test/matrix.mjs"
+    "e2e": "node test/e2e.mjs",
+    "matrix": "node test/matrix.mjs",
+    "matrix:quick": "node test/matrix.mjs --quick",
+    "logos": "node tools/fetch_logos.mjs",
+    "fonts": "node tools/fetch_fonts.mjs"
   },
   "engines": {
     "node": ">=22"

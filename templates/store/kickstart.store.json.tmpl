@@ -2,24 +2,37 @@
   "app": "{{APP_NAME}}",
   "bundleId": "{{BUNDLE_ID}}",
   "locales": ["en-US"],
-  "template": "classic",
+  "template": "editorial",
   "rhythm": "editorial",
   "device": "iphone-17-pro",
-  "sizes": ["iphone-6-9", "iphone-6-3", "ipad-13", "android-phone", "android-tablet"],
+  "androidDevice": "pixel-9-pro",
+  "sizes": ["iphone-6-9", "ipad-13", "android-phone", "android-tablet", "feature-graphic", "play-icon"],
   "format": "jpeg",
   "background": { "kind": "gradient", "from": "#0d6e6e", "to": "#2a9d8f", "angle": 135 },
+  "settings": { "textColor": "#ffffff", "highlights": ["#ffd166"] },
   "icon": "store/icon.png",
+  "listing": {
+    "en-US": {
+      "name": "{{APP_NAME}}",
+      "subtitle": "Your day at a glance",
+      "description": "Describe what {{APP_NAME}} does in a few paragraphs.",
+      "keywords": ["productivity", "tasks"],
+      "short_description": "Your day at a glance",
+      "full_description": "Describe what {{APP_NAME}} does in a few paragraphs."
+    }
+  },
+  "feature": {
+    "en-US": { "headline": "{{APP_NAME}}", "subhead": "Your day at a glance" }
+  },
   "screens": [
     {
       "id": "login",
-      "source": "store/shots/en-US/01-login.png",
       "copy": {
         "en-US": { "headline": "Sign in in *seconds*", "subhead": "" }
       }
     },
     {
       "id": "home",
-      "source": "store/shots/en-US/02-home.png",
       "copy": {
         "en-US": { "headline": "Everything you need, *in one place*", "subhead": "Your day at a glance." }
       }

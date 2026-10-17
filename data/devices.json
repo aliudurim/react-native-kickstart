@@ -1,0 +1,323 @@
+{
+  "devices": [
+    {
+      "id": "iphone-17-pro",
+      "label": "iPhone 17 Pro",
+      "group": "iPhone",
+      "screenAspect": 0.46025,
+      "bezel": 0.03,
+      "radius": 0.15,
+      "notch": "island"
+    },
+    {
+      "id": "iphone-17",
+      "label": "iPhone 17",
+      "group": "iPhone",
+      "screenAspect": 0.45995,
+      "bezel": 0.032,
+      "radius": 0.15,
+      "notch": "island"
+    },
+    {
+      "id": "iphone-se",
+      "label": "iPhone SE",
+      "group": "iPhone",
+      "screenAspect": 0.56222,
+      "bezel": 0.045,
+      "radius": 0.095,
+      "notch": "none"
+    },
+    {
+      "id": "ipad-13",
+      "label": "iPad Pro 13\"",
+      "group": "iPad",
+      "screenAspect": 0.75,
+      "bezel": 0.026,
+      "radius": 0.055,
+      "notch": "none"
+    },
+    {
+      "id": "pixel-9-pro",
+      "label": "Pixel 9 Pro",
+      "group": "Android",
+      "screenAspect": 0.44818,
+      "bezel": 0.026,
+      "radius": 0.085,
+      "notch": "punch"
+    },
+    {
+      "id": "pixel-9-pro-xl",
+      "label": "Pixel 9 Pro XL",
+      "group": "Android",
+      "screenAspect": 0.4492,
+      "bezel": 0.025,
+      "radius": 0.085,
+      "notch": "punch"
+    },
+    {
+      "id": "pixel-8a",
+      "label": "Pixel 8a",
+      "group": "Android",
+      "screenAspect": 0.45,
+      "bezel": 0.04,
+      "radius": 0.075,
+      "notch": "punch"
+    },
+    {
+      "id": "galaxy-s25-ultra",
+      "label": "Galaxy S25 Ultra",
+      "group": "Android",
+      "screenAspect": 0.46154,
+      "bezel": 0.022,
+      "radius": 0.045,
+      "notch": "punch"
+    },
+    {
+      "id": "galaxy-s25",
+      "label": "Galaxy S25",
+      "group": "Android",
+      "screenAspect": 0.46154,
+      "bezel": 0.026,
+      "radius": 0.09,
+      "notch": "punch"
+    },
+    {
+      "id": "galaxy-a56",
+      "label": "Galaxy A56",
+      "group": "Android",
+      "screenAspect": 0.46154,
+      "bezel": 0.038,
+      "radius": 0.08,
+      "notch": "punch"
+    },
+    {
+      "id": "android-tablet",
+      "label": "Android tablet",
+      "group": "Android",
+      "screenAspect": 0.625,
+      "bezel": 0.03,
+      "radius": 0.05,
+      "notch": "none"
+    },
+    {
+      "id": "none",
+      "label": "No frame",
+      "group": "Other",
+      "screenAspect": 0.46025,
+      "bezel": 0,
+      "radius": 0.045,
+      "notch": "none"
+    }
+  ],
+  "frameColors": [
+    {
+      "id": "deep-blue",
+      "label": "Deep Blue",
+      "body": "#28344a",
+      "edge": "#5b6b88"
+    },
+    {
+      "id": "black",
+      "label": "Black",
+      "body": "#1c1c1e",
+      "edge": "#4a4a4e"
+    },
+    {
+      "id": "silver",
+      "label": "Silver",
+      "body": "#c9ccd2",
+      "edge": "#f2f3f5"
+    },
+    {
+      "id": "gold",
+      "label": "Desert Gold",
+      "body": "#bda182",
+      "edge": "#e8d6be"
+    },
+    {
+      "id": "porcelain",
+      "label": "Porcelain",
+      "body": "#e8e4dc",
+      "edge": "#fbf9f5"
+    },
+    {
+      "id": "mint",
+      "label": "Mint",
+      "body": "#9fb8a8",
+      "edge": "#cfe0d5"
+    }
+  ],
+  "sizes": [
+    {
+      "id": "iphone-6-9",
+      "label": "iPhone 6.9\"",
+      "store": "App Store",
+      "platform": "ios",
+      "w": 1320,
+      "h": 2868,
+      "kind": "screenshot",
+      "device": "iphone-17-pro"
+    },
+    {
+      "id": "iphone-6-3",
+      "label": "iPhone 6.3\"",
+      "store": "App Store",
+      "platform": "ios",
+      "w": 1206,
+      "h": 2622,
+      "kind": "screenshot",
+      "device": "iphone-17"
+    },
+    {
+      "id": "iphone-6-5",
+      "label": "iPhone 6.5\"",
+      "store": "App Store",
+      "platform": "ios",
+      "w": 1242,
+      "h": 2688,
+      "kind": "screenshot",
+      "device": "iphone-17-pro"
+    },
+    {
+      "id": "ipad-13",
+      "label": "iPad 13\"",
+      "store": "App Store",
+      "platform": "ios",
+      "w": 2064,
+      "h": 2752,
+      "kind": "screenshot",
+      "device": "ipad-13"
+    },
+    {
+      "id": "android-phone",
+      "label": "Android phone",
+      "store": "Google Play",
+      "platform": "android",
+      "w": 1080,
+      "h": 1920,
+      "kind": "screenshot",
+      "device": "pixel-9-pro"
+    },
+    {
+      "id": "android-phone-tall",
+      "label": "Android phone (tall)",
+      "store": "Google Play",
+      "platform": "android",
+      "w": 1080,
+      "h": 2400,
+      "kind": "screenshot",
+      "device": "pixel-9-pro"
+    },
+    {
+      "id": "android-tablet",
+      "label": "Android tablet",
+      "store": "Google Play",
+      "platform": "android",
+      "w": 1600,
+      "h": 2560,
+      "kind": "screenshot",
+      "device": "android-tablet"
+    },
+    {
+      "id": "feature-graphic",
+      "label": "Play feature graphic",
+      "store": "Google Play",
+      "platform": "android",
+      "w": 1024,
+      "h": 500,
+      "kind": "feature"
+    },
+    {
+      "id": "play-icon",
+      "label": "Play icon",
+      "store": "Google Play",
+      "platform": "android",
+      "w": 512,
+      "h": 512,
+      "kind": "icon"
+    }
+  ],
+  "storeLimits": {
+    "App Store": {
+      "min": 1,
+      "max": 10
+    },
+    "Google Play": {
+      "min": 2,
+      "max": 8
+    }
+  },
+  "layouts": [
+    "text-top",
+    "text-bottom",
+    "bleed",
+    "editorial",
+    "hero",
+    "duo",
+    "panorama",
+    "panorama-duo",
+    "centered"
+  ],
+  "positions": [
+    "center",
+    "tilted",
+    "offset",
+    "right",
+    "lean",
+    "corner",
+    "wings",
+    "duo",
+    "duo-tilt",
+    "pair",
+    "trio"
+  ],
+  "rhythms": [
+    {
+      "id": "uniform",
+      "label": "Uniform",
+      "description": "Every tile in the same layout and arrangement."
+    },
+    {
+      "id": "editorial",
+      "label": "Editorial",
+      "description": "A panorama opener, then a hero, an offset, a breather and a tilt."
+    },
+    {
+      "id": "showcase",
+      "label": "Showcase",
+      "description": "Hero first, then tilted and paired screens, ending on a breather."
+    },
+    {
+      "id": "magazine",
+      "label": "Magazine",
+      "description": "Left-aligned copy and copy-below tiles alternating with big devices."
+    },
+    {
+      "id": "storyboard",
+      "label": "Storyboard",
+      "description": "A two-screen panorama, then a copy-below, a hero and a breather."
+    },
+    {
+      "id": "dynamic",
+      "label": "Dynamic",
+      "description": "Everything tilted: a tilt, a tilted pair, a panorama, a breather."
+    }
+  ],
+  "templates": [
+    {
+      "id": "classic",
+      "label": "Classic",
+      "description": "Centred headline over a framed device on a soft solid background. Clean, quick, safe."
+    },
+    {
+      "id": "notebook",
+      "label": "Notebook",
+      "description": "Warm paper tones, a big left-aligned headline with marker highlights, and a phone that runs off the bottom."
+    },
+    {
+      "id": "editorial",
+      "label": "Editorial",
+      "description": "A two-tile panorama opener, then a hero, an offset, a device-only breather and a tilt. Cool gradient, deep-blue frame."
+    }
+  ]
+}

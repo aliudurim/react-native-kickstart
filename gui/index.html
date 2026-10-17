@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>react-native-kickstart</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='2.4' fill='%2318a5d6'/%3E%3Cg fill='none' stroke='%2318a5d6' stroke-width='1.4'%3E%3Cellipse cx='12' cy='12' rx='10' ry='4'/%3E%3Cellipse cx='12' cy='12' rx='10' ry='4' transform='rotate(60 12 12)'/%3E%3Cellipse cx='12' cy='12' rx='10' ry='4' transform='rotate(120 12 12)'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #f1f3f5;
+    --text: #1c1f23;
+    --text-2: #585f69;
+    --text-3: #8b929b;
+    --line: #e2e5e9;
+    --line-2: #cfd4da;
+    --accent: #0b66c3;
+    --accent-hover: #0a56a5;
+    --accent-ink: #ffffff;
+    --accent-soft: #e3effc;
+    --accent-soft-ink: #0a3d75;
+    --ok: #15803d;
+    --ok-soft: #e6f5ec;
+    --warn: #9a5b00;
+    --warn-soft: #fff4dd;
+    --err: #c2271d;
+    --err-soft: #fde8e6;
+    --pin: #0a3d75;
+    --shadow: 0 6px 20px rgba(20, 24, 30, .12), 0 1px 3px rgba(20, 24, 30, .12);
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, Inter, sans-serif;
+    --mono: ui-monospace, 'SF Mono', Menlo, 'Cascadia Mono', Consolas, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111316; --surface: #191c21; --surface-2: #22262c; --text: #e6e8eb; --text-2: #a4abb4; --text-3: #717983;
+      --line: #2c3139; --line-2: #3b414a; --accent: #7cb8f5; --accent-hover: #9ccafb; --accent-ink: #0b2a4d;
+      --accent-soft: #1b3350; --accent-soft-ink: #cfe3fb; --ok: #5fd08a; --ok-soft: #12291b; --warn: #f1c266; --warn-soft: #2e2410;
+      --err: #f28b84; --err-soft: #3a1917; --pin: #cfe3fb; --shadow: 0 8px 24px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.6);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111316; --surface: #191c21; --surface-2: #22262c; --text: #e6e8eb; --text-2: #a4abb4; --text-3: #717983;
+    --line: #2c3139; --line-2: #3b414a; --accent: #7cb8f5; --accent-hover: #9ccafb; --accent-ink: #0b2a4d;
+    --accent-soft: #1b3350; --accent-soft-ink: #cfe3fb; --ok: #5fd08a; --ok-soft: #12291b; --warn: #f1c266; --warn-soft: #2e2410;
+    --err: #f28b84; --err-soft: #3a1917; --pin: #cfe3fb; --shadow: 0 8px 24px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 14px/20px var(--sans); -webkit-font-smoothing: antialiased; }
+  button, input, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  button:disabled { cursor: not-allowed; opacity: .5; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  ::selection { background: var(--accent-soft); color: var(--accent-soft-ink); }
+
+  /* header + tabs */
+  .hdr { display: flex; align-items: center; gap: 20px; height: 52px; padding: 0 24px; background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
+  .brand { display: flex; align-items: center; gap: 9px; font: 600 15px/20px var(--sans); }
+  .brand svg { width: 22px; height: 22px; }
+  .tabs { display: flex; gap: 4px; height: 100%; }
+  .tab { display: inline-flex; align-items: center; padding: 0 12px; border: 0; background: none; color: var(--text-2); border-bottom: 2px solid transparent; font-weight: 500; }
+  .tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+  .tab:disabled { opacity: .45; }
+  .spacer { flex: 1; }
+  .seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .seg button { border: 0; background: none; padding: 0 11px; height: 30px; color: var(--text-2); font-weight: 500; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button:hover:not([aria-pressed="true"]) { background: var(--surface-2); }
+  .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-soft-ink); }
+  .seg.theme button { height: 28px; padding: 0 9px; font-size: 13px; }
+
+  /* layout */
+  .main { display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 20px; padding: 20px 24px 40px; max-width: 1480px; margin: 0 auto; }
+  .col { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .card h2 { margin: 0 0 12px; font: 600 12px/16px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); display: flex; align-items: center; gap: 10px; }
+  .card h2 .sub { font: 400 12px/16px var(--sans); letter-spacing: 0; text-transform: none; color: var(--text-3); }
+  .card h2 .right { margin-left: auto; display: inline-flex; align-items: center; gap: 10px; font: 400 12px/16px var(--sans); letter-spacing: 0; text-transform: none; }
+
+  /* presets */
+  .presets { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+  .preset { text-align: left; border: 1px solid var(--line-2); border-radius: 10px; padding: 12px 14px; background: var(--surface); color: inherit; min-width: 0; }
+  .preset:hover { border-color: var(--text-3); }
+  .preset[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+  .preset .t { display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 4px; }
+  .preset .t .tick { margin-left: auto; color: var(--accent); display: none; }
+  .preset[aria-pressed="true"] .t .tick { display: inline; }
+  .preset p { margin: 0; color: var(--text-2); font-size: 13px; line-height: 18px; }
+  .preset.custom { border-style: dashed; }
+
+  /* fields */
+  .fields { display: grid; grid-template-columns: 1fr 1.2fr; gap: 12px 14px; }
+  .field label { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 500; color: var(--text-2); }
+  .field input, .field select { width: 100%; height: 36px; padding: 0 10px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--surface); }
+  .field input.mono { font-family: var(--mono); font-size: 13px; }
+  .field .hint { font-size: 12px; color: var(--err); margin-top: 4px; min-height: 16px; }
+  .field.wide { grid-column: 1 / -1; }
+  .dest { display: flex; align-items: center; height: 36px; border: 1px solid var(--line-2); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .dest .path { flex: 1; min-width: 0; padding: 0 10px; font: 400 13px/20px var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dest .path.empty { color: var(--text-3); font-family: var(--sans); }
+  .dest button { border: 0; border-left: 1px solid var(--line); background: none; height: 100%; padding: 0 12px; color: var(--accent); font-weight: 500; }
+  .dest button:hover { background: var(--surface-2); }
+
+  /* stack */
+  .stack { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px 20px; }
+  .row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .row .lbl { width: 86px; flex: none; font-size: 13px; color: var(--text-2); }
+  .row .seg { flex: none; max-width: 100%; }
+  .row .seg button.hidden { display: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 11px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--surface); color: var(--text-2); font-weight: 500; }
+  .chip:hover { border-color: var(--text-3); }
+  .chip[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-soft-ink); border-color: var(--accent); }
+  .chip .plus { font-weight: 600; opacity: .7; }
+  .chip[aria-pressed="true"] .plus::before { content: '✓'; }
+  .chip[aria-pressed="false"] .plus::before { content: '+'; }
+  .toggles { display: flex; flex-wrap: wrap; gap: 10px 24px; }
+  .switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+  .switch input { appearance: none; width: 34px; height: 20px; border-radius: 999px; background: var(--line-2); position: relative; margin: 0; transition: background .15s; cursor: pointer; }
+  .switch input::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 999px; background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+  .switch input:checked { background: var(--accent); }
+  .switch input:checked::after { transform: translateX(14px); }
+  .switch .d { color: var(--text-3); font-size: 12px; }
+
+  /* env */
+  .env { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 5px 12px; font-size: 13px; }
+  .env .k { color: var(--text-2); display: flex; align-items: center; gap: 7px; }
+  .env .mark { width: 15px; height: 15px; flex: none; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+  .env .ok .mark { background: var(--ok-soft); color: var(--ok); }
+  .env .warn .mark { background: var(--warn-soft); color: var(--warn); }
+  .env .v { font-family: var(--mono); font-size: 12px; overflow-wrap: anywhere; }
+  .env .v .d { color: var(--text-3); font-family: var(--sans); font-size: 12px; }
+  .env .warn .v { color: var(--warn); }
+
+  /* resolved */
+  .meta { font: 400 12px/18px var(--mono); color: var(--text-2); margin-bottom: 10px; min-height: 18px; overflow-wrap: anywhere; white-space: pre-line; }
+  .meta.err { color: var(--err); font-family: var(--sans); }
+  pre.pkg { margin: 0; max-height: 420px; overflow: auto; padding: 12px 14px; border-radius: 8px; background: var(--surface-2); font: 400 12px/18px var(--mono); color: var(--text-2); white-space: pre; }
+  pre.pkg .key { color: var(--text); }
+  pre.pkg .pin { color: var(--pin); font-weight: 600; background: var(--accent-soft); border-radius: 3px; padding: 0 3px; }
+  pre.pkg .range { color: var(--text-3); }
+  pre.pkg .str { color: var(--text-2); }
+  .spin { width: 14px; height: 14px; border: 2px solid var(--line-2); border-top-color: var(--accent); border-radius: 999px; animation: spin .7s linear infinite; display: none; }
+  .spin.on { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .check { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-2); font-size: 13px; white-space: nowrap; }
+  .check input { accent-color: var(--accent); margin: 0; width: 14px; height: 14px; cursor: pointer; }
+  .warns { display: flex; flex-direction: column; gap: 6px; }
+  .warns .w { display: flex; gap: 8px; padding: 7px 10px; border-radius: 8px; background: var(--warn-soft); color: var(--warn); font-size: 13px; line-height: 18px; }
+  .warns .w::before { content: '!'; font-weight: 700; flex: none; }
+  .warns .none { color: var(--text-3); font-size: 13px; }
+
+  /* actions */
+  .actions { display: flex; flex-direction: column; gap: 12px; }
+  .actions .opts { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+  .btns { display: flex; gap: 10px; }
+  .btn { height: 38px; padding: 0 16px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--surface); font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+  .btn:hover:not(:disabled) { background: var(--surface-2); }
+  .btn.primary { flex: 1; background: var(--accent); color: var(--accent-ink); border-color: transparent; justify-content: center; }
+  .btn.primary:hover:not(:disabled) { background: var(--accent-hover); }
+  .status { font-size: 13px; color: var(--text-2); min-height: 18px; }
+  .status.err { color: var(--err); }
+  .status.ok { color: var(--ok); }
+
+  /* log */
+  .logwrap[hidden] { display: none; }
+  .steps { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .step { font: 500 12px/18px var(--sans); padding: 2px 9px; border-radius: 999px; background: var(--surface-2); color: var(--text-3); }
+  .step.run { background: var(--accent-soft); color: var(--accent-soft-ink); }
+  .step.ok { background: var(--ok-soft); color: var(--ok); }
+  .step.fail { background: var(--err-soft); color: var(--err); }
+  pre.log { margin: 0; max-height: 360px; overflow: auto; padding: 12px 14px; border-radius: 8px; background: var(--surface-2); font: 400 12px/18px var(--mono); color: var(--text-2); white-space: pre-wrap; word-break: break-word; }
+  pre.log .ok { color: var(--ok); } pre.log .err { color: var(--err); } pre.log .warn { color: var(--warn); } pre.log .cmd { color: var(--text); font-weight: 600; }
+
+  /* popover */
+  .pop { position: fixed; z-index: 50; width: 320px; padding: 12px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); font-size: 13px; line-height: 18px; display: none; }
+  .pop.on { display: block; }
+  .pop .n { font-weight: 600; font-size: 14px; }
+  .pop .vendor { color: var(--text-3); font-family: var(--mono); font-size: 12px; margin-bottom: 6px; }
+  .pop p { margin: 0 0 6px; color: var(--text-2); }
+  .pop p.trade { color: var(--text-3); }
+  .pop a { color: var(--accent); text-decoration: none; font-weight: 500; }
+  .pop a:hover { text-decoration: underline; }
+
+  @media (max-width: 1080px) { .main { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { .main { padding: 16px; } .hdr { padding: 0 16px; } .fields { grid-template-columns: 1fr; } .row { flex-wrap: wrap; } }
+  @media (prefers-reduced-motion: reduce) { .spin { animation-duration: 2s; } .switch input, .switch input::after { transition: none; } }
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="brand">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.2" fill="var(--accent)"/><g fill="none" stroke="var(--accent)" stroke-width="1.4"><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></g></svg>
+    react-native-kickstart
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" class="tab" role="tab" aria-selected="true">New project</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" disabled title="coming next">Store assets</button>
+  </nav>
+  <span class="spacer"></span>
+  <div class="seg theme" role="group" aria-label="Theme">
+    <button type="button" data-theme="system" aria-pressed="true">Auto</button>
+    <button type="button" data-theme="light" aria-pressed="false">Light</button>
+    <button type="button" data-theme="dark" aria-pressed="false">Dark</button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="col">
+    <section class="card">
+      <h2>Preset <span class="sub" id="presetSub"></span></h2>
+      <div class="presets" id="presets"></div>
+    </section>
+
+    <section class="card">
+      <h2>Project</h2>
+      <div class="fields">
+        <div class="field">
+          <label for="name">App name</label>
+          <input id="name" value="MyApp" autocomplete="off" spellcheck="false">
+          <div class="hint" id="nameHint"></div>
+        </div>
+        <div class="field">
+          <label for="pkg">Bundle id</label>
+          <input id="pkg" class="mono" value="com.example.myapp" autocomplete="off" spellcheck="false">
+          <div class="hint" id="pkgHint"></div>
+        </div>
+        <div class="field wide">
+          <label for="pick">Folder</label>
+          <div class="dest">
+            <span class="path" id="dest"></span>
+            <button type="button" id="pick">Pick…</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="pm">Package manager</label>
+          <select id="pm"></select>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Stack</h2>
+      <div class="stack" id="stack"></div>
+    </section>
+
+    <section class="card">
+      <h2>Modules <span class="sub">optional feature slices</span></h2>
+      <div class="chips" id="modules"></div>
+    </section>
+
+    <section class="card">
+      <h2>Extras</h2>
+      <div class="toggles">
+        <label class="switch"><input type="checkbox" id="optSample" data-group="sample"> Sample screens <span class="d">login + home + tests</span></label>
+        <label class="switch"><input type="checkbox" id="optStore" data-group="store"> Store assets <span class="d">screenshots config + fastlane tree</span></label>
+      </div>
+    </section>
+  </div>
+
+  <div class="col">
+    <section class="card">
+      <h2>Found on this machine</h2>
+      <div class="env" id="env"></div>
+    </section>
+
+    <section class="card">
+      <h2>Resolved
+        <span class="right">
+          <span class="spin" id="spin" aria-label="resolving"></span>
+          <label class="check"><input type="checkbox" id="offline"> offline (pinned)</label>
+          <button type="button" class="btn" id="refresh" style="height:26px;padding:0 10px;font-weight:500">Refresh</button>
+        </span>
+      </h2>
+      <div class="meta" id="meta">resolving…</div>
+      <pre class="pkg" id="pkgPreview"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Warnings</h2>
+      <div class="warns" id="warns"><span class="none">none</span></div>
+    </section>
+
+    <section class="card actions">
+      <div class="opts">
+        <label class="check"><input type="checkbox" id="optBuild"> verify build (install + tsc + eslint + jest)</label>
+        <label class="check"><input type="checkbox" id="optOpen"> open in VS Code</label>
+        <label class="check"><input type="checkbox" id="optForce"> overwrite non-empty folder</label>
+      </div>
+      <div class="btns">
+        <button type="button" class="btn" id="dryRun">Dry run</button>
+        <button type="button" class="btn primary" id="create">Set up project</button>
+      </div>
+      <div class="status" id="status"></div>
+    </section>
+
+    <section class="card logwrap" id="logwrap" hidden>
+      <h2>Log <span class="right"><button type="button" class="btn" id="logClear" style="height:26px;padding:0 10px;font-weight:500">Clear</button></span></h2>
+      <div class="steps" id="steps"></div>
+      <pre class="log" id="log"></pre>
+    </section>
+  </div>
+</main>
+
+<div class="pop" id="pop" role="tooltip"></div>
+
+<script>
+// Substituted by the server when it serves this page. Every /api/ call carries it, so a page on
+// another origin cannot drive the tool: it never gets to read this value.
+const TOKEN = '__RNK_TOKEN__';
+const api = (path, params) => {
+  const u = new URL(path, location.origin);
+  for (const [k, v] of Object.entries(params || {})) u.searchParams.set(k, v);
+  u.searchParams.set('t', TOKEN);
+  return u.pathname + u.search;
+};
+
+const GROUP_LABELS = { workflow: 'Workflow', state: 'State', data: 'Server data', nav: 'Navigation', styling: 'Styling', storage: 'Storage', forms: 'Forms', i18n: 'i18n', lists: 'Lists' };
+const OPTION_LABELS = {
+  bare: 'Bare', expo: 'Expo', rtk: 'Redux Toolkit', zustand: 'Zustand', none: 'None', 'rtk-query': 'RTK Query', 'tanstack-query': 'TanStack Query',
+  fetch: 'fetch', 'react-navigation': 'React Navigation', 'expo-router': 'Expo Router', nativewind: 'NativeWind', unistyles: 'Unistyles',
+  stylesheet: 'StyleSheet', mmkv: 'MMKV', 'async-storage': 'AsyncStorage', 'rhf-zod': 'RHF + Zod', i18next: 'i18next', 'flash-list': 'FlashList', flatlist: 'FlatList',
+  crash: 'Crash reporting', analytics: 'Analytics', roles: 'Roles', media: 'Media', push: 'Push',
+};
+const PRESET_META = {
+  standard: { title: 'Standard app', body: 'Bare RN, Redux Toolkit + RTK Query, React Navigation, NativeWind, MMKV. Sample screens in.' },
+  expo: { title: 'Expo app', body: 'Expo SDK with expo-router, Zustand and TanStack Query. Same styling, storage and forms.' },
+  minimal: { title: 'Minimal shell', body: 'StyleSheet, no state library, plain fetch, nothing optional. An empty, typed, linted shell.' },
+  custom: { title: 'Custom', body: 'Your own mix. Pick a preset to reset.' },
+};
+
+const $ = (id) => document.getElementById(id);
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let INIT = null, LIBS = {}, busy = false, seq = 0, timer = null, lastPreview = null, pkgTouched = false;
+let choices = {};
+let root = '';
+const TICK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+
+/* ---------------- theme ---------------- */
+function applyTheme(mode) {
+  if (mode === 'system') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', mode);
+  for (const b of document.querySelectorAll('.seg.theme button')) b.setAttribute('aria-pressed', String(b.dataset.theme === mode));
+  try { if (mode === 'system') localStorage.removeItem('rnk-theme'); else localStorage.setItem('rnk-theme', mode); } catch { /* private mode */ }
+}
+applyTheme((() => { try { return localStorage.getItem('rnk-theme'); } catch { return null; } })() || 'system');
+for (const b of document.querySelectorAll('.seg.theme button')) b.addEventListener('click', () => applyTheme(b.dataset.theme));
+
+/* ---------------- choices ---------------- */
+// Same implications as normalizeChoices in src/context.mjs: nav follows the workflow, data follows state.
+function coerce() {
+  if (choices.workflow !== 'expo' && choices.nav === 'expo-router') choices.nav = 'react-navigation';
+  if (choices.state === 'rtk') choices.data = 'rtk-query';
+  else if (choices.data === 'rtk-query') choices.data = 'tanstack-query';
+}
+function optionHidden(group, value) {
+  if (group === 'nav' && value === 'expo-router' && choices.workflow !== 'expo') return true;
+  if (group === 'data' && choices.state === 'rtk' && value !== 'rtk-query') return true;
+  if (group === 'data' && choices.state !== 'rtk' && value === 'rtk-query') return true;
+  return false;
+}
+function sameModules(a, b) { return [...a].sort().join() === [...b].sort().join(); }
+function matchedPreset() {
+  for (const [key, p] of Object.entries(INIT.presets)) {
+    if (Object.keys(INIT.groups).every((g) => choices[g] === p[g]) && sameModules(choices.modules, p.modules)) return key;
+  }
+  return 'custom';
+}
+function setPreset(key) {
+  const p = INIT.presets[key];
+  choices = { ...p, modules: [...p.modules] };
+  renderAll();
+}
+function renderPresets() {
+  const current = matchedPreset();
+  const keys = [...Object.keys(INIT.presets), ...(current === 'custom' ? ['custom'] : [])];
+  $('presets').innerHTML = keys.map((key) => {
+    const m = PRESET_META[key] || { title: key, body: '' };
+    return '<button type="button" class="preset' + (key === 'custom' ? ' custom' : '') + '" data-preset="' + key + '" aria-pressed="' + (current === key) + '"' + (key === 'custom' ? ' disabled' : '') + '>'
+      + '<span class="t">' + esc(m.title) + '<span class="tick">' + TICK + '</span></span><p>' + esc(m.body) + '</p></button>';
+  }).join('');
+  for (const el of $('presets').querySelectorAll('button[data-preset]:not([disabled])')) el.addEventListener('click', () => setPreset(el.dataset.preset));
+  $('presetSub').textContent = current === 'custom' ? 'custom selection' : 'change anything below';
+}
+function renderStack() {
+  $('stack').innerHTML = Object.entries(INIT.groups).filter(([g]) => g !== 'sample' && g !== 'store').map(([group, opts]) => {
+    const segs = opts.map((value) => '<button type="button" data-group="' + group + '" data-value="' + value + '" data-lib="' + value + '"'
+      + ' aria-pressed="' + (choices[group] === value) + '"' + (optionHidden(group, value) ? ' class="hidden"' : '') + '>' + esc(OPTION_LABELS[value] || value) + '</button>').join('');
+    return '<div class="row"><span class="lbl">' + esc(GROUP_LABELS[group] || group) + '</span><span class="seg">' + segs + '</span></div>';
+  }).join('');
+  for (const btn of $('stack').querySelectorAll('button[data-group]')) {
+    btn.addEventListener('click', () => { choices[btn.dataset.group] = btn.dataset.value; coerce(); renderAll(); });
+    attachPopover(btn);
+  }
+}
+function renderModules() {
+  $('modules').innerHTML = INIT.modules.map((m) => '<button type="button" class="chip" data-module="' + m + '" data-lib="' + m + '" aria-pressed="' + choices.modules.includes(m) + '"><span class="plus"></span>' + esc(OPTION_LABELS[m] || m) + '</button>').join('');
+  for (const btn of $('modules').querySelectorAll('button[data-module]')) {
+    btn.addEventListener('click', () => {
+      const m = btn.dataset.module;
+      choices.modules = choices.modules.includes(m) ? choices.modules.filter((x) => x !== m) : [...choices.modules, m];
+      renderAll();
+    });
+    attachPopover(btn);
+  }
+}
+function renderToggles() {
+  $('optSample').checked = choices.sample === 'yes';
+  $('optStore').checked = choices.store === 'yes';
+}
+for (const id of ['optSample', 'optStore']) $(id).addEventListener('change', () => { choices[$(id).dataset.group] = $(id).checked ? 'yes' : 'no'; renderAll(); });
+
+function renderAll() { renderPresets(); renderStack(); renderModules(); renderToggles(); updateDest(); scheduleRefresh(); }
+
+/* ---------------- popover ---------------- */
+let popTimer = null;
+function attachPopover(btn) {
+  const show = () => { clearTimeout(popTimer); popTimer = setTimeout(() => showPopover(btn), 120); };
+  const hide = () => { clearTimeout(popTimer); $('pop').classList.remove('on'); };
+  btn.addEventListener('mouseenter', show);
+  btn.addEventListener('focus', show);
+  btn.addEventListener('mouseleave', hide);
+  btn.addEventListener('blur', hide);
+}
+function showPopover(btn) {
+  const lib = LIBS[btn.dataset.lib];
+  const pop = $('pop');
+  if (!lib) { pop.classList.remove('on'); return; }
+  pop.innerHTML = '<div class="n">' + esc(lib.name) + '</div>' + (lib.vendor ? '<div class="vendor">' + esc(lib.vendor) + '</div>' : '')
+    + '<p>' + esc(lib.summary || '') + '</p>' + (lib.tradeoff ? '<p class="trade">' + esc(lib.tradeoff) + '</p>' : '')
+    + (lib.docs ? '<a href="' + esc(lib.docs) + '" target="_blank" rel="noopener">Docs ↗</a>' : '');
+  const r = btn.getBoundingClientRect();
+  pop.classList.add('on');
+  const w = pop.offsetWidth, h = pop.offsetHeight;
+  let x = Math.min(r.left, window.innerWidth - w - 8), y = r.bottom + 6;
+  if (y + h > window.innerHeight - 8) y = r.top - h - 6;
+  pop.style.left = Math.max(8, x) + 'px'; pop.style.top = Math.max(8, y) + 'px';
+}
+
+/* ---------------- project fields ---------------- */
+const appName = () => $('name').value.trim();
+const slugOf = (n) => n.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const sep = () => (root.includes('\\') && !root.includes('/')) ? '\\' : '/';
+const outDir = () => root ? root.replace(/[\\/]+$/, '') + sep() + (slugOf(appName()) || 'my-app') : '';
+function updateDest() {
+  const d = outDir();
+  $('dest').textContent = d || 'Pick a folder…';
+  $('dest').classList.toggle('empty', !d);
+  $('dest').title = d;
+}
+function validate() {
+  const n = appName(), p = $('pkg').value.trim();
+  const nameOk = /^[A-Za-z][A-Za-z0-9]{0,63}$/.test(n);
+  const pkgOk = /^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$/.test(p);
+  $('nameHint').textContent = nameOk ? '' : 'letters and digits, starting with a letter';
+  $('pkgHint').textContent = pkgOk ? '' : 'like com.example.app';
+  return nameOk && pkgOk;
+}
+$('name').addEventListener('input', () => {
+  if (!pkgTouched) $('pkg').value = 'com.example.' + (slugOf(appName()).replace(/-/g, '') || 'myapp');
+  validate(); updateDest(); scheduleRefresh();
+});
+$('pkg').addEventListener('input', () => { pkgTouched = true; validate(); });
+$('pm').addEventListener('change', scheduleRefresh);
+$('offline').addEventListener('change', () => refresh());
+$('refresh').addEventListener('click', () => refresh());
+
+$('pick').addEventListener('click', async () => {
+  $('pick').disabled = true;
+  setStatus('waiting for the folder dialog…');
+  try {
+    const data = await (await fetch(api('/api/pick-folder'), { method: 'POST' })).json();
+    if (data.path) { root = data.path; updateDest(); setStatus(''); }
+    else if (data.error) setStatus('folder picker: ' + data.error, 'err');
+    else setStatus('');
+  } catch (e) { setStatus('folder picker failed: ' + e.message, 'err'); }
+  finally { $('pick').disabled = false; }
+});
+
+/* ---------------- preview ---------------- */
+function highlightPkg(pkg) {
+  let inDeps = false;
+  return esc(JSON.stringify(pkg, null, 2)).split('\n').map((line) => {
+    if (/^  \},?$/.test(line)) inDeps = false;
+    const m = /^(\s*)&quot;([^&]*)&quot;: (.*?)(,?)$/.exec(line);
+    if (!m) return line;
+    const [, indent, key, val, comma] = m;
+    if (indent.length === 2 && (key === 'dependencies' || key === 'devDependencies')) inDeps = true;
+    const sv = /^&quot;(.*)&quot;$/.exec(val);
+    let value = val;
+    if (sv) {
+      const s = sv[1];
+      const cls = inDeps && /^\d+\.\d+\.\d+/.test(s) ? 'pin' : /^(?:[\^~=]|&gt;|&lt;)/.test(s) ? 'range' : 'str';
+      value = '<span class="' + cls + '">&quot;' + s + '&quot;</span>';
+    }
+    return indent + '<span class="key">&quot;' + key + '&quot;</span>: ' + value + comma;
+  }).join('\n');
+}
+function scheduleRefresh() { clearTimeout(timer); timer = setTimeout(refresh, 400); }
+async function refresh() {
+  clearTimeout(timer);
+  if (!INIT) return;
+  const mine = ++seq;
+  $('spin').classList.add('on');
+  try {
+    const res = await fetch(api('/api/preview'), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: appName() || 'MyApp', package: $('pkg').value.trim(), pm: $('pm').value, choices, offline: $('offline').checked }),
+    });
+    const data = await res.json();
+    if (mine !== seq) return;
+    if (data.error) throw new Error(data.error);
+    lastPreview = data;
+    const r = data.row || {};
+    const deps = Object.keys(data.packageJson.dependencies).length + Object.keys(data.packageJson.devDependencies).length;
+    $('meta').className = 'meta';
+    $('meta').textContent = 'react-native ' + data.versions.rn + ' · react ' + data.versions.react + ' · node ≥ ' + (r.node || '?') + ' · jdk ' + (r.jdk || '?')
+      + ' · ios ' + (r.iosTarget || '?') + ' · minSdk ' + (r.minSdk || '?') + '\n' + deps + ' packages · ' + data.fileCount + ' files · ' + data.pm;
+    $('pkgPreview').innerHTML = highlightPkg(data.packageJson);
+    renderWarnings(data.warnings || []);
+  } catch (e) {
+    if (mine !== seq) return;
+    $('meta').className = 'meta err';
+    $('meta').textContent = 'could not resolve: ' + e.message;
+  } finally {
+    if (mine === seq) $('spin').classList.remove('on');
+  }
+}
+function renderWarnings(list) {
+  $('warns').innerHTML = list.length ? list.map((w) => '<div class="w">' + esc(w) + '</div>').join('') : '<span class="none">none</span>';
+}
+
+/* ---------------- env ---------------- */
+function renderEnv(e) {
+  const pms = Object.entries(e.packageManagers || {}).map(([k, v]) => k + ' ' + v);
+  const sims = (e.simulators || []).map((s) => s.name + (s.state === 'Booted' ? ' (booted)' : ''));
+  const rows = [
+    ['node', e.node, null],
+    ['package mgr', pms.length ? pms.join(', ') : null, 'none found'],
+    ['xcode', e.xcode ? e.xcode.version : null, e.platform === 'darwin' ? 'not found' : 'macOS only', e.platform !== 'darwin'],
+    ['cocoapods', e.cocoapods, e.platform === 'darwin' ? 'not found' : 'macOS only', e.platform !== 'darwin'],
+    ['jdk', e.jdk ? e.jdk.major + '  ' + e.jdk.home : null, 'set JAVA_HOME or install Android Studio'],
+    ['android sdk', e.androidSdk ? e.androidSdk.dir + (e.androidSdk.ndks.length ? '\nndk ' + e.androidSdk.ndks.join(', ') : '\nno ndk') : null, 'set ANDROID_HOME'],
+    ['simulators', sims.length ? sims.join(', ') : null, e.platform === 'darwin' ? 'none' : 'macOS only', e.platform !== 'darwin'],
+    ['avds', (e.avds || []).length ? e.avds.join(', ') : null, 'none'],
+    ['chrome', e.chrome, 'not found (store screenshots use it)'],
+    ['vscode', e.vscode, 'not found'],
+  ];
+  $('env').innerHTML = rows.map(([k, v, miss, neutral]) => {
+    const ok = !!v;
+    const cls = ok ? 'ok' : neutral ? '' : 'warn';
+    return '<div class="k ' + cls + '"><span class="mark">' + (ok ? '✓' : neutral ? '–' : '!') + '</span>' + esc(k) + '</div>'
+      + '<div class="v ' + cls + '">' + (ok ? esc(v).replace('\n', '<br>') : '<span class="d">' + esc(miss) + '</span>') + '</div>';
+  }).join('');
+}
+
+/* ---------------- create ---------------- */
+function setStatus(text, cls) { $('status').className = 'status' + (cls ? ' ' + cls : ''); $('status').textContent = text; }
+function setBusy(on) {
+  busy = on;
+  for (const id of ['create', 'dryRun', 'pick', 'refresh']) $(id).disabled = on;
+  $('create').textContent = on ? 'Setting up…' : 'Set up project';
+}
+function logLine(text, cls) {
+  const s = document.createElement('span');
+  if (cls) s.className = cls;
+  s.textContent = text + '\n';
+  $('log').appendChild(s);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+function setStep(name, text, state) {
+  let el = $('steps').querySelector('[data-step="' + name + '"]');
+  if (!el) { el = document.createElement('span'); el.className = 'step'; el.dataset.step = name; $('steps').appendChild(el); }
+  el.textContent = text;
+  el.className = 'step ' + state;
+}
+$('logClear').addEventListener('click', () => { $('log').textContent = ''; $('steps').innerHTML = ''; });
+$('dryRun').addEventListener('click', () => { validate(); refresh(); setStatus('dry run: nothing written; the package.json above is what you would get.'); });
+
+$('create').addEventListener('click', () => {
+  if (!validate()) { setStatus('fix the name or bundle id first', 'err'); return; }
+  if (!outDir()) { setStatus('pick a folder first', 'err'); $('pick').focus(); return; }
+  $('logwrap').hidden = false;
+  $('log').textContent = ''; $('steps').innerHTML = '';
+  setBusy(true); setStatus('');
+  const params = { name: appName(), package: $('pkg').value.trim(), out: outDir(), pm: $('pm').value, modules: choices.modules.join(','),
+    offline: $('offline').checked ? '1' : '0', force: $('optForce').checked ? '1' : '0', build: $('optBuild').checked ? '1' : '0', open: $('optOpen').checked ? '1' : '0' };
+  for (const g of Object.keys(INIT.groups)) params[g] = choices[g];
+  let current = null;
+  const es = new EventSource(api('/api/create', params));
+  const finish = () => { if (current) setStep(current.name, current.text, 'ok'); };
+  es.addEventListener('step', (e) => {
+    const d = JSON.parse(e.data);
+    finish(); current = d; setStep(d.name, d.text, 'run'); logLine('▸ ' + d.text, 'cmd');
+  });
+  es.addEventListener('log', (e) => {
+    const t = JSON.parse(e.data).text;
+    logLine(t, /^warn /.test(t) ? 'warn' : /^\$ /.test(t) ? 'cmd' : /^✓/.test(t) ? 'ok' : '');
+  });
+  es.addEventListener('done', (e) => {
+    const d = JSON.parse(e.data);
+    finish();
+    logLine('✓ ' + d.message, 'ok');
+    if (d.next) logLine('next: ' + d.next);
+    setStatus(d.message, 'ok'); setBusy(false); es.close();
+  });
+  es.addEventListener('error', (e) => {
+    if (!e.data) { logLine('connection lost', 'err'); setStatus('connection lost', 'err'); }
+    else { const d = JSON.parse(e.data); if (current) setStep(current.name, current.text, 'fail'); logLine('✗ ' + d.message, 'err'); setStatus(d.message, 'err'); }
+    setBusy(false); es.close();
+  });
+});
+
+/* ---------------- init ---------------- */
+async function init() {
+  INIT = await (await fetch(api('/api/init'))).json();
+  LIBS = await (await fetch('/libraries.json')).json().catch(() => INIT.libraries || {});
+  root = INIT.defaultOut || '';
+  const found = Object.keys(INIT.env.packageManagers || {});
+  const pms = found.length ? found : ['npm'];
+  $('pm').innerHTML = pms.map((p) => '<option value="' + p + '"' + (p === INIT.defaultPm ? ' selected' : '') + '>' + p + ' ' + (INIT.env.packageManagers[p] || '') + '</option>').join('');
+  renderEnv({ ...INIT.env, platform: INIT.platform });
+  setPreset('standard');
+  validate();
+}
+
+setInterval(() => { fetch(api('/api/ping')).catch(() => {}); }, 5000);
+window.addEventListener('pagehide', () => { navigator.sendBeacon(api('/api/bye')); });
+init().catch((e) => { $('meta').className = 'meta err'; $('meta').textContent = 'could not start: ' + e.message; });
+</script>
+</body>
+</html>

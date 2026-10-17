@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # Fast, no mobile toolchain required: resolver logic, template rendering, the forbidden-
+  # identifier audit, and an offline generate of every state × styling combination. Runs on all
+  # three platforms because path handling, line endings and process spawning are exactly where
+  # a generator breaks across machines.
+  unit:
+    name: Unit tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Unit tests and template audit
+        run: npm test
+
+      - name: Detection does not crash on this platform
+        run: node bin/kickstart.mjs --list-libs
+
+      - name: Resolve the pinned set and print the dependency table
+        run: node bin/kickstart.mjs --yes --dry-run --offline
+
+      - name: Generate state × styling combinations (offline, no install)
+        shell: bash
+        run: |
+          set -e
+          for state in rtk zustand none; do
+            for styling in nativewind unistyles stylesheet; do
+              node bin/kickstart.mjs --yes --offline --force \
+                --name=Ci --package=com.ci.app \
+                --state=$state --styling=$styling \
+                --out="$RUNNER_TEMP/gen-$state-$styling"
+            done
+          done
+
+  # The claim this project makes is that the resolved versions actually install and typecheck
+  # together. This job proves it on a machine that is not the author's: install + tsc + eslint
+  # + jest, no native build.
+  build:
+    name: Real JS build (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate and verify the default stack
+        run: |
+          node bin/kickstart.mjs --yes --offline --build --force \
+            --name=CiApp --package=com.ci.app --pm=npm \
+            --out="$RUNNER_TEMP/ciapp" 2>&1 | tee "$RUNNER_TEMP/ciapp-build.log"
+          exit ${PIPESTATUS[0]}
+
+      - name: Upload logs if it failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            ${{ runner.temp }}/ciapp-build.log
+            ${{ runner.temp }}/ciapp/npm-debug.log
+          if-no-files-found: ignore

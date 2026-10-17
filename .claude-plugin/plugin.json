@@ -1,0 +1,10 @@
+{
+  "name": "react-native-kickstart",
+  "description": "Scaffold a React Native or Expo app on the latest compatible library versions, resolved live from npm and proven by install + typecheck + lint + jest.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Durim Aliu"
+  },
+  "license": "MIT",
+  "keywords": ["react-native", "expo", "typescript", "scaffold", "generator", "redux-toolkit", "zustand", "nativewind", "store-screenshots"]
+}

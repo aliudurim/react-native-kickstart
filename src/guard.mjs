@@ -8,6 +8,6 @@ export function hostIsLoopback(host) {
 }
 
 export function tokenMatches(expected, given) {
-  if (typeof given !== 'string' || given.length !== expected.length) return false;
+  if (typeof given !== 'string' || !expected || given.length !== expected.length) return false;
   return timingSafeEqual(Buffer.from(expected), Buffer.from(given));
 }
