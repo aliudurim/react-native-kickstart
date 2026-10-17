@@ -3,13 +3,13 @@ import './global.css';
 {{/if}}
 import { Providers } from '@/app/Providers';
 import { SplashGate } from '@/app/SplashGate';
-import { RootNavigator } from '@/navigation/RootNavigator';
+import { NavigationRoot } from '@/navigation/NavigationRoot';
 
 export default function App() {
   return (
     <Providers>
       <SplashGate>
-        <RootNavigator />
+        <NavigationRoot />
       </SplashGate>
     </Providers>
   );

@@ -10,7 +10,7 @@ Bare React Native {{RN_VERSION}} (New Architecture only), bundle id `{{BUNDLE_ID
 {{#if expoRouter}}
 Navigation: expo-router (file routes in `app/`).
 {{else}}
-Navigation: @react-navigation (native-stack + bottom-tabs) with a conditional `RootNavigator` in `src/navigation/`.
+Navigation: @react-navigation (native-stack + bottom-tabs). `NavigationRoot` owns the `NavigationContainer`, theme and linking; `RootNavigator` switches Auth / App by session.
 {{/if}}
 {{#if rtk}}
 State: Redux Toolkit (`src/store/`: slices, listeners, selectors) with RTK Query for server data (`src/store/api/`, one file per resource).

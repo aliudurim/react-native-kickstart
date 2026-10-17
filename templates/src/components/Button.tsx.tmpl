@@ -34,9 +34,9 @@ const textColor: Record<ButtonVariant, TextColor> = {
 {{#if nativewind}}
 
 const variantClass: Record<ButtonVariant, string> = {
-  primary: 'bg-primary dark:bg-primary-dark rounded-md',
-  secondary: 'bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-md',
-  ghost: 'bg-transparent rounded-md',
+  primary: 'bg-primary dark:bg-primary-dark',
+  secondary: 'bg-surface dark:bg-surface-dark border border-border dark:border-border-dark',
+  ghost: 'bg-transparent',
 };
 {{/if}}
 
@@ -65,18 +65,14 @@ export function Button({
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
 {{#if nativewind}}
-      className={cn(variantClass[variant], className)}
-      style={({ pressed }) => [
-        {
-          minHeight: 44,
-          paddingHorizontal: theme.spacing.md,
-          alignItems: 'center',
-          justifyContent: 'center',
-          alignSelf: fullWidth ? 'stretch' : 'flex-start',
-          opacity: isDisabled ? 0.5 : pressed ? 0.8 : 1,
-        },
-        style,
-      ]}
+      className={cn(
+        'min-h-11 px-md rounded-md items-center justify-center active:opacity-80',
+        fullWidth ? 'self-stretch' : 'self-start',
+        isDisabled && 'opacity-50',
+        variantClass[variant],
+        className,
+      )}
+      style={style}
 {{/if}}
 {{#if unistyles}}
       style={({ pressed }) => [

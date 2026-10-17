@@ -50,3 +50,25 @@ test('hostile identifiers are rejected', () => {
 test('expo-router requires the expo workflow', () => {
   assert.throws(() => normalizeChoices({ workflow: 'bare', nav: 'expo-router' }));
 });
+
+test('bare App.tsx mounts NavigationRoot (the NavigationContainer), not the bare stack', () => {
+  const ctx = buildContext({ name: 'X', slug: 'x', bundleId: 'com.x.x', choices: normalizeChoices(PRESETS.standard), versions: p.versions, row: p.rnRow, pm: 'npm' });
+  const out = render(readFileSync(join(templatesRoot, 'root/App.tsx.tmpl'), 'utf8'), ctx);
+  assert.match(out, /<NavigationRoot \/>/);
+  assert.doesNotMatch(out, /<RootNavigator/);
+});
+
+test('tailwind config gets flat colour strings from tokens, not the light/dark map', async () => {
+  const { mkdtempSync, writeFileSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { createRequire } = await import('node:module');
+  const ctx = buildContext({ name: 'X', slug: 'x', bundleId: 'com.x.x', choices: normalizeChoices(PRESETS.standard), versions: p.versions, row: p.rnRow, pm: 'npm' });
+  const dir = mkdtempSync(join(tmpdir(), 'rnk-tokens-'));
+  writeFileSync(join(dir, 'tokens.js'), render(readFileSync(join(templatesRoot, 'src/theme/tokens.js.tmpl'), 'utf8'), ctx));
+  const { tailwindTheme } = createRequire(import.meta.url)(join(dir, 'tokens.js'));
+  const tw = render(readFileSync(join(templatesRoot, 'root/tailwind.config.js.tmpl'), 'utf8'), ctx);
+  assert.match(tw, /tailwindTheme\.colors/);
+  assert.doesNotMatch(tw, /colors\.primary/);
+  assert.match(tailwindTheme.colors.primary.DEFAULT, /^#[0-9A-Fa-f]{6}$/);
+  assert.match(tailwindTheme.spacing.md, /^\d+px$/);
+});
