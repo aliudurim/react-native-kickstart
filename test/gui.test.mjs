@@ -194,3 +194,13 @@ test('toolchain warnings carry install hints and nativeBuildPlan skips missing p
   assert.equal(full.android.can, true);
   assert.equal(full.ios.can, process.platform === 'darwin');
 });
+
+test('--options and --json error path speak JSON', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const opts = spawnSync('node', ['bin/kickstart.mjs', '--options'], { encoding: 'utf8' });
+  const o = JSON.parse(opts.stdout);
+  assert.ok(o.groups.workflow.includes('bare') && o.addons.length > 5 && o.presets.standard);
+  const bad = spawnSync('node', ['bin/kickstart.mjs', '--yes', '--preset=nope', '--json'], { encoding: 'utf8' });
+  assert.equal(bad.status, 1);
+  assert.equal(JSON.parse(bad.stdout).ok, false);
+});

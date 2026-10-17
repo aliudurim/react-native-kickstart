@@ -1,17 +1,14 @@
 {
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "react-native-kickstart",
-  "description": "Scaffold React Native and Expo apps on the latest compatible libraries, from inside Claude Code.",
-  "owner": {
-    "name": "Durim Aliu"
-  },
+  "name": "rn-kickstart",
+  "owner": { "name": "aliudurim", "url": "https://github.com/aliudurim" },
+  "description": "React Native Kickstart: scaffold production-ready React Native and Expo apps from a conversation",
   "plugins": [
     {
       "name": "react-native-kickstart",
-      "description": "Scaffold a React Native or Expo app on the latest compatible library versions, resolved live from npm and proven by install + typecheck + lint + jest. Includes a store-assets pipeline for App Store and Play screenshots.",
-      "author": { "name": "Durim Aliu" },
+      "source": "./plugins/react-native-kickstart",
+      "description": "Create React Native / Expo apps by describing them; resolves compatible versions, wires native config, generates store assets",
       "category": "development",
-      "source": "./"
+      "keywords": ["react-native", "expo", "scaffold", "mobile"]
     }
   ]
 }

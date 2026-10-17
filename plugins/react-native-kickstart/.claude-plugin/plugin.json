@@ -1,0 +1,10 @@
+{
+  "name": "react-native-kickstart",
+  "version": "0.1.0",
+  "description": "Create React Native and Expo apps from a conversation: picks the stack, resolves compatible versions, scaffolds, builds and generates store assets",
+  "author": { "name": "aliudurim", "url": "https://github.com/aliudurim" },
+  "homepage": "https://github.com/aliudurim/react-native-kickstart",
+  "repository": "https://github.com/aliudurim/react-native-kickstart",
+  "license": "MIT",
+  "keywords": ["react-native", "expo", "scaffold", "mobile", "app-store"]
+}

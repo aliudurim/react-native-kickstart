@@ -2,7 +2,7 @@
 import { createInterface } from 'node:readline/promises';
 import { spawn } from 'node:child_process';
 import { resolve as resolvePath, join } from 'node:path';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { GROUPS, MODULES, ADDONS, ADDON_IDS, DEFAULTS, PRESETS, normalizeChoices, slugify } from '../src/context.mjs';
 import { keysFor, resolveAll, pinned, rnRow, rnCeilingForXcode, libraries, compat } from '../src/resolver/index.mjs';
 import { scaffold, validateIdentifiers, dirIsEmpty } from '../src/scaffold.mjs';
@@ -15,8 +15,14 @@ const argv = process.argv.slice(2);
 const flag = (n, d) => { const a = argv.find((x) => x.startsWith(`--${n}=`)); return a ? a.slice(n.length + 3) : d; };
 const has = (n) => argv.includes(`--${n}`) || argv.includes(n) || argv.some((x) => x.startsWith(`--${n}=`));
 
+const JSON_OUT = has('json');
+if (JSON_OUT) console.log = (...a) => process.stderr.write(a.join(' ') + '\n');
+const emit = (o) => process.stdout.write(JSON.stringify(o) + '\n');
+process.on('unhandledRejection', (e) => die(e?.message ?? String(e)));
+
 if (has('help') || argv[0] === 'help') { help(); process.exit(0); }
 if (has('list-libs')) { listLibs(); process.exit(0); }
+if (has('options')) { emit({ groups: GROUPS, defaults: DEFAULTS, presets: PRESETS, modules: MODULES, addons: ADDONS, libraries }); process.exit(0); }
 if (flag('info')) { info(flag('info')); process.exit(0); }
 if (has('version')) { console.log(JSON.parse((await import('node:fs')).readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version); process.exit(0); }
 
@@ -34,6 +40,13 @@ let answers = {
 for (const g of Object.keys(GROUPS)) answers[g] = flag(g);
 answers.modules = flag('modules');
 answers.addons = flag('addons');
+if (flag('answers')) {
+  const file = JSON.parse(readFileSync(resolvePath(flag('answers')), 'utf8'));
+  for (const [k, v] of Object.entries(file)) if (v != null && (k in answers || k === 'build' || k === 'offline' || k === 'force')) answers[k] = Array.isArray(v) ? v.join(',') : v;
+  if (file.build != null) argv.push(file.build === 'native' ? '--build=native' : '--build');
+  if (file.offline) argv.push('--offline');
+  if (file.force) argv.push('--force');
+}
 
 if (interactive) answers = await prompt(answers);
 
@@ -78,7 +91,8 @@ console.log(dim(`react-native ${versions.rn} · react ${versions.react} · node 
 console.log();
 printDeps(pkg);
 for (const w of warnings) console.log(yellow('warn ') + w);
-toolchainWarnings(env, row).forEach((w) => console.log(yellow('warn ') + w));
+for (const w of toolchainWarnings(env, row)) console.log(yellow('warn ') + w);
+
 
 if (has('dry-run')) { console.log(dim('\n--dry-run: nothing written')); process.exit(0); }
 
@@ -89,6 +103,8 @@ if (choices.workflow === 'bare') {
 }
 const { written } = await scaffold({ name, bundleId, outDir, choices, versions, row, pm, template, kickstartCmd, androidSdkDir: env.androidSdk?.dir });
 console.log(green(`\n✓ wrote ${written.length} files to ${outDir}`));
+const toolWarnings = toolchainWarnings(env, row);
+const build = { ran: false, skipped: [] };
 
 if (has('build')) {
   const native = flag('build') === 'native';
@@ -101,15 +117,17 @@ if (has('build')) {
       await sh('bundle', ['install'], outDir).catch(() => {});
       await sh('bundle', ['exec', 'pod', 'install'], join(outDir, 'ios'));
       await sh('xcodebuild', ['-workspace', `${name}.xcworkspace`, '-scheme', name, '-sdk', 'iphonesimulator', '-configuration', 'Debug', '-destination', 'generic/platform=iOS Simulator', 'build', '-quiet'], join(outDir, 'ios'));
-    } else console.log(yellow('skip ') + `iOS build: ${plan.ios.why}`);
+    } else { build.skipped.push({ platform: 'ios', why: plan.ios.why }); console.log(yellow('skip ') + `iOS build: ${plan.ios.why}`); }
     if (plan.android.can) await sh(plan.gradlew, ['assembleDevDebug', '--console=plain'], join(outDir, 'android'), { JAVA_HOME: env.jdk.home, ANDROID_HOME: env.androidSdk.dir });
-    else console.log(yellow('skip ') + `Android build: ${plan.android.why}`);
+    else { build.skipped.push({ platform: 'android', why: plan.android.why }); console.log(yellow('skip ') + `Android build: ${plan.android.why}`); }
     if (!plan.ios.can && !plan.android.can) die('--build=native: no native toolchain available on this machine');
   }
+  build.ran = true;
   console.log(green('✓ build passed'));
 }
 if (has('open') && env.vscode) spawn('code', [outDir], { detached: true, stdio: 'ignore' }).unref();
 console.log(dim(`\nnext: cd ${outDir} && ${pm} install && ${pm} run ios`));
+if (JSON_OUT) emit({ ok: true, name, bundleId, outDir, pm, workflow: choices.workflow, choices, versions: { rn: versions.rn, react: versions.react, expo: versions.expo ?? null }, toolchain: row, files: written.length, warnings, toolchainWarnings: toolWarnings, build, kickstartCmd, next: `cd ${outDir} && ${pm} install && ${pm} run ${choices.workflow === 'expo' ? 'start' : 'ios'}` });
 
 // ---------------------------------------------------------------------------
 
@@ -171,7 +189,7 @@ function sh(cmd, args, cwd, extraEnv = {}) {
   }).catch((e) => die(e.message));
 }
 
-function die(msg) { console.error(red('error ') + msg); process.exit(1); }
+function die(msg) { if (JSON_OUT) emit({ ok: false, error: msg }); console.error(red('error ') + msg); process.exit(1); }
 
 function listLibs() {
   for (const [g, opts] of Object.entries(GROUPS)) console.log(`${bold(g.padEnd(10))} ${opts.join(' · ')}`);
@@ -190,6 +208,8 @@ function help() {
   rn-kickstart                         interactive
   rn-kickstart --yes --build           flags only, then install + typecheck + lint + jest
   rn-kickstart --yes --dry-run         show the versions you would get, write nothing
+  rn-kickstart --answers=app.json --json   answers from a file, one JSON result line on stdout (for tools and agents)
+  rn-kickstart --options               every group, option, module and add-on as JSON
 
   --name=MyApp   --package=com.example.myapp   --out=./myapp   --preset=standard|expo|minimal
 ${Object.entries(GROUPS).map(([g, o]) => `  --${g}=${o.join('|')}`).join('\n')}

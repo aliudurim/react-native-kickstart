@@ -9,6 +9,17 @@
 - Verifies it: `--build` runs install → `tsc --noEmit` → `eslint` → `jest`.
 - Zero npm dependencies. Node 22+ built-ins only.
 
+## Use it from Claude Code (recommended)
+
+Install the plugin once, then describe the app instead of typing flags:
+
+```text
+/plugin install react-native-kickstart --marketplace aliudurim/react-native-kickstart
+/react-native-kickstart:new-app Orders, bare RN, bottom sheet and keychain, company acme
+```
+
+The plugin ships the `/new-app` and `/store-assets` skills, an `rn-architect` agent and an `RN Kickstart` output style (team mode; turn on with `/output-style RN Kickstart`). Details in [plugins/react-native-kickstart](plugins/react-native-kickstart/README.md). For scripts and agents the CLI also takes `--answers=file.json --json` and prints its catalog with `--options`.
+
 ## Install
 
 ```bash
