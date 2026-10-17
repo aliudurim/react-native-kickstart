@@ -626,14 +626,21 @@ function renderAll() { renderPresets(); renderStack(); renderModules(); renderTo
 
 /* ---------------- popover ---------------- */
 let popTimer = null;
+// The popover stays while the pointer travels into it, so its Docs link can be clicked.
+let popHide = null;
+function hidePopoverSoon() { clearTimeout(popHide); popHide = setTimeout(() => $('pop').classList.remove('on'), 250); }
 function attachPopover(btn) {
-  const show = () => { clearTimeout(popTimer); popTimer = setTimeout(() => showPopover(btn), 120); };
-  const hide = () => { clearTimeout(popTimer); $('pop').classList.remove('on'); };
+  const show = () => { clearTimeout(popTimer); clearTimeout(popHide); popTimer = setTimeout(() => showPopover(btn), 120); };
+  const hide = () => { clearTimeout(popTimer); hidePopoverSoon(); };
   btn.addEventListener('mouseenter', show);
   btn.addEventListener('focus', show);
   btn.addEventListener('mouseleave', hide);
-  btn.addEventListener('blur', hide);
+  btn.addEventListener('blur', (e) => { if (!$('pop').contains(e.relatedTarget)) hide(); });
 }
+$('pop').addEventListener('mouseenter', () => clearTimeout(popHide));
+$('pop').addEventListener('mouseleave', hidePopoverSoon);
+$('pop').addEventListener('focusout', (e) => { if (!$('pop').contains(e.relatedTarget)) hidePopoverSoon(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('pop').classList.remove('on'); });
 function showPopover(btn) {
   const lib = LIBS[btn.dataset.lib];
   const pop = $('pop');
