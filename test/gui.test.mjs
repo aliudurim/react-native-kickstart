@@ -180,3 +180,17 @@ test('every add-on has a valid Expo mapping', async () => {
   assert.ok(keys.includes('expoImage') && keys.includes('expoSecureStore') && !keys.includes('fastImage'), 'expo workflow picks the Expo packages');
   assert.throws(() => normalizeChoices({ workflow: 'expo', nav: 'expo-router', addons: ['permissions'] }), /not offered on Expo/);
 });
+
+test('toolchain warnings carry install hints and nativeBuildPlan skips missing platforms', async () => {
+  const { toolchainWarnings, nativeBuildPlan, INSTALL_HINTS } = await import('../src/detect.mjs');
+  const row = { node: '20.19.4', jdk: 17, xcodeMin: '16.1', ndk: '27.1.12297006' };
+  const bare = { node: '22.0.0', xcode: null, cocoapods: null, jdk: null, androidSdk: null };
+  const ws = toolchainWarnings(bare, row);
+  assert.ok(ws.some((w) => w.includes('JDK') || w.includes('no JDK')) && ws.every((w) => w.includes('—')));
+  const plan = nativeBuildPlan(bare);
+  assert.equal(plan.android.can, false);
+  assert.ok(plan.android.why.includes(INSTALL_HINTS.jdk));
+  const full = nativeBuildPlan({ xcode: { version: '26.0' }, cocoapods: '1.16.2', jdk: { major: 21, home: '/j' }, androidSdk: { dir: '/sdk', ndks: [] } });
+  assert.equal(full.android.can, true);
+  assert.equal(full.ios.can, process.platform === 'darwin');
+});

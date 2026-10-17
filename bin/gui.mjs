@@ -14,7 +14,7 @@ import { GROUPS, MODULES, ADDONS, PRESETS, DEFAULTS, normalizeChoices, slugify, 
 import { keysFor, resolveAll, pinned, rnRow, rnCeilingForXcode, libraries } from '../src/resolver/index.mjs';
 import { scaffold, validateIdentifiers, dirIsEmpty, planFiles } from '../src/scaffold.mjs';
 import { fetchTemplate } from '../src/native.mjs';
-import { detectAll, defaultOutRoot, detectChrome } from '../src/detect.mjs';
+import { detectAll, defaultOutRoot, detectChrome, toolchainWarnings, INSTALL_HINTS } from '../src/detect.mjs';
 import { buildPackageJson } from '../src/packagejson.mjs';
 import { hostIsLoopback, tokenMatches } from '../src/guard.mjs';
 import { render as renderTemplate } from '../src/render.mjs';
@@ -82,24 +82,6 @@ async function resolvePlan(choices, { offline = false, onProgress } = {}) {
   return { keys, versions, row, ranges, warnings };
 }
 
-function toolchainWarnings(e, row) {
-  const out = [];
-  if (!row) return out;
-  if (compareVer(e.node, row.node) < 0) out.push(`node ${e.node} is below react-native's floor ${row.node}`);
-  if (process.platform === 'darwin' && !e.xcode) out.push('Xcode not found; iOS builds will not work');
-  if (process.platform === 'darwin' && e.xcode && compareVer(e.xcode.version, row.xcodeMin) < 0) out.push(`Xcode ${e.xcode.version} is below the floor ${row.xcodeMin}`);
-  if (!e.jdk) out.push('no JDK found (set JAVA_HOME or install Android Studio)');
-  else if (e.jdk.major < row.jdk) out.push(`JDK ${e.jdk.major} is below the floor ${row.jdk}`);
-  if (!e.androidSdk) out.push('Android SDK not found (ANDROID_HOME)');
-  else if (row.ndk && !e.androidSdk.ndks.includes(row.ndk)) out.push(`NDK ${row.ndk} not installed (found ${e.androidSdk.ndks.join(', ') || 'none'})`);
-  if (process.platform === 'darwin' && !e.cocoapods) out.push('CocoaPods not found');
-  return out;
-}
-function compareVer(a, b) {
-  const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number);
-  for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] ?? 0) - (y[i] ?? 0); if (d) return d; }
-  return 0;
-}
 
 function choicesFrom(input) {
   const raw = {};
@@ -397,7 +379,7 @@ const server = createServer(async (req, res) => {
       return json(200, {
         env: e, groups: GROUPS, modules: MODULES, addons: ADDONS, presets: PRESETS, defaults: DEFAULTS,
         defaultOut: defaultOutRoot(), defaultPm: pickPm(e.packageManagers),
-        pinnedAt: pinned()?.pinnedAt ?? null, libraries, platform: process.platform,
+        pinnedAt: pinned()?.pinnedAt ?? null, libraries, platform: process.platform, installHints: INSTALL_HINTS,
       });
     }
 

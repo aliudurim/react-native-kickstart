@@ -144,3 +144,54 @@ export function defaultOutRoot() {
 export function readLocalJson(path) {
   try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return null; }
 }
+
+const mac = process.platform === 'darwin';
+const win = process.platform === 'win32';
+
+export const INSTALL_HINTS = {
+  node: 'https://nodejs.org (or `brew install node`)',
+  packageManagers: 'npm ships with Node; `npm i -g pnpm` / `corepack enable`',
+  xcode: 'App Store → Xcode, then `sudo xcode-select -s /Applications/Xcode.app`',
+  cocoapods: '`brew install cocoapods` (or `sudo gem install cocoapods`)',
+  jdk: 'install Android Studio (bundles JDK 21) or `brew install --cask zulu@21`, then set JAVA_HOME',
+  androidSdk: 'Android Studio → SDK Manager (SDK + NDK), then `export ANDROID_HOME=~/Library/Android/sdk`',
+  ndk: 'Android Studio → SDK Manager → SDK Tools → NDK (Side by side)',
+  simulators: 'Xcode → Settings → Components → iOS Simulator runtime',
+  avds: 'Android Studio → Device Manager → Create device',
+  chrome: '`brew install --cask google-chrome` (store screenshots render in headless Chrome)',
+  vscode: '`brew install --cask visual-studio-code`',
+};
+
+export function compareVer(a, b) {
+  const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number);
+  for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] ?? 0) - (y[i] ?? 0); if (d) return d; }
+  return 0;
+}
+
+export function toolchainWarnings(env, row) {
+  const out = [];
+  if (!row) return out;
+  const H = INSTALL_HINTS;
+  if (compareVer(env.node, row.node) < 0) out.push(`node ${env.node} is below react-native's floor ${row.node} — ${H.node}`);
+  if (mac && !env.xcode) out.push(`Xcode not found; iOS builds will not work — ${H.xcode}`);
+  if (mac && env.xcode && compareVer(env.xcode.version, row.xcodeMin) < 0) out.push(`Xcode ${env.xcode.version} is below the floor ${row.xcodeMin} — update via the App Store`);
+  if (mac && !env.cocoapods) out.push(`CocoaPods not found; iOS builds will not work — ${H.cocoapods}`);
+  if (!env.jdk) out.push(`no JDK found; Android builds will not work — ${H.jdk}`);
+  else if (env.jdk.major < row.jdk) out.push(`JDK ${env.jdk.major} is below the floor ${row.jdk} — ${H.jdk}`);
+  if (!env.androidSdk) out.push(`Android SDK not found; Android builds will not work — ${H.androidSdk}`);
+  else if (row.ndk && !env.androidSdk.ndks.includes(row.ndk)) out.push(`NDK ${row.ndk} not installed (found ${env.androidSdk.ndks.join(', ') || 'none'}) — ${H.ndk}`);
+  return out;
+}
+
+export function nativeBuildPlan(env) {
+  const ios = { can: false, why: null };
+  const android = { can: false, why: null };
+  if (!mac) ios.why = 'iOS builds need macOS';
+  else if (!env.xcode) ios.why = `Xcode not found — ${INSTALL_HINTS.xcode}`;
+  else if (!env.cocoapods) ios.why = `CocoaPods not found — ${INSTALL_HINTS.cocoapods}`;
+  else ios.can = true;
+  if (!env.jdk) android.why = `no JDK — ${INSTALL_HINTS.jdk}`;
+  else if (!env.androidSdk) android.why = `Android SDK not found — ${INSTALL_HINTS.androidSdk}`;
+  else android.can = true;
+  return { ios, android, gradlew: win ? 'gradlew.bat' : './gradlew' };
+}

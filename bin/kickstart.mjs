@@ -7,7 +7,7 @@ import { GROUPS, MODULES, ADDONS, ADDON_IDS, DEFAULTS, PRESETS, normalizeChoices
 import { keysFor, resolveAll, pinned, rnRow, rnCeilingForXcode, libraries, compat } from '../src/resolver/index.mjs';
 import { scaffold, validateIdentifiers, dirIsEmpty } from '../src/scaffold.mjs';
 import { fetchTemplate } from '../src/native.mjs';
-import { detectAll } from '../src/detect.mjs';
+import { detectAll, toolchainWarnings, nativeBuildPlan } from '../src/detect.mjs';
 import { buildPackageJson } from '../src/packagejson.mjs';
 import { bold, dim, green, yellow, red, cyan } from '../src/color.mjs';
 
@@ -96,12 +96,15 @@ if (has('build')) {
   await sh(pm, ['run', 'verify'], outDir);
   await sh(pm, ['run', 'bundle:check'], outDir, { CI: '1' });
   if (native && choices.workflow === 'bare') {
-    if (process.platform === 'darwin') {
+    const plan = nativeBuildPlan(env);
+    if (plan.ios.can) {
       await sh('bundle', ['install'], outDir).catch(() => {});
       await sh('bundle', ['exec', 'pod', 'install'], join(outDir, 'ios'));
       await sh('xcodebuild', ['-workspace', `${name}.xcworkspace`, '-scheme', name, '-sdk', 'iphonesimulator', '-configuration', 'Debug', '-destination', 'generic/platform=iOS Simulator', 'build', '-quiet'], join(outDir, 'ios'));
-    }
-    await sh(process.platform === 'win32' ? 'gradlew.bat' : './gradlew', ['assembleDevDebug', '--console=plain'], join(outDir, 'android'), { JAVA_HOME: env.jdk?.home, ANDROID_HOME: env.androidSdk?.dir });
+    } else console.log(yellow('skip ') + `iOS build: ${plan.ios.why}`);
+    if (plan.android.can) await sh(plan.gradlew, ['assembleDevDebug', '--console=plain'], join(outDir, 'android'), { JAVA_HOME: env.jdk.home, ANDROID_HOME: env.androidSdk.dir });
+    else console.log(yellow('skip ') + `Android build: ${plan.android.why}`);
+    if (!plan.ios.can && !plan.android.can) die('--build=native: no native toolchain available on this machine');
   }
   console.log(green('✓ build passed'));
 }
@@ -156,24 +159,6 @@ function printDeps(pkg) {
   for (const [k, v, dev] of rows) console.log(`  ${(dev ? dim(k) : k).padEnd(dev ? 52 : 44)} ${v.startsWith('^') || v.startsWith('~') ? dim(v) : cyan(v)}`);
 }
 
-function toolchainWarnings(env, row) {
-  const out = [];
-  if (!row) return out;
-  if (compareVer(env.node, row.node) < 0) out.push(`node ${env.node} is below react-native's floor ${row.node}`);
-  if (process.platform === 'darwin' && !env.xcode) out.push('Xcode not found; iOS builds will not work');
-  if (process.platform === 'darwin' && env.xcode && compareVer(env.xcode.version, row.xcodeMin) < 0) out.push(`Xcode ${env.xcode.version} is below the floor ${row.xcodeMin}`);
-  if (!env.jdk) out.push('no JDK found (set JAVA_HOME or install Android Studio)');
-  else if (env.jdk.major < row.jdk) out.push(`JDK ${env.jdk.major} is below the floor ${row.jdk}`);
-  if (!env.androidSdk) out.push('Android SDK not found (ANDROID_HOME)');
-  else if (row.ndk && !env.androidSdk.ndks.includes(row.ndk)) out.push(`NDK ${row.ndk} not installed (found ${env.androidSdk.ndks.join(', ') || 'none'})`);
-  if (process.platform === 'darwin' && !env.cocoapods) out.push('CocoaPods not found');
-  return out;
-}
-function compareVer(a, b) {
-  const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number);
-  for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] ?? 0) - (y[i] ?? 0); if (d) return d; }
-  return 0;
-}
 
 function sh(cmd, args, cwd, extraEnv = {}) {
   console.log(dim(`\n$ ${cmd} ${args.join(' ')}   (${cwd})`));
