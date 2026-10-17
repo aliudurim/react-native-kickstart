@@ -1,5 +1,5 @@
 {
-  "pinnedAt": "2026-10-17T14:28:36.880Z",
+  "pinnedAt": "2026-10-17T14:44:45.316Z",
   "rnRow": {
     "minor": "0.88",
     "react": "19.3",
@@ -91,7 +91,8 @@
     "deviceInfo": "15.0.2",
     "googleSignin": "16.1.5",
     "appleAuth": "2.5.1",
-    "purchases": "10.14.0"
+    "purchases": "10.14.0",
+    "babelExportNs": "7.29.7"
   },
   "ranges": {
     "testRenderer": "^1.0.0",

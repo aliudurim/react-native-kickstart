@@ -107,7 +107,7 @@ Add-ons chosen at kickstart: {{ADDONS_LIST}}. Each is a native module with an ex
 - Env variant is selected with `APP_VARIANT=development|staging|production` (see `app.config.ts`, `eas.json`).
 {{else}}
 - `{{PM}} run pods` (Bundler-managed CocoaPods), then `{{PM}} run ios` / `{{PM}} run android`; `{{PM}} run start` for Metro only.
-- Three environments: `{{BUNDLE_ID}}`, `{{BUNDLE_ID}}.staging`, `{{BUNDLE_ID}}.dev` via Android flavors / iOS schemes; config comes from `.env*` through react-native-config into the typed `src/config/env.ts`. No `API_BASE_URL` literals elsewhere.
+- Two environments: `{{BUNDLE_ID}}.dev` (Android `dev` flavor / iOS Debug → `.env.development`) and `{{BUNDLE_ID}}` (`prod` flavor / iOS Release → `.env.production`). react-native-config bakes the file in at build time; each flavor applies its own file in `android/app/build.gradle`, and the Podfile maps `ENVFILE` per Xcode configuration. `src/config/env.ts` is the only reader. Editing an env file needs a native rebuild; Metro reload will not pick it up. No `API_BASE_URL` literals elsewhere.
 {{/if}}
 - **Done gate:** `{{PM}} run verify` (typecheck + lint + jest) must be green before any task is called done. CI runs the same on every PR.
 {{#if sample}}

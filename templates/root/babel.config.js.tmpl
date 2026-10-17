@@ -20,6 +20,9 @@ module.exports = function (api) {
     presets: ['module:@react-native/babel-preset'],
 {{/if}}
     plugins: [
+{{#if bare}}
+      '@babel/plugin-transform-export-namespace-from',
+{{/if}}
 {{#if unistyles}}
       ['react-native-unistyles/plugin', { root: 'src' }],
 {{/if}}

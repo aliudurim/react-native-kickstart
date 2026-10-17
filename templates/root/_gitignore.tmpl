@@ -70,9 +70,11 @@ fastlane/report.xml
 !.yarn/sdks
 !.yarn/versions
 
-# env — only .env.example is committed
+# env — the committed files hold publishable keys only; real secrets stay server-side
 .env*
 !.env.example
+!.env.development
+!.env.production
 {{#if expo}}
 
 # Expo
@@ -84,3 +86,6 @@ expo-env.d.ts
 # store assets output
 store/out/
 {{/if}}
+
+# bundle:check output
+/build/

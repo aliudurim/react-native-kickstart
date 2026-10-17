@@ -27,7 +27,7 @@ Bare React Native {{RN_VERSION}} app, bundle id `{{BUNDLE_ID}}`.
 {{PM}} run start             # Metro, if not started by the run command
 ```
 
-Copy `.env.example` to `.env` before the first run; only publishable keys belong there.
+Environment values live in `.env.development` (dev builds) and `.env.production` (release builds); only publishable keys belong there, and changing one needs a native rebuild.
 
 ## Verify
 

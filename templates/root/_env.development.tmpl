@@ -1,0 +1,9 @@
+# Development build ({{BUNDLE_ID}}.dev). Baked in at build time by react-native-config:
+# iOS Debug configuration, Android `dev` flavor. Editing needs a native rebuild.
+# Nothing here is secret: every value ships inside the app binary.
+APP_ENV=dev
+API_BASE_URL=https://dev-api.example.com
+DEEP_LINK_HOSTS={{APP_SLUG}}.example.com
+{{#if crash}}
+SENTRY_DSN=
+{{/if}}

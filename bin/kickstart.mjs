@@ -94,13 +94,14 @@ if (has('build')) {
   const native = flag('build') === 'native';
   await sh(pm, ['install'], outDir);
   await sh(pm, ['run', 'verify'], outDir);
+  if (choices.workflow === 'bare') await sh(pm, ['run', 'bundle:check'], outDir);
   if (native && choices.workflow === 'bare') {
     if (process.platform === 'darwin') {
       await sh('bundle', ['install'], outDir).catch(() => {});
       await sh('bundle', ['exec', 'pod', 'install'], join(outDir, 'ios'));
       await sh('xcodebuild', ['-workspace', `${name}.xcworkspace`, '-scheme', name, '-sdk', 'iphonesimulator', '-configuration', 'Debug', '-destination', 'generic/platform=iOS Simulator', 'build', '-quiet'], join(outDir, 'ios'));
     }
-    await sh(process.platform === 'win32' ? 'gradlew.bat' : './gradlew', ['assembleDebug', '--console=plain'], join(outDir, 'android'), { JAVA_HOME: env.jdk?.home, ANDROID_HOME: env.androidSdk?.dir });
+    await sh(process.platform === 'win32' ? 'gradlew.bat' : './gradlew', ['assembleDevDebug', '--console=plain'], join(outDir, 'android'), { JAVA_HOME: env.jdk?.home, ANDROID_HOME: env.androidSdk?.dir });
   }
   console.log(green('✓ build passed'));
 }

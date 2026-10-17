@@ -105,3 +105,73 @@ export function tmpDir(prefix) {
   mkdirSync(d, { recursive: true });
   return d;
 }
+
+// react-native-config needs native wiring the npm package does not do for you. Each product
+// flavor gets its own env file (dotenv.gradle would stamp one file onto every variant in a
+// multi-variant build), and each Xcode configuration maps to one through the ENVFILE setting.
+export function wireEnvConfig(outDir) {
+  const gradlePath = join(outDir, 'android', 'app', 'build.gradle');
+  let gradle = readFileSync(gradlePath, 'utf8');
+  if (!gradle.includes('applyEnvFile')) {
+    const helpers = `
+def readEnvFile(String path) {
+    def location = rootProject.layout.projectDirectory.file("../$path")
+    if (!location.asFile.exists()) {
+        throw new GradleException("Missing env file '$path' (looked in \${location.asFile.absolutePath}).")
+    }
+    def env = [:]
+    providers.fileContents(location).asText.get().split("\\n").each { line ->
+        if (line.trim().isEmpty() || line.trim().startsWith('#')) return
+        def matcher = (line =~ /^\\s*(?:export\\s+)?([A-Za-z0-9_]+)\\s*=\\s*['"]?(.*?)['"]?\\s*$/)
+        if (matcher.getCount() == 1) env.put(matcher[0][1], matcher[0][2].replace('"', '\\\\"'))
+    }
+    return env
+}
+
+def applyEnvFile(flavor, String path) {
+    readEnvFile(path).each { key, value ->
+        flavor.buildConfigField "String", key, "\\"$value\\""
+        flavor.resValue "string", key, "\\"\${value.replaceAll('%', '\\\\\\\\u0025')}\\""
+    }
+}
+
+android {`;
+    gradle = gradle.replace(/\nandroid \{/, helpers);
+    gradle = gradle.replace(/\n    \/\/ debuggableVariants = \[[^\]]*\]\n/, '\n    debuggableVariants = ["devDebug", "prodDebug", "devDebugOptimized", "prodDebugOptimized"]\n');
+    gradle = gradle.replace(/(\n    namespace "[^"]+"\n)/, `$1    buildFeatures {\n        buildConfig true\n    }\n`);
+    gradle = gradle.replace(/(    defaultConfig \{[\s\S]*?\n    \}\n)/, `$1    flavorDimensions "env"
+    productFlavors {
+        dev {
+            dimension "env"
+            applicationIdSuffix ".dev"
+            applyEnvFile(it, ".env.development")
+        }
+        prod {
+            dimension "env"
+            applyEnvFile(it, ".env.production")
+        }
+    }
+`);
+    writeFileSync(gradlePath, gradle);
+  }
+
+  const podfilePath = join(outDir, 'ios', 'Podfile');
+  let podfile = readFileSync(podfilePath, 'utf8');
+  if (!podfile.includes('ENVFILE')) {
+    podfile = podfile.replace(/  post_install do \|installer\|\n/, `  # One env file per Xcode configuration; react-native-config bakes it in at build time.
+  ENVFILES = {
+    'Debug' => '$(PODS_ROOT)/../../.env.development',
+    'Release' => '$(PODS_ROOT)/../../.env.production',
+  }
+
+  post_install do |installer|
+    installer.pods_project.targets.each do |target|
+      next unless target.name == 'react-native-config'
+      target.build_configurations.each do |config|
+        config.build_settings['ENVFILE'] = ENVFILES[config.name] || ENVFILES['Debug']
+      end
+    end
+`);
+    writeFileSync(podfilePath, podfile);
+  }
+}

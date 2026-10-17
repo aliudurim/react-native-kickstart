@@ -5,7 +5,7 @@ import { render } from './render.mjs';
 import { buildContext, slugify } from './context.mjs';
 import { buildPackageJson } from './packagejson.mjs';
 import { keysFor } from './resolver/index.mjs';
-import { copyNative } from './native.mjs';
+import { copyNative, wireEnvConfig } from './native.mjs';
 
 const templatesRoot = fileURLToPath(new URL('../templates/', import.meta.url));
 
@@ -47,6 +47,7 @@ export async function scaffold({ name, bundleId, outDir, choices, versions, row,
   if (choices.workflow === 'bare' && !skipNative) {
     if (!template) throw new Error('bare workflow needs the RN community template');
     copyNative(template, outDir, { name, displayName: name, bundleId });
+    wireEnvConfig(outDir);
     written.push('ios/', 'android/');
     if (androidSdkDir) {
       writeFileSync(join(outDir, 'android', 'local.properties'), `sdk.dir=${androidSdkDir.replace(/\\/g, '\\\\').replace(/:/g, '\\:')}\n`);

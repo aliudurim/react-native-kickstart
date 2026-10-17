@@ -500,6 +500,13 @@
       "native": true,
       "tag": "addon",
       "rnPeer": true
+    },
+    "babelExportNs": {
+      "pkg": "@babel/plugin-transform-export-namespace-from",
+      "dev": true,
+      "tag": "core",
+      "ceiling": "7",
+      "note": "the RN babel preset does not transform `export * as`, which zod 4 ships"
     }
   },
   "profiles": {
@@ -536,7 +543,8 @@
       "rnCliAndroid",
       "rnCliIos",
       "rnConfig",
-      "bootsplash"
+      "bootsplash",
+      "babelExportNs"
     ],
     "expo": [
       "expo",
