@@ -15,11 +15,36 @@ export const GROUPS = {
   store: ['yes', 'no'],
 };
 export const MODULES = ['crash', 'analytics', 'roles', 'media', 'push'];
+// Optional libraries the user can tick; each maps to catalog.profiles.addons.
+export const ADDONS = [
+  { id: 'bottom-sheet', label: 'Bottom Sheet', group: 'UI' },
+  { id: 'fast-image', label: 'Fast Image', group: 'UI' },
+  { id: 'lottie', label: 'Lottie', group: 'UI' },
+  { id: 'datetimepicker', label: 'DateTime Picker', group: 'UI' },
+  { id: 'maps', label: 'Maps', group: 'UI' },
+  { id: 'webview', label: 'WebView', group: 'UI' },
+  { id: 'image-picker', label: 'Image Picker', group: 'Media' },
+  { id: 'document-picker', label: 'Document Picker', group: 'Media' },
+  { id: 'video', label: 'Video', group: 'Media' },
+  { id: 'vision-camera', label: 'Vision Camera', group: 'Media' },
+  { id: 'share', label: 'Share', group: 'Device' },
+  { id: 'clipboard', label: 'Clipboard', group: 'Device' },
+  { id: 'haptics', label: 'Haptics', group: 'Device' },
+  { id: 'netinfo', label: 'NetInfo', group: 'Device' },
+  { id: 'device-info', label: 'Device Info', group: 'Device' },
+  { id: 'permissions', label: 'Permissions', group: 'Device' },
+  { id: 'keychain', label: 'Keychain', group: 'Auth & money' },
+  { id: 'google-signin', label: 'Google Sign-In', group: 'Auth & money' },
+  { id: 'apple-auth', label: 'Apple Sign-In', group: 'Auth & money' },
+  { id: 'purchases', label: 'RevenueCat', group: 'Auth & money' },
+];
+export const ADDON_IDS = ADDONS.map((a) => a.id);
 
 export const DEFAULTS = {
   workflow: 'bare', state: 'rtk', data: 'rtk-query', nav: 'react-navigation', styling: 'nativewind',
   storage: 'mmkv', forms: 'rhf-zod', i18n: 'i18next', lists: 'flash-list', sample: 'yes', store: 'yes',
   modules: ['crash', 'analytics'],
+  addons: [],
 };
 
 export const PRESETS = {
@@ -35,6 +60,9 @@ export function normalizeChoices(input) {
   if (c.state !== 'rtk' && c.data === 'rtk-query') c.data = 'tanstack-query';
   if (c.state === 'rtk' && c.data === 'tanstack-query') c.data = 'rtk-query';
   if (!Array.isArray(c.modules)) c.modules = String(c.modules ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+  if (!Array.isArray(c.addons)) c.addons = String(c.addons ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+  for (const a of c.addons) if (!ADDON_IDS.includes(a)) throw new Error(`--addons: unknown add-on "${a}" (${ADDON_IDS.join(', ')})`);
+  c.addons = [...new Set(c.addons)];
   for (const [g, allowed] of Object.entries(GROUPS)) if (!allowed.includes(c[g])) throw new Error(`--${g} must be one of ${allowed.join(', ')}`);
   for (const m of c.modules) if (!MODULES.includes(m)) throw new Error(`--modules: unknown module "${m}" (${MODULES.join(', ')})`);
   return c;
@@ -89,6 +117,9 @@ export function buildContext({ name, slug, bundleId, choices, versions, row, pm 
     media: has('media'),
     push: has('push'),
   };
+  ctx.addons = c.addons;
+  ctx.ADDONS_LIST = c.addons.map((id) => ADDONS.find((a) => a.id === id)?.label ?? id).join(', ') || 'none';
+  for (const a of ADDONS) ctx['addon_' + a.id.replace(/-/g, '_')] = c.addons.includes(a.id);
   ctx.persist = ctx.storage && (ctx.rtk || ctx.zustand);
   ctx.reduxPersist = ctx.rtk && ctx.storage;
   ctx.queryClient = ctx.tanstack;

@@ -40,6 +40,7 @@ rn-kickstart --yes --offline       # last known-good versions, no network
 | `--i18n` | `i18next` · `none` | `i18next` |
 | `--lists` | `flash-list` · `flatlist` | `flash-list` |
 | `--modules` | `crash,analytics,roles,media,push` | `crash,analytics` |
+| `--addons` | `bottom-sheet,lottie,webview,share,keychain,netinfo,…` (`--list-libs` shows all 20) | none |
 | `--sample` / `--store` | `yes` · `no` | `yes` |
 | `--pm` | `pnpm` · `yarn` · `bun` · `npm` | first one found |
 | `--rn` | cap, e.g. `0.87` | from your Xcode |

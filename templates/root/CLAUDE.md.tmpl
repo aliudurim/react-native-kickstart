@@ -97,6 +97,8 @@ Roles: capability gating via `src/lib/roles` — gate on capabilities, never on 
 - Every native bump: changelog + New-Arch check (reactnative.directory) + full native rebuild + on-device test on both platforms.
 - `@testing-library/react-native` v14 pairs with the npm package `test-renderer` (not `react-test-renderer`); `render`/`fireEvent`/`act` are async — await them.
 
+Add-ons chosen at kickstart: {{ADDONS_LIST}}. Each is a native module with an exact pin; add a jest stub in `jest/` the day you import one in a tested file.
+
 ## Running the app
 
 - Node from `.nvmrc` (`nvm use`), package manager: `{{PM}}`.

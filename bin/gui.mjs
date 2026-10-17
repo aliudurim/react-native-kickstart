@@ -10,7 +10,7 @@ import { dirname, join, relative, resolve as pathResolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { GROUPS, MODULES, PRESETS, DEFAULTS, normalizeChoices, slugify, buildContext } from '../src/context.mjs';
+import { GROUPS, MODULES, ADDONS, PRESETS, DEFAULTS, normalizeChoices, slugify, buildContext } from '../src/context.mjs';
 import { keysFor, resolveAll, pinned, rnRow, rnCeilingForXcode, libraries } from '../src/resolver/index.mjs';
 import { scaffold, validateIdentifiers, dirIsEmpty, planFiles } from '../src/scaffold.mjs';
 import { fetchTemplate } from '../src/native.mjs';
@@ -105,11 +105,12 @@ function choicesFrom(input) {
   const raw = {};
   for (const g of Object.keys(GROUPS)) if (input[g] != null && input[g] !== '') raw[g] = input[g];
   if (input.modules != null) raw.modules = input.modules;
+  if (input.addons != null) raw.addons = input.addons;
   return normalizeChoices(raw);
 }
 
 function kickstartCmdFor(name, bundleId, choices) {
-  return `rn-kickstart --yes --name=${name} --package=${bundleId} ${Object.keys(GROUPS).map((g) => `--${g}=${choices[g]}`).join(' ')} --modules=${choices.modules.join(',')}`;
+  return `rn-kickstart --yes --name=${name} --package=${bundleId} ${Object.keys(GROUPS).map((g) => `--${g}=${choices[g]}`).join(' ')} --modules=${choices.modules.join(',')}${choices.addons.length ? ` --addons=${choices.addons.join(',')}` : ''}`;
 }
 
 function pickFolder() {
@@ -394,7 +395,7 @@ const server = createServer(async (req, res) => {
     if (url.pathname === '/api/init') {
       const e = env();
       return json(200, {
-        env: e, groups: GROUPS, modules: MODULES, presets: PRESETS, defaults: DEFAULTS,
+        env: e, groups: GROUPS, modules: MODULES, addons: ADDONS, presets: PRESETS, defaults: DEFAULTS,
         defaultOut: defaultOutRoot(), defaultPm: pickPm(e.packageManagers),
         pinnedAt: pinned()?.pinnedAt ?? null, libraries, platform: process.platform,
       });

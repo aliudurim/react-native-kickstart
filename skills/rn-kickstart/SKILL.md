@@ -59,7 +59,7 @@ state), then pass it as flags. `--help` prints the same list.
 | `--lists` | `flash-list` · `flatlist` | `flash-list` |
 | `--sample` | `yes` · `no` — login → home sample screens and tests | `yes` |
 | `--store` | `yes` · `no` — store-assets config + fastlane tree | `yes` |
-| `--modules` | comma list of `crash`, `analytics`, `roles`, `media`, `push` | `crash,analytics` |
+| `--addons=bottom-sheet,lottie,…` optional libraries (20 ids, see `rn-kickstart --list-libs`); `--modules` | comma list of `crash`, `analytics`, `roles`, `media`, `push` | `crash,analytics` |
 | `--pm` | `pnpm` · `yarn` · `bun` · `npm` | first one found |
 | `--rn` | cap React Native to a minor, e.g. `0.87` | from the installed Xcode |
 

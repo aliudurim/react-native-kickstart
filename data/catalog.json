@@ -1,132 +1,705 @@
 {
   "_doc": "artifacts: key -> npm package and how to pick its version. native=true -> exact pin in package.json; otherwise caret. floor/ceiling are hard bounds. rnPeer=true -> only versions whose peerDependencies.react-native admit the chosen RN. pairedWith -> after this resolves, those keys take their range from this version's peerDependencies. profiles: which keys each choice pulls in.",
   "artifacts": {
-    "rn":              { "pkg": "react-native", "native": true, "tag": "core" },
-    "react":           { "pkg": "react", "native": true, "tag": "core", "rangeFromPeerOf": "rn" },
-    "typesReact":      { "pkg": "@types/react", "dev": true, "tag": "core", "rangeFromPeerOf": "rn" },
-    "rnBabelPreset":   { "pkg": "@react-native/babel-preset", "dev": true, "native": true, "tag": "core", "trackRn": true },
-    "rnMetroConfig":   { "pkg": "@react-native/metro-config", "dev": true, "native": true, "tag": "core", "trackRn": true },
-    "rnEslintConfig":  { "pkg": "@react-native/eslint-config", "dev": true, "native": true, "tag": "core", "trackRn": true },
-    "rnTsConfig":      { "pkg": "@react-native/typescript-config", "dev": true, "native": true, "tag": "core", "trackRn": true },
-    "rnCli":           { "pkg": "@react-native-community/cli", "dev": true, "native": true, "tag": "core" },
-    "rnCliAndroid":    { "pkg": "@react-native-community/cli-platform-android", "dev": true, "native": true, "tag": "core" },
-    "rnCliIos":        { "pkg": "@react-native-community/cli-platform-ios", "dev": true, "native": true, "tag": "core" },
-    "typescript":      { "pkg": "typescript", "dev": true, "tag": "core", "ceiling": "6", "note": "TS 7 (Go) is GA but RN tooling still lags" },
-    "jest":            { "pkg": "jest", "dev": true, "tag": "test", "ceiling": "29", "note": "@react-native/jest-preset builds on babel-jest 29" },
-    "rntl":            { "pkg": "@testing-library/react-native", "dev": true, "tag": "test", "pairedWith": ["testRenderer"] },
-    "testRenderer":    { "pkg": "test-renderer", "dev": true, "tag": "test" },
-    "eslint":          { "pkg": "eslint", "dev": true, "tag": "lint", "ceiling": "9", "note": "@react-native/eslint-config peers stop at ^9" },
-    "prettier":        { "pkg": "prettier", "dev": true, "tag": "lint" },
-    "babelCore":       { "pkg": "@babel/core", "dev": true, "tag": "core", "ceiling": "7", "note": "the RN template and babel-preset are built on Babel 7" },
-    "babelRuntime":    { "pkg": "@babel/runtime", "dev": true, "tag": "core", "ceiling": "7" },
-    "babelPresetEnv":  { "pkg": "@babel/preset-env", "dev": true, "tag": "core", "ceiling": "7" },
-    "rnJestPreset":    { "pkg": "@react-native/jest-preset", "dev": true, "native": true, "tag": "test", "trackRn": true },
-    "typesJest":       { "pkg": "@types/jest", "dev": true, "tag": "test", "ceiling": "29" },
-
-    "navNative":       { "pkg": "@react-navigation/native", "tag": "nav" },
-    "navStack":        { "pkg": "@react-navigation/native-stack", "tag": "nav" },
-    "navTabs":         { "pkg": "@react-navigation/bottom-tabs", "tag": "nav" },
-    "screens":         { "pkg": "react-native-screens", "native": true, "tag": "nav", "rnPeer": true },
-    "safeArea":        { "pkg": "react-native-safe-area-context", "native": true, "tag": "nav", "rnPeer": true },
-
-    "reanimated":      { "pkg": "react-native-reanimated", "native": true, "tag": "animation", "floor": "4.5.0", "rnPeer": true, "compatJson": "https://unpkg.com/react-native-reanimated@{v}/compatibility.json", "pairedWith": ["worklets"], "note": "4.4.x silently drops animated updates in native-stack screens on Android" },
-    "worklets":        { "pkg": "react-native-worklets", "native": true, "tag": "animation", "rnPeer": true },
-    "gestureHandler":  { "pkg": "react-native-gesture-handler", "native": true, "tag": "animation", "rnPeer": true },
-
-    "nativewind":      { "pkg": "nativewind", "tag": "styling", "ceiling": "4", "pairedWith": ["tailwind"], "note": "v5 is preview; tracks Tailwind 4" },
-    "tailwind":        { "pkg": "tailwindcss", "dev": true, "tag": "styling", "ceiling": "3", "range": "~", "note": "NativeWind 4's peer range admits 4.x, which breaks the build" },
-    "unistyles":       { "pkg": "react-native-unistyles", "native": true, "tag": "styling", "rnPeer": true, "pairedWith": ["nitro", "edgeToEdge"] },
-    "edgeToEdge":      { "pkg": "react-native-edge-to-edge", "native": true, "tag": "styling", "rnPeer": true },
-
-    "rtk":             { "pkg": "@reduxjs/toolkit", "tag": "state", "floor": "2.8.2", "note": "2.8.2 fixed the Metro exports resolution" },
-    "reactRedux":      { "pkg": "react-redux", "tag": "state" },
-    "zustand":         { "pkg": "zustand", "tag": "state" },
-    "tanstackQuery":   { "pkg": "@tanstack/react-query", "tag": "data" },
-
-    "mmkv":            { "pkg": "react-native-mmkv", "native": true, "tag": "storage", "rnPeer": true, "pairedWith": ["nitro"] },
-    "nitro":           { "pkg": "react-native-nitro-modules", "native": true, "tag": "storage", "rnPeer": true },
-    "asyncStorage":    { "pkg": "@react-native-async-storage/async-storage", "native": true, "tag": "storage", "rnPeer": true },
-
-    "flashList":       { "pkg": "@shopify/flash-list", "tag": "lists", "rnPeer": true },
-
-    "rhf":             { "pkg": "react-hook-form", "tag": "forms", "floor": "7.55.0" },
-    "resolvers":       { "pkg": "@hookform/resolvers", "tag": "forms", "floor": "5.0.0" },
-    "zod":             { "pkg": "zod", "tag": "forms" },
-
-    "i18next":         { "pkg": "i18next", "tag": "i18n" },
-    "reactI18next":    { "pkg": "react-i18next", "tag": "i18n", "pairedWith": ["i18next"] },
-    "localize":        { "pkg": "react-native-localize", "native": true, "tag": "i18n", "rnPeer": true },
-
-    "dateFns":         { "pkg": "date-fns", "tag": "utils" },
-    "esToolkit":       { "pkg": "es-toolkit", "tag": "utils" },
-    "svg":             { "pkg": "react-native-svg", "native": true, "tag": "ui", "rnPeer": true },
-    "bootsplash":      { "pkg": "react-native-bootsplash", "native": true, "tag": "ui", "rnPeer": true },
-    "keyboard":        { "pkg": "react-native-keyboard-controller", "native": true, "tag": "ui", "rnPeer": true },
-    "bottomSheet":     { "pkg": "@gorhom/bottom-sheet", "tag": "ui" },
-    "rnConfig":        { "pkg": "react-native-config", "native": true, "tag": "config", "rnPeer": true },
-
-    "sentry":          { "pkg": "@sentry/react-native", "native": true, "tag": "crash", "rnPeer": true },
-    "firebaseApp":     { "pkg": "@react-native-firebase/app", "native": true, "tag": "push", "floor": "26.0.0", "pairedWith": ["firebaseMessaging"] },
-    "firebaseMessaging": { "pkg": "@react-native-firebase/messaging", "native": true, "tag": "push" },
-    "permissions":     { "pkg": "react-native-permissions", "native": true, "tag": "push", "rnPeer": true },
-    "imagePicker":     { "pkg": "react-native-image-picker", "native": true, "tag": "media", "rnPeer": true },
-    "video":           { "pkg": "react-native-video", "native": true, "tag": "media", "rnPeer": true, "ceiling": "6" },
-
-    "expo":            { "pkg": "expo", "native": true, "tag": "expo" },
-    "expoRouter":      { "pkg": "expo-router", "native": true, "tag": "expo" },
-    "expoStatusBar":   { "pkg": "expo-status-bar", "native": true, "tag": "expo" },
-    "expoLinking":     { "pkg": "expo-linking", "native": true, "tag": "expo" },
-    "expoConstants":   { "pkg": "expo-constants", "native": true, "tag": "expo" },
-    "expoSplash":      { "pkg": "expo-splash-screen", "native": true, "tag": "expo" },
-    "babelPresetExpo": { "pkg": "babel-preset-expo", "dev": true, "tag": "expo" },
-    "reactDom":        { "pkg": "react-dom", "native": true, "tag": "expo", "note": "expo-router's web deps peer on react-dom; it must match the SDK's react pin exactly" }
+    "rn": {
+      "pkg": "react-native",
+      "native": true,
+      "tag": "core"
+    },
+    "react": {
+      "pkg": "react",
+      "native": true,
+      "tag": "core",
+      "rangeFromPeerOf": "rn"
+    },
+    "typesReact": {
+      "pkg": "@types/react",
+      "dev": true,
+      "tag": "core",
+      "rangeFromPeerOf": "rn"
+    },
+    "rnBabelPreset": {
+      "pkg": "@react-native/babel-preset",
+      "dev": true,
+      "native": true,
+      "tag": "core",
+      "trackRn": true
+    },
+    "rnMetroConfig": {
+      "pkg": "@react-native/metro-config",
+      "dev": true,
+      "native": true,
+      "tag": "core",
+      "trackRn": true
+    },
+    "rnEslintConfig": {
+      "pkg": "@react-native/eslint-config",
+      "dev": true,
+      "native": true,
+      "tag": "core",
+      "trackRn": true
+    },
+    "rnTsConfig": {
+      "pkg": "@react-native/typescript-config",
+      "dev": true,
+      "native": true,
+      "tag": "core",
+      "trackRn": true
+    },
+    "rnCli": {
+      "pkg": "@react-native-community/cli",
+      "dev": true,
+      "native": true,
+      "tag": "core"
+    },
+    "rnCliAndroid": {
+      "pkg": "@react-native-community/cli-platform-android",
+      "dev": true,
+      "native": true,
+      "tag": "core"
+    },
+    "rnCliIos": {
+      "pkg": "@react-native-community/cli-platform-ios",
+      "dev": true,
+      "native": true,
+      "tag": "core"
+    },
+    "typescript": {
+      "pkg": "typescript",
+      "dev": true,
+      "tag": "core",
+      "ceiling": "6",
+      "note": "TS 7 (Go) is GA but RN tooling still lags"
+    },
+    "jest": {
+      "pkg": "jest",
+      "dev": true,
+      "tag": "test",
+      "ceiling": "29",
+      "note": "@react-native/jest-preset builds on babel-jest 29"
+    },
+    "rntl": {
+      "pkg": "@testing-library/react-native",
+      "dev": true,
+      "tag": "test",
+      "pairedWith": [
+        "testRenderer"
+      ]
+    },
+    "testRenderer": {
+      "pkg": "test-renderer",
+      "dev": true,
+      "tag": "test"
+    },
+    "eslint": {
+      "pkg": "eslint",
+      "dev": true,
+      "tag": "lint",
+      "ceiling": "9",
+      "note": "@react-native/eslint-config peers stop at ^9"
+    },
+    "prettier": {
+      "pkg": "prettier",
+      "dev": true,
+      "tag": "lint"
+    },
+    "babelCore": {
+      "pkg": "@babel/core",
+      "dev": true,
+      "tag": "core",
+      "ceiling": "7",
+      "note": "the RN template and babel-preset are built on Babel 7"
+    },
+    "babelRuntime": {
+      "pkg": "@babel/runtime",
+      "dev": true,
+      "tag": "core",
+      "ceiling": "7"
+    },
+    "babelPresetEnv": {
+      "pkg": "@babel/preset-env",
+      "dev": true,
+      "tag": "core",
+      "ceiling": "7"
+    },
+    "rnJestPreset": {
+      "pkg": "@react-native/jest-preset",
+      "dev": true,
+      "native": true,
+      "tag": "test",
+      "trackRn": true
+    },
+    "typesJest": {
+      "pkg": "@types/jest",
+      "dev": true,
+      "tag": "test",
+      "ceiling": "29"
+    },
+    "navNative": {
+      "pkg": "@react-navigation/native",
+      "tag": "nav"
+    },
+    "navStack": {
+      "pkg": "@react-navigation/native-stack",
+      "tag": "nav"
+    },
+    "navTabs": {
+      "pkg": "@react-navigation/bottom-tabs",
+      "tag": "nav"
+    },
+    "screens": {
+      "pkg": "react-native-screens",
+      "native": true,
+      "tag": "nav",
+      "rnPeer": true
+    },
+    "safeArea": {
+      "pkg": "react-native-safe-area-context",
+      "native": true,
+      "tag": "nav",
+      "rnPeer": true
+    },
+    "reanimated": {
+      "pkg": "react-native-reanimated",
+      "native": true,
+      "tag": "animation",
+      "floor": "4.5.0",
+      "rnPeer": true,
+      "compatJson": "https://unpkg.com/react-native-reanimated@{v}/compatibility.json",
+      "pairedWith": [
+        "worklets"
+      ],
+      "note": "4.4.x silently drops animated updates in native-stack screens on Android"
+    },
+    "worklets": {
+      "pkg": "react-native-worklets",
+      "native": true,
+      "tag": "animation",
+      "rnPeer": true
+    },
+    "gestureHandler": {
+      "pkg": "react-native-gesture-handler",
+      "native": true,
+      "tag": "animation",
+      "rnPeer": true
+    },
+    "nativewind": {
+      "pkg": "nativewind",
+      "tag": "styling",
+      "ceiling": "4",
+      "pairedWith": [
+        "tailwind"
+      ],
+      "note": "v5 is preview; tracks Tailwind 4"
+    },
+    "tailwind": {
+      "pkg": "tailwindcss",
+      "dev": true,
+      "tag": "styling",
+      "ceiling": "3",
+      "range": "~",
+      "note": "NativeWind 4's peer range admits 4.x, which breaks the build"
+    },
+    "unistyles": {
+      "pkg": "react-native-unistyles",
+      "native": true,
+      "tag": "styling",
+      "rnPeer": true,
+      "pairedWith": [
+        "nitro",
+        "edgeToEdge"
+      ]
+    },
+    "edgeToEdge": {
+      "pkg": "react-native-edge-to-edge",
+      "native": true,
+      "tag": "styling",
+      "rnPeer": true
+    },
+    "rtk": {
+      "pkg": "@reduxjs/toolkit",
+      "tag": "state",
+      "floor": "2.8.2",
+      "note": "2.8.2 fixed the Metro exports resolution"
+    },
+    "reactRedux": {
+      "pkg": "react-redux",
+      "tag": "state"
+    },
+    "zustand": {
+      "pkg": "zustand",
+      "tag": "state"
+    },
+    "tanstackQuery": {
+      "pkg": "@tanstack/react-query",
+      "tag": "data"
+    },
+    "mmkv": {
+      "pkg": "react-native-mmkv",
+      "native": true,
+      "tag": "storage",
+      "rnPeer": true,
+      "pairedWith": [
+        "nitro"
+      ]
+    },
+    "nitro": {
+      "pkg": "react-native-nitro-modules",
+      "native": true,
+      "tag": "storage",
+      "rnPeer": true
+    },
+    "asyncStorage": {
+      "pkg": "@react-native-async-storage/async-storage",
+      "native": true,
+      "tag": "storage",
+      "rnPeer": true
+    },
+    "flashList": {
+      "pkg": "@shopify/flash-list",
+      "tag": "lists",
+      "rnPeer": true
+    },
+    "rhf": {
+      "pkg": "react-hook-form",
+      "tag": "forms",
+      "floor": "7.55.0"
+    },
+    "resolvers": {
+      "pkg": "@hookform/resolvers",
+      "tag": "forms",
+      "floor": "5.0.0"
+    },
+    "zod": {
+      "pkg": "zod",
+      "tag": "forms"
+    },
+    "i18next": {
+      "pkg": "i18next",
+      "tag": "i18n"
+    },
+    "reactI18next": {
+      "pkg": "react-i18next",
+      "tag": "i18n",
+      "pairedWith": [
+        "i18next"
+      ]
+    },
+    "localize": {
+      "pkg": "react-native-localize",
+      "native": true,
+      "tag": "i18n",
+      "rnPeer": true
+    },
+    "dateFns": {
+      "pkg": "date-fns",
+      "tag": "utils"
+    },
+    "esToolkit": {
+      "pkg": "es-toolkit",
+      "tag": "utils"
+    },
+    "svg": {
+      "pkg": "react-native-svg",
+      "native": true,
+      "tag": "ui",
+      "rnPeer": true
+    },
+    "bootsplash": {
+      "pkg": "react-native-bootsplash",
+      "native": true,
+      "tag": "ui",
+      "rnPeer": true
+    },
+    "keyboard": {
+      "pkg": "react-native-keyboard-controller",
+      "native": true,
+      "tag": "ui",
+      "rnPeer": true
+    },
+    "bottomSheet": {
+      "pkg": "@gorhom/bottom-sheet",
+      "tag": "ui"
+    },
+    "rnConfig": {
+      "pkg": "react-native-config",
+      "native": true,
+      "tag": "config",
+      "rnPeer": true
+    },
+    "sentry": {
+      "pkg": "@sentry/react-native",
+      "native": true,
+      "tag": "crash",
+      "rnPeer": true
+    },
+    "firebaseApp": {
+      "pkg": "@react-native-firebase/app",
+      "native": true,
+      "tag": "push",
+      "floor": "26.0.0",
+      "pairedWith": [
+        "firebaseMessaging"
+      ]
+    },
+    "firebaseMessaging": {
+      "pkg": "@react-native-firebase/messaging",
+      "native": true,
+      "tag": "push"
+    },
+    "permissions": {
+      "pkg": "react-native-permissions",
+      "native": true,
+      "tag": "push",
+      "rnPeer": true
+    },
+    "imagePicker": {
+      "pkg": "react-native-image-picker",
+      "native": true,
+      "tag": "media",
+      "rnPeer": true
+    },
+    "video": {
+      "pkg": "react-native-video",
+      "native": true,
+      "tag": "media",
+      "rnPeer": true,
+      "ceiling": "6"
+    },
+    "expo": {
+      "pkg": "expo",
+      "native": true,
+      "tag": "expo"
+    },
+    "expoRouter": {
+      "pkg": "expo-router",
+      "native": true,
+      "tag": "expo"
+    },
+    "expoStatusBar": {
+      "pkg": "expo-status-bar",
+      "native": true,
+      "tag": "expo"
+    },
+    "expoLinking": {
+      "pkg": "expo-linking",
+      "native": true,
+      "tag": "expo"
+    },
+    "expoConstants": {
+      "pkg": "expo-constants",
+      "native": true,
+      "tag": "expo"
+    },
+    "expoSplash": {
+      "pkg": "expo-splash-screen",
+      "native": true,
+      "tag": "expo"
+    },
+    "babelPresetExpo": {
+      "pkg": "babel-preset-expo",
+      "dev": true,
+      "tag": "expo"
+    },
+    "reactDom": {
+      "pkg": "react-dom",
+      "native": true,
+      "tag": "expo",
+      "note": "expo-router's web deps peer on react-dom; it must match the SDK's react pin exactly"
+    },
+    "fastImage": {
+      "pkg": "@d11/react-native-fast-image",
+      "native": true,
+      "tag": "addon",
+      "rnPeer": true
+    },
+    "datePicker": {
+      "pkg": "@react-native-community/datetimepicker",
+      "native": true,
+      "tag": "addon",
+      "rnPeer": true
+    },
+    "lottie": {
+      "pkg": "lottie-react-native",
+      "native": true,
+      "tag": "addon",
+      "rnPeer": true
+    },
+    "webview": {
+      "pkg": "react-native-webview",
+      "native": true,
+      "tag": "addon",
+      "rnPeer": true
+    },
+    "share": {
+      "pkg": "react-native-share",
+      "native": true,
+      "tag": "addon"
+    },
+    "keychain": {
+      "pkg": "react-native-keychain",
+      "native": true,
+      "tag": "addon"
+    },
+    "clipboard": {
+      "pkg": "@react-native-clipboard/clipboard",
+      "native": true,
+      "tag": "addon",
+      "rnPeer": true
+    },
+    "netinfo": {
+      "pkg": "@react-native-community/netinfo",
+      "native": true,
+      "tag": "addon",
+      "rnPeer": true
+    },
+    "haptics": {
+      "pkg": "react-native-haptic-feedback",
+      "native": true,
+      "tag": "addon",
+      "rnPeer": true
+    },
+    "docPicker": {
+      "pkg": "@react-native-documents/picker",
+      "native": true,
+      "tag": "addon",
+      "rnPeer": true
+    },
+    "maps": {
+      "pkg": "react-native-maps",
+      "native": true,
+      "tag": "addon",
+      "rnPeer": true
+    },
+    "deviceInfo": {
+      "pkg": "react-native-device-info",
+      "native": true,
+      "tag": "addon"
+    },
+    "visionCamera": {
+      "pkg": "react-native-vision-camera",
+      "native": true,
+      "tag": "addon",
+      "rnPeer": true,
+      "pairedWith": [
+        "nitro"
+      ]
+    },
+    "googleSignin": {
+      "pkg": "@react-native-google-signin/google-signin",
+      "native": true,
+      "tag": "addon"
+    },
+    "appleAuth": {
+      "pkg": "@invertase/react-native-apple-authentication",
+      "native": true,
+      "tag": "addon"
+    },
+    "purchases": {
+      "pkg": "react-native-purchases",
+      "native": true,
+      "tag": "addon",
+      "rnPeer": true
+    }
   },
   "profiles": {
-    "base": ["rn", "react", "typesReact", "rnBabelPreset", "rnMetroConfig", "rnEslintConfig", "rnTsConfig", "rnJestPreset", "typesJest", "typescript", "jest", "rntl", "testRenderer", "eslint", "prettier", "babelCore", "babelRuntime", "babelPresetEnv", "safeArea", "reanimated", "worklets", "gestureHandler", "dateFns", "esToolkit", "svg", "keyboard"],
-    "bare": ["rnCli", "rnCliAndroid", "rnCliIos", "rnConfig", "bootsplash"],
-    "expo": ["expo", "expoStatusBar", "expoLinking", "expoConstants", "expoSplash", "babelPresetExpo", "reactDom"],
+    "base": [
+      "rn",
+      "react",
+      "typesReact",
+      "rnBabelPreset",
+      "rnMetroConfig",
+      "rnEslintConfig",
+      "rnTsConfig",
+      "rnJestPreset",
+      "typesJest",
+      "typescript",
+      "jest",
+      "rntl",
+      "testRenderer",
+      "eslint",
+      "prettier",
+      "babelCore",
+      "babelRuntime",
+      "babelPresetEnv",
+      "safeArea",
+      "reanimated",
+      "worklets",
+      "gestureHandler",
+      "dateFns",
+      "esToolkit",
+      "svg",
+      "keyboard"
+    ],
+    "bare": [
+      "rnCli",
+      "rnCliAndroid",
+      "rnCliIos",
+      "rnConfig",
+      "bootsplash"
+    ],
+    "expo": [
+      "expo",
+      "expoStatusBar",
+      "expoLinking",
+      "expoConstants",
+      "expoSplash",
+      "babelPresetExpo",
+      "reactDom"
+    ],
     "nav": {
-      "react-navigation": ["navNative", "navStack", "navTabs", "screens"],
-      "expo-router": ["expoRouter", "screens"]
+      "react-navigation": [
+        "navNative",
+        "navStack",
+        "navTabs",
+        "screens"
+      ],
+      "expo-router": [
+        "expoRouter",
+        "screens"
+      ]
     },
     "state": {
-      "rtk": ["rtk", "reactRedux"],
-      "zustand": ["zustand"],
+      "rtk": [
+        "rtk",
+        "reactRedux"
+      ],
+      "zustand": [
+        "zustand"
+      ],
       "none": []
     },
     "data": {
       "rtk-query": [],
-      "tanstack-query": ["tanstackQuery"],
+      "tanstack-query": [
+        "tanstackQuery"
+      ],
       "fetch": []
     },
     "styling": {
-      "nativewind": ["nativewind", "tailwind"],
-      "unistyles": ["unistyles", "nitro", "edgeToEdge"],
+      "nativewind": [
+        "nativewind",
+        "tailwind"
+      ],
+      "unistyles": [
+        "unistyles",
+        "nitro",
+        "edgeToEdge"
+      ],
       "stylesheet": []
     },
     "storage": {
-      "mmkv": ["mmkv", "nitro"],
-      "async-storage": ["asyncStorage"],
+      "mmkv": [
+        "mmkv",
+        "nitro"
+      ],
+      "async-storage": [
+        "asyncStorage"
+      ],
       "none": []
     },
     "forms": {
-      "rhf-zod": ["rhf", "resolvers", "zod"],
-      "none": ["zod"]
+      "rhf-zod": [
+        "rhf",
+        "resolvers",
+        "zod"
+      ],
+      "none": [
+        "zod"
+      ]
     },
     "i18n": {
-      "i18next": ["i18next", "reactI18next", "localize"],
+      "i18next": [
+        "i18next",
+        "reactI18next",
+        "localize"
+      ],
       "none": []
     },
     "lists": {
-      "flash-list": ["flashList"],
+      "flash-list": [
+        "flashList"
+      ],
       "flatlist": []
     },
     "modules": {
-      "crash": ["sentry"],
+      "crash": [
+        "sentry"
+      ],
       "analytics": [],
       "roles": [],
-      "media": ["imagePicker", "video"],
-      "push": ["firebaseApp", "firebaseMessaging", "permissions"]
+      "media": [
+        "imagePicker",
+        "video"
+      ],
+      "push": [
+        "firebaseApp",
+        "firebaseMessaging",
+        "permissions"
+      ]
+    },
+    "addons": {
+      "bottom-sheet": [
+        "bottomSheet"
+      ],
+      "fast-image": [
+        "fastImage"
+      ],
+      "datetimepicker": [
+        "datePicker"
+      ],
+      "lottie": [
+        "lottie"
+      ],
+      "webview": [
+        "webview"
+      ],
+      "share": [
+        "share"
+      ],
+      "keychain": [
+        "keychain"
+      ],
+      "clipboard": [
+        "clipboard"
+      ],
+      "netinfo": [
+        "netinfo"
+      ],
+      "haptics": [
+        "haptics"
+      ],
+      "image-picker": [
+        "imagePicker"
+      ],
+      "document-picker": [
+        "docPicker"
+      ],
+      "video": [
+        "video"
+      ],
+      "maps": [
+        "maps"
+      ],
+      "device-info": [
+        "deviceInfo"
+      ],
+      "vision-camera": [
+        "visionCamera",
+        "nitro"
+      ],
+      "permissions": [
+        "permissions"
+      ],
+      "google-signin": [
+        "googleSignin"
+      ],
+      "apple-auth": [
+        "appleAuth"
+      ],
+      "purchases": [
+        "purchases"
+      ]
     }
   }
 }

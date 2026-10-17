@@ -151,3 +151,16 @@ test('tab bar has New project active and Store assets as a live tab', () => {
   assert.match(html, /<main class="main" id="newMain">/);
   assert.match(html, /<main class="main" id="storeMain" hidden>/);
 });
+
+test('every add-on has a library description and a profile in the catalog', async () => {
+  const { ADDONS } = await import('../src/context.mjs');
+  const { catalog, libraries } = await import('../src/resolver/index.mjs');
+  for (const a of ADDONS) {
+    assert.ok(libraries[a.id]?.summary, `libraries.json lacks add-on "${a.id}"`);
+    assert.ok(catalog.profiles.addons?.[a.id]?.length, `catalog has no profile for add-on "${a.id}"`);
+    for (const key of catalog.profiles.addons[a.id]) assert.ok(catalog.artifacts[key], `add-on "${a.id}" points at unknown artifact "${key}"`);
+  }
+  const html = readFileSync(new URL('../gui/index.html', import.meta.url), 'utf8');
+  assert.match(html, /id="addons"/);
+  assert.match(html, /addons: choices\.addons\.join\(','\)/, 'create must send the add-ons');
+});

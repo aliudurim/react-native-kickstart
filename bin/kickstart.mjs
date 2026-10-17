@@ -3,7 +3,7 @@ import { createInterface } from 'node:readline/promises';
 import { spawn } from 'node:child_process';
 import { resolve as resolvePath, join } from 'node:path';
 import { existsSync } from 'node:fs';
-import { GROUPS, MODULES, DEFAULTS, PRESETS, normalizeChoices, slugify } from '../src/context.mjs';
+import { GROUPS, MODULES, ADDONS, ADDON_IDS, DEFAULTS, PRESETS, normalizeChoices, slugify } from '../src/context.mjs';
 import { keysFor, resolveAll, pinned, rnRow, rnCeilingForXcode, libraries, compat } from '../src/resolver/index.mjs';
 import { scaffold, validateIdentifiers, dirIsEmpty } from '../src/scaffold.mjs';
 import { fetchTemplate } from '../src/native.mjs';
@@ -33,12 +33,13 @@ let answers = {
 };
 for (const g of Object.keys(GROUPS)) answers[g] = flag(g);
 answers.modules = flag('modules');
+answers.addons = flag('addons');
 
 if (interactive) answers = await prompt(answers);
 
 const preset = answers.preset ? PRESETS[answers.preset] : null;
 if (answers.preset && !preset) die(`unknown preset "${answers.preset}" (${Object.keys(PRESETS).join(', ')})`);
-const choices = normalizeChoices({ ...(preset ?? {}), ...Object.fromEntries(Object.entries(answers).filter(([k, v]) => (k in GROUPS || k === 'modules') && v != null)) });
+const choices = normalizeChoices({ ...(preset ?? {}), ...Object.fromEntries(Object.entries(answers).filter(([k, v]) => (k in GROUPS || k === 'modules' || k === 'addons') && v != null)) });
 const name = answers.name;
 const slug = slugify(name);
 const bundleId = answers.package ?? `com.example.${slug.replace(/-/g, '')}`;
@@ -68,7 +69,7 @@ if (has('offline')) {
 if (!versions.rn) die('could not resolve react-native');
 row ??= rnRow(versions.rn);
 
-const kickstartCmd = `rn-kickstart --yes --name=${name} --package=${bundleId} ${Object.keys(GROUPS).map((g) => `--${g}=${choices[g]}`).join(' ')} --modules=${choices.modules.join(',')}`;
+const kickstartCmd = `rn-kickstart --yes --name=${name} --package=${bundleId} ${Object.keys(GROUPS).map((g) => `--${g}=${choices[g]}`).join(' ')} --modules=${choices.modules.join(',')}${choices.addons.length ? ` --addons=${choices.addons.join(',')}` : ''}`;
 const pkg = buildPackageJson({ name, slug, keys, versions, choices, row, pm });
 
 console.log();
@@ -136,6 +137,8 @@ async function prompt(a) {
     }
     console.log(`\n${bold('Modules')}  ${MODULES.map((m) => `${m}: ${dim(libraries[m]?.summary ?? '')}`).join('\n          ')}`);
     a.modules = await ask('modules (comma separated)', DEFAULTS.modules.join(','));
+    console.log(`\n${bold('Add-ons')}  ${ADDONS.map((x) => `${x.id}: ${dim(libraries[x.id]?.summary ?? '')}`).join('\n          ')}`);
+    a.addons = await ask('add-ons (comma separated, or none)', '');
   }
   a.out = await ask('Folder', a.out ?? `./${slugify(a.name)}`);
   rl.close();
@@ -187,6 +190,7 @@ function die(msg) { console.error(red('error ') + msg); process.exit(1); }
 function listLibs() {
   for (const [g, opts] of Object.entries(GROUPS)) console.log(`${bold(g.padEnd(10))} ${opts.join(' · ')}`);
   console.log(`${bold('modules'.padEnd(10))} ${MODULES.join(' · ')}`);
+  console.log(`${bold('addons'.padEnd(10))} ${ADDON_IDS.join(' · ')}`);
 }
 function info(key) {
   const l = libraries[key];
@@ -203,6 +207,7 @@ function help() {
   --name=MyApp   --package=com.example.myapp   --out=./myapp   --preset=standard|expo|minimal
 ${Object.entries(GROUPS).map(([g, o]) => `  --${g}=${o.join('|')}`).join('\n')}
   --modules=${MODULES.join(',')}
+  --addons=${ADDON_IDS.slice(0, 6).join(',')},…   (rn-kickstart --list-libs shows all)
   --pm=pnpm|yarn|bun|npm   --rn=0.88 (cap)   --offline   --force   --build[=native]   --open
   --list-libs   --info=<choice>   --help`);
 }
