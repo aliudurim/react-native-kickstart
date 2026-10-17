@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "gui",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["bin/gui.mjs", "--no-open", "--keep-alive", "--port=4873"],
+      "port": 4873
+    }
+  ]
+}
