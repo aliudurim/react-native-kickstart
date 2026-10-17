@@ -19,7 +19,8 @@ export function keysFor(choices) {
   for (const group of ['nav', 'state', 'data', 'styling', 'storage', 'forms', 'i18n', 'lists'])
     for (const k of p[group]?.[choices[group]] ?? []) keys.add(k);
   for (const m of choices.modules ?? []) for (const k of p.modules[m] ?? []) keys.add(k);
-  for (const a of choices.addons ?? []) for (const k of p.addons?.[a] ?? []) keys.add(k);
+  const addonTable = choices.workflow === 'expo' ? p.addonsExpo : p.addons;
+  for (const a of choices.addons ?? []) for (const k of addonTable?.[a] ?? []) keys.add(k);
   return [...keys];
 }
 

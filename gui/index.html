@@ -132,6 +132,8 @@
   .chip:hover { border-color: var(--ink-3); color: var(--ink); }
   .chip[aria-pressed="true"] { background: var(--signal-wash); color: var(--signal-deep); border-color: var(--signal); }
   .chip .plus { font-weight: 600; width: 10px; text-align: center; }
+  .chip .alt { font: 400 11px/1 var(--mono); color: var(--ink-3); margin-left: 2px; }
+  .chip[aria-pressed="true"] .alt { color: var(--signal-deep); }
   .chip[aria-pressed="true"] .plus::before { content: '✓'; }
   .chip[aria-pressed="false"] .plus::before { content: '+'; }
   .addons { display: grid; gap: 10px; }
@@ -207,6 +209,7 @@
   .pop .vendor { color: var(--ink-3); font-family: var(--mono); font-size: 12px; margin-bottom: 6px; }
   .pop p { margin: 0 0 6px; color: var(--ink-2); }
   .pop p.trade { color: var(--ink-3); }
+  .pop p.expo { color: var(--signal-deep); }
   .pop a { color: var(--signal-deep); text-decoration: none; font-weight: 500; }
   .pop a:hover { text-decoration: underline; }
 
@@ -569,6 +572,7 @@ for (const b of document.querySelectorAll('.seg.theme button')) b.addEventListen
 /* ---------------- choices ---------------- */
 // Same implications as normalizeChoices in src/context.mjs: nav follows the workflow, data follows state.
 function coerce() {
+  if (choices.workflow === 'expo') choices.addons = choices.addons.filter((id) => INIT.addons.find((a) => a.id === id)?.expo !== null);
   if (choices.workflow !== 'expo' && choices.nav === 'expo-router') choices.nav = 'react-navigation';
   if (choices.state === 'rtk') choices.data = 'rtk-query';
   else if (choices.data === 'rtk-query') choices.data = 'tanstack-query';
@@ -633,7 +637,8 @@ for (const id of ['optSample', 'optStore']) $(id).addEventListener('change', () 
 function renderAddons() {
   const groups = [...new Set(INIT.addons.map((a) => a.group))];
   $('addons').innerHTML = groups.map((g) => '<div class="grp"><span class="lbl">' + esc(g) + '</span><span class="chips">'
-    + INIT.addons.filter((a) => a.group === g).map((a) => '<button type="button" class="chip" data-addon="' + a.id + '" data-lib="' + a.id + '" aria-pressed="' + choices.addons.includes(a.id) + '"><span class="plus"></span>' + esc(a.label) + '</button>').join('')
+    + INIT.addons.filter((a) => a.group === g && !(choices.workflow === 'expo' && a.expo === null)).map((a) => '<button type="button" class="chip" data-addon="' + a.id + '" data-lib="' + a.id + '" aria-pressed="' + choices.addons.includes(a.id) + '"><span class="plus"></span>' + esc(a.label)
+      + (choices.workflow === 'expo' && a.expo && a.expo !== 'same' ? '<span class="alt">' + esc(a.expo) + '</span>' : '') + '</button>').join('')
     + '</span></div>').join('');
   for (const btn of $('addons').querySelectorAll('button[data-addon]')) {
     btn.addEventListener('click', () => {
@@ -669,6 +674,7 @@ function showPopover(btn) {
   if (!lib) { pop.classList.remove('on'); return; }
   pop.innerHTML = '<div class="n">' + esc(lib.name) + '</div>' + (lib.vendor ? '<div class="vendor">' + esc(lib.vendor) + '</div>' : '')
     + '<p>' + esc(lib.summary || '') + '</p>' + (lib.tradeoff ? '<p class="trade">' + esc(lib.tradeoff) + '</p>' : '')
+    + (lib.expo && choices.workflow === 'expo' ? '<p class="expo">On Expo: ' + esc(lib.expo) + '</p>' : '')
     + (lib.docs ? '<a href="' + esc(lib.docs) + '" target="_blank" rel="noopener">Docs ↗</a>' : '');
   const r = btn.getBoundingClientRect();
   pop.classList.add('on');

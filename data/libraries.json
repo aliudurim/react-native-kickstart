@@ -165,139 +165,159 @@
     "vendor": "Gorhom",
     "summary": "Modal and persistent sheets on Reanimated + Gesture Handler.",
     "tradeoff": "Single maintainer, slow releases. Scrollables inside need its own list components.",
-    "docs": "https://gorhom.dev/react-native-bottom-sheet/"
+    "docs": "https://gorhom.dev/react-native-bottom-sheet/",
+    "expo": "Same package; pure JS on Reanimated and Gesture Handler."
   },
   "fast-image": {
     "name": "Fast Image",
     "vendor": "Dream11",
     "summary": "Cached, prioritised remote images; the maintained fork of react-native-fast-image.",
     "tradeoff": "Expo users should prefer expo-image.",
-    "docs": "https://github.com/dream-sports-labs/react-native-fast-image"
+    "docs": "https://github.com/dream-sports-labs/react-native-fast-image",
+    "expo": "expo-image instead (bundled with the SDK): caching, blurhash, transitions."
   },
   "datetimepicker": {
     "name": "DateTime Picker",
     "vendor": "React Native Community",
     "summary": "Native iOS and Android date and time pickers.",
     "tradeoff": "Different UX per platform; wrap it in your own field.",
-    "docs": "https://github.com/react-native-datetimepicker/datetimepicker"
+    "docs": "https://github.com/react-native-datetimepicker/datetimepicker",
+    "expo": "Same package; Expo bundles it with a config plugin."
   },
   "lottie": {
     "name": "Lottie",
     "vendor": "Airbnb / LottieFiles",
     "summary": "After Effects animations exported as JSON, rendered natively.",
     "tradeoff": "Large JSON files hurt startup; keep them lazy.",
-    "docs": "https://github.com/lottie-react-native/lottie-react-native"
+    "docs": "https://github.com/lottie-react-native/lottie-react-native",
+    "expo": "Same package; Expo bundles it."
   },
   "webview": {
     "name": "WebView",
     "vendor": "React Native Community",
     "summary": "Embed web content with a native WebView.",
     "tradeoff": "Allow-list every URL you load; never render untrusted HTML with JS enabled.",
-    "docs": "https://github.com/react-native-webview/react-native-webview"
+    "docs": "https://github.com/react-native-webview/react-native-webview",
+    "expo": "Same package; Expo bundles it."
   },
   "share": {
     "name": "Share",
     "vendor": "react-native-share",
     "summary": "Native share sheet with files, images and app-specific targets.",
     "tradeoff": "iOS needs the share extension entitlements for some targets.",
-    "docs": "https://react-native-share.github.io/react-native-share/"
+    "docs": "https://react-native-share.github.io/react-native-share/",
+    "expo": "expo-sharing instead (bundled with the SDK)."
   },
   "keychain": {
     "name": "Keychain",
     "vendor": "oblador",
     "summary": "Store secrets in iOS Keychain and Android Keystore, with biometrics.",
     "tradeoff": "Pair with the auth token contract; do not duplicate MMKV storage.",
-    "docs": "https://github.com/oblador/react-native-keychain"
+    "docs": "https://github.com/oblador/react-native-keychain",
+    "expo": "expo-secure-store instead (bundled): Keychain / Keystore backed, with biometrics via expo-local-authentication."
   },
   "clipboard": {
     "name": "Clipboard",
     "vendor": "React Native Community",
     "summary": "Read and write the system clipboard.",
     "tradeoff": "Android 12+ shows a toast on every read.",
-    "docs": "https://github.com/react-native-clipboard/clipboard"
+    "docs": "https://github.com/react-native-clipboard/clipboard",
+    "expo": "expo-clipboard instead (bundled)."
   },
   "netinfo": {
     "name": "NetInfo",
     "vendor": "React Native Community",
     "summary": "Connectivity state and changes.",
     "tradeoff": "'Connected' is not 'reachable'; check reachability for offline UI.",
-    "docs": "https://github.com/react-native-netinfo/react-native-netinfo"
+    "docs": "https://github.com/react-native-netinfo/react-native-netinfo",
+    "expo": "expo-network instead (bundled)."
   },
   "haptics": {
     "name": "Haptic feedback",
     "vendor": "mkuczera",
     "summary": "Trigger native haptics on taps and confirmations.",
     "tradeoff": "Android support varies by device.",
-    "docs": "https://github.com/mkuczera/react-native-haptic-feedback"
+    "docs": "https://github.com/mkuczera/react-native-haptic-feedback",
+    "expo": "expo-haptics instead (bundled)."
   },
   "image-picker": {
     "name": "Image Picker",
     "vendor": "React Native Image Picker",
     "summary": "Pick photos and videos from the library or camera.",
     "tradeoff": "Ask for permission in context, never at launch.",
-    "docs": "https://github.com/react-native-image-picker/react-native-image-picker"
+    "docs": "https://github.com/react-native-image-picker/react-native-image-picker",
+    "expo": "expo-image-picker instead (bundled)."
   },
   "document-picker": {
     "name": "Document Picker",
     "vendor": "React Native Documents",
     "summary": "Pick files from the system file provider; the maintained rename of react-native-document-picker.",
     "tradeoff": "Returned URIs may be temporary; copy what you keep.",
-    "docs": "https://react-native-documents.github.io/docs/picker/intro"
+    "docs": "https://react-native-documents.github.io/docs/picker/intro",
+    "expo": "expo-document-picker instead (bundled)."
   },
   "video": {
     "name": "Video",
     "vendor": "TheWidlarzGroup",
     "summary": "Video and inline audio playback with one library.",
     "tradeoff": "v7 is a Nitro rewrite in beta; this pins v6.",
-    "docs": "https://docs.thewidlarzgroup.com/react-native-video/"
+    "docs": "https://docs.thewidlarzgroup.com/react-native-video/",
+    "expo": "expo-video instead (bundled)."
   },
   "maps": {
     "name": "Maps",
     "vendor": "react-native-maps",
     "summary": "Apple Maps and Google Maps with markers and overlays.",
     "tradeoff": "Google Maps needs an API key and the Android SDK config.",
-    "docs": "https://github.com/react-native-maps/react-native-maps"
+    "docs": "https://github.com/react-native-maps/react-native-maps",
+    "expo": "Same package; Expo bundles react-native-maps with a config plugin (expo-maps is the newer Expo-only option)."
   },
   "device-info": {
     "name": "Device Info",
     "vendor": "react-native-device-info",
     "summary": "App version, build number, device model and ids.",
     "tradeoff": "Some getters are async and some count as tracking on iOS.",
-    "docs": "https://github.com/react-native-device-info/react-native-device-info"
+    "docs": "https://github.com/react-native-device-info/react-native-device-info",
+    "expo": "expo-device instead (bundled); app version comes from expo-constants / expo-application."
   },
   "vision-camera": {
     "name": "Vision Camera",
     "vendor": "mrousavy",
     "summary": "Camera with frame processors, QR scanning and photo/video capture.",
     "tradeoff": "Nitro-based; heavy native setup and permissions.",
-    "docs": "https://react-native-vision-camera.com"
+    "docs": "https://react-native-vision-camera.com",
+    "expo": "expo-camera instead (bundled): photos, video, barcode scanning."
   },
   "permissions": {
     "name": "Permissions",
     "vendor": "zoontek",
     "summary": "One API to check and request every platform permission.",
     "tradeoff": "Each permission still needs its Info.plist / manifest entry.",
-    "docs": "https://github.com/zoontek/react-native-permissions"
+    "docs": "https://github.com/zoontek/react-native-permissions",
+    "expo": "Not offered on Expo: every Expo module exposes its own requestPermissionsAsync()."
   },
   "google-signin": {
     "name": "Google Sign-In",
     "vendor": "react-native-google-signin",
     "summary": "Google authentication on both platforms.",
     "tradeoff": "Credential Manager on Android is in the paid Universal tier.",
-    "docs": "https://react-native-google-signin.github.io/docs/"
+    "docs": "https://react-native-google-signin.github.io/docs/",
+    "expo": "Same package; needs a development build and its config plugin."
   },
   "apple-auth": {
     "name": "Apple Sign-In",
     "vendor": "Invertase",
     "summary": "Sign in with Apple; required on iOS once any third-party login exists.",
     "tradeoff": "iOS only; Android needs the web flow.",
-    "docs": "https://github.com/invertase/react-native-apple-authentication"
+    "docs": "https://github.com/invertase/react-native-apple-authentication",
+    "expo": "expo-apple-authentication instead (bundled)."
   },
   "purchases": {
     "name": "RevenueCat Purchases",
     "vendor": "RevenueCat",
     "summary": "In-app purchases and subscriptions across both stores.",
     "tradeoff": "A hosted service with its own pricing tiers.",
-    "docs": "https://www.revenuecat.com/docs/getting-started/installation/reactnative"
+    "docs": "https://www.revenuecat.com/docs/getting-started/installation/reactnative",
+    "expo": "Same package; needs a development build (not Expo Go)."
   }
 }

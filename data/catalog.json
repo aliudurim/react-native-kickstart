@@ -507,6 +507,66 @@
       "tag": "core",
       "ceiling": "7",
       "note": "the RN babel preset does not transform `export * as`, which zod 4 ships"
+    },
+    "expoImage": {
+      "pkg": "expo-image",
+      "native": true,
+      "tag": "addon"
+    },
+    "expoClipboard": {
+      "pkg": "expo-clipboard",
+      "native": true,
+      "tag": "addon"
+    },
+    "expoHaptics": {
+      "pkg": "expo-haptics",
+      "native": true,
+      "tag": "addon"
+    },
+    "expoSharing": {
+      "pkg": "expo-sharing",
+      "native": true,
+      "tag": "addon"
+    },
+    "expoSecureStore": {
+      "pkg": "expo-secure-store",
+      "native": true,
+      "tag": "addon"
+    },
+    "expoImagePicker": {
+      "pkg": "expo-image-picker",
+      "native": true,
+      "tag": "addon"
+    },
+    "expoDocumentPicker": {
+      "pkg": "expo-document-picker",
+      "native": true,
+      "tag": "addon"
+    },
+    "expoVideo": {
+      "pkg": "expo-video",
+      "native": true,
+      "tag": "addon"
+    },
+    "expoCamera": {
+      "pkg": "expo-camera",
+      "native": true,
+      "tag": "addon"
+    },
+    "expoNetwork": {
+      "pkg": "expo-network",
+      "native": true,
+      "tag": "addon"
+    },
+    "expoDevice": {
+      "pkg": "expo-device",
+      "native": true,
+      "tag": "addon"
+    },
+    "expoAppleAuth": {
+      "pkg": "expo-apple-authentication",
+      "native": true,
+      "tag": "addon"
     }
   },
   "profiles": {
@@ -704,6 +764,66 @@
       ],
       "apple-auth": [
         "appleAuth"
+      ],
+      "purchases": [
+        "purchases"
+      ]
+    },
+    "addonsExpo": {
+      "bottom-sheet": [
+        "bottomSheet"
+      ],
+      "fast-image": [
+        "expoImage"
+      ],
+      "datetimepicker": [
+        "datePicker"
+      ],
+      "lottie": [
+        "lottie"
+      ],
+      "webview": [
+        "webview"
+      ],
+      "share": [
+        "expoSharing"
+      ],
+      "keychain": [
+        "expoSecureStore"
+      ],
+      "clipboard": [
+        "expoClipboard"
+      ],
+      "netinfo": [
+        "expoNetwork"
+      ],
+      "haptics": [
+        "expoHaptics"
+      ],
+      "image-picker": [
+        "expoImagePicker"
+      ],
+      "document-picker": [
+        "expoDocumentPicker"
+      ],
+      "video": [
+        "expoVideo"
+      ],
+      "maps": [
+        "maps"
+      ],
+      "device-info": [
+        "expoDevice"
+      ],
+      "vision-camera": [
+        "expoCamera"
+      ],
+      "permissions": null,
+      "google-signin": [
+        "googleSignin"
+      ],
+      "apple-auth": [
+        "expoAppleAuth"
       ],
       "purchases": [
         "purchases"

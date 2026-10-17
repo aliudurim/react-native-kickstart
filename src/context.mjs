@@ -17,26 +17,26 @@ export const GROUPS = {
 export const MODULES = ['crash', 'analytics', 'roles', 'media', 'push'];
 // Optional libraries the user can tick; each maps to catalog.profiles.addons.
 export const ADDONS = [
-  { id: 'bottom-sheet', label: 'Bottom Sheet', group: 'UI' },
-  { id: 'fast-image', label: 'Fast Image', group: 'UI' },
-  { id: 'lottie', label: 'Lottie', group: 'UI' },
-  { id: 'datetimepicker', label: 'DateTime Picker', group: 'UI' },
-  { id: 'maps', label: 'Maps', group: 'UI' },
-  { id: 'webview', label: 'WebView', group: 'UI' },
-  { id: 'image-picker', label: 'Image Picker', group: 'Media' },
-  { id: 'document-picker', label: 'Document Picker', group: 'Media' },
-  { id: 'video', label: 'Video', group: 'Media' },
-  { id: 'vision-camera', label: 'Vision Camera', group: 'Media' },
-  { id: 'share', label: 'Share', group: 'Device' },
-  { id: 'clipboard', label: 'Clipboard', group: 'Device' },
-  { id: 'haptics', label: 'Haptics', group: 'Device' },
-  { id: 'netinfo', label: 'NetInfo', group: 'Device' },
-  { id: 'device-info', label: 'Device Info', group: 'Device' },
-  { id: 'permissions', label: 'Permissions', group: 'Device' },
-  { id: 'keychain', label: 'Keychain', group: 'Auth & money' },
-  { id: 'google-signin', label: 'Google Sign-In', group: 'Auth & money' },
-  { id: 'apple-auth', label: 'Apple Sign-In', group: 'Auth & money' },
-  { id: 'purchases', label: 'RevenueCat', group: 'Auth & money' },
+  { id: 'bottom-sheet', label: 'Bottom Sheet', group: 'UI', expo: 'same' },
+  { id: 'fast-image', label: 'Fast Image', group: 'UI', expo: 'expo-image' },
+  { id: 'lottie', label: 'Lottie', group: 'UI', expo: 'same' },
+  { id: 'datetimepicker', label: 'DateTime Picker', group: 'UI', expo: 'same' },
+  { id: 'maps', label: 'Maps', group: 'UI', expo: 'same' },
+  { id: 'webview', label: 'WebView', group: 'UI', expo: 'same' },
+  { id: 'image-picker', label: 'Image Picker', group: 'Media', expo: 'expo-image-picker' },
+  { id: 'document-picker', label: 'Document Picker', group: 'Media', expo: 'expo-document-picker' },
+  { id: 'video', label: 'Video', group: 'Media', expo: 'expo-video' },
+  { id: 'vision-camera', label: 'Vision Camera', group: 'Media', expo: 'expo-camera' },
+  { id: 'share', label: 'Share', group: 'Device', expo: 'expo-sharing' },
+  { id: 'clipboard', label: 'Clipboard', group: 'Device', expo: 'expo-clipboard' },
+  { id: 'haptics', label: 'Haptics', group: 'Device', expo: 'expo-haptics' },
+  { id: 'netinfo', label: 'NetInfo', group: 'Device', expo: 'expo-network' },
+  { id: 'device-info', label: 'Device Info', group: 'Device', expo: 'expo-device' },
+  { id: 'permissions', label: 'Permissions', group: 'Device', expo: null },
+  { id: 'keychain', label: 'Keychain', group: 'Auth & money', expo: 'expo-secure-store' },
+  { id: 'google-signin', label: 'Google Sign-In', group: 'Auth & money', expo: 'same' },
+  { id: 'apple-auth', label: 'Apple Sign-In', group: 'Auth & money', expo: 'expo-apple-authentication' },
+  { id: 'purchases', label: 'RevenueCat', group: 'Auth & money', expo: 'same' },
 ];
 export const ADDON_IDS = ADDONS.map((a) => a.id);
 
@@ -62,6 +62,7 @@ export function normalizeChoices(input) {
   if (!Array.isArray(c.modules)) c.modules = String(c.modules ?? '').split(',').map((s) => s.trim()).filter(Boolean);
   if (!Array.isArray(c.addons)) c.addons = String(c.addons ?? '').split(',').map((s) => s.trim()).filter(Boolean);
   for (const a of c.addons) if (!ADDON_IDS.includes(a)) throw new Error(`--addons: unknown add-on "${a}" (${ADDON_IDS.join(', ')})`);
+  if (c.workflow === 'expo') for (const a of c.addons) if (ADDONS.find((x) => x.id === a)?.expo === null) throw new Error(`--addons: "${a}" is not offered on Expo; every Expo module has its own permission API`);
   c.addons = [...new Set(c.addons)];
   for (const [g, allowed] of Object.entries(GROUPS)) if (!allowed.includes(c[g])) throw new Error(`--${g} must be one of ${allowed.join(', ')}`);
   for (const m of c.modules) if (!MODULES.includes(m)) throw new Error(`--modules: unknown module "${m}" (${MODULES.join(', ')})`);

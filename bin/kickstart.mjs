@@ -192,6 +192,7 @@ function listLibs() {
   for (const [g, opts] of Object.entries(GROUPS)) console.log(`${bold(g.padEnd(10))} ${opts.join(' · ')}`);
   console.log(`${bold('modules'.padEnd(10))} ${MODULES.join(' · ')}`);
   console.log(`${bold('addons'.padEnd(10))} ${ADDON_IDS.join(' · ')}`);
+  console.log(dim(`${''.padEnd(10)} on expo: ${ADDONS.map((a) => `${a.id}→${a.expo === 'same' ? 'same' : a.expo ?? 'n/a'}`).join(' · ')}`));
 }
 function info(key) {
   const l = libraries[key];

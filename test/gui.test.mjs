@@ -164,3 +164,19 @@ test('every add-on has a library description and a profile in the catalog', asyn
   assert.match(html, /id="addons"/);
   assert.match(html, /addons: choices\.addons\.join\(','\)/, 'create must send the add-ons');
 });
+
+test('every add-on has a valid Expo mapping', async () => {
+  const { ADDONS, normalizeChoices } = await import('../src/context.mjs');
+  const { catalog, keysFor } = await import('../src/resolver/index.mjs');
+  for (const a of ADDONS) {
+    const keys = catalog.profiles.addonsExpo[a.id];
+    if (a.expo === null) { assert.equal(keys, null, `${a.id}: expo null must have a null profile`); continue; }
+    assert.ok(Array.isArray(keys) && keys.length, `${a.id}: no Expo profile`);
+    if (a.expo !== 'same') assert.ok(keys.some((k) => catalog.artifacts[k].pkg === a.expo), `${a.id}: expo package ${a.expo} not in its profile`);
+    else assert.deepEqual(keys, catalog.profiles.addons[a.id], `${a.id}: "same" must reuse the bare profile`);
+  }
+  const expo = normalizeChoices({ workflow: 'expo', nav: 'expo-router', addons: ['fast-image', 'keychain'] });
+  const keys = keysFor(expo);
+  assert.ok(keys.includes('expoImage') && keys.includes('expoSecureStore') && !keys.includes('fastImage'), 'expo workflow picks the Expo packages');
+  assert.throws(() => normalizeChoices({ workflow: 'expo', nav: 'expo-router', addons: ['permissions'] }), /not offered on Expo/);
+});
