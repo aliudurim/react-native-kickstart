@@ -4,10 +4,12 @@ type Variant = 'development' | 'staging' | 'production';
 
 const variant = (process.env.APP_VARIANT ?? 'development') as Variant;
 
-const byVariant: Record<Variant, { name: string; bundleId: string; apiBaseUrl: string }> = {
-  development: { name: '{{APP_NAME}} Dev', bundleId: '{{BUNDLE_ID}}.dev', apiBaseUrl: 'https://api-dev.example.com' },
-  staging: { name: '{{APP_NAME}} Staging', bundleId: '{{BUNDLE_ID}}.staging', apiBaseUrl: 'https://api-staging.example.com' },
-  production: { name: '{{APP_NAME}}', bundleId: '{{BUNDLE_ID}}', apiBaseUrl: 'https://api.example.com' },
+// APP_VARIANT (set per profile in eas.json) decides the app's identity. Runtime values such as
+// the API URL come from .env.development / .env.production as EXPO_PUBLIC_ variables.
+const byVariant: Record<Variant, { name: string; bundleId: string }> = {
+  development: { name: '{{APP_NAME}} Dev', bundleId: '{{BUNDLE_ID}}.dev' },
+  staging: { name: '{{APP_NAME}} Staging', bundleId: '{{BUNDLE_ID}}.staging' },
+  production: { name: '{{APP_NAME}}', bundleId: '{{BUNDLE_ID}}' },
 };
 
 const env = byVariant[variant];
@@ -21,10 +23,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     ...config.extra,
     appVariant: variant,
-    apiBaseUrl: process.env.API_BASE_URL ?? env.apiBaseUrl,
-{{#if crash}}
-    sentryDsn: process.env.SENTRY_DSN ?? '',
-{{/if}}
     eas: { projectId: process.env.EAS_PROJECT_ID ?? '' },
   },
 });

@@ -1,3 +1,4 @@
+{{#if bare}}
 # Development build ({{BUNDLE_ID}}.dev). Baked in at build time by react-native-config:
 # iOS Debug configuration, Android `dev` flavor. Editing needs a native rebuild.
 # Nothing here is secret: every value ships inside the app binary.
@@ -6,4 +7,16 @@ API_BASE_URL=https://dev-api.example.com
 DEEP_LINK_HOSTS={{APP_SLUG}}.example.com
 {{#if crash}}
 SENTRY_DSN=
+{{/if}}
+{{else}}
+# Development build ({{BUNDLE_ID}}.dev). Expo CLI loads this file when NODE_ENV=development
+# (`expo start` → development, `expo export` and EAS production builds → production) and inlines
+# every EXPO_PUBLIC_ value into the JS bundle. Keep it committed so EAS can read it.
+# Nothing here is secret: every value ships inside the app bundle.
+EXPO_PUBLIC_APP_ENV=dev
+EXPO_PUBLIC_API_BASE_URL=https://dev-api.example.com
+EXPO_PUBLIC_DEEP_LINK_HOSTS={{APP_SLUG}}.example.com
+{{#if crash}}
+EXPO_PUBLIC_SENTRY_DSN=
+{{/if}}
 {{/if}}

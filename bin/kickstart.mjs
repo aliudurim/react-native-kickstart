@@ -94,7 +94,7 @@ if (has('build')) {
   const native = flag('build') === 'native';
   await sh(pm, ['install'], outDir);
   await sh(pm, ['run', 'verify'], outDir);
-  if (choices.workflow === 'bare') await sh(pm, ['run', 'bundle:check'], outDir);
+  await sh(pm, ['run', 'bundle:check'], outDir, { CI: '1' });
   if (native && choices.workflow === 'bare') {
     if (process.platform === 'darwin') {
       await sh('bundle', ['install'], outDir).catch(() => {});

@@ -104,7 +104,7 @@ Add-ons chosen at kickstart: {{ADDONS_LIST}}. Each is a native module with an ex
 - Node from `.nvmrc` (`nvm use`), package manager: `{{PM}}`.
 {{#if expo}}
 - `{{PM}} run prebuild` generates `ios/` and `android/`; `{{PM}} run ios` / `{{PM}} run android` build and launch; `{{PM}} run start` for Metro only.
-- Env variant is selected with `APP_VARIANT=development|staging|production` (see `app.config.ts`, `eas.json`).
+- `APP_VARIANT=development|staging|production` (per profile in `eas.json`, read by `app.config.ts`) decides name and bundle id. Runtime values come from `.env.development` / `.env.production` as `EXPO_PUBLIC_*` variables, which Expo CLI inlines into the bundle by `NODE_ENV`; `src/config/env.ts` is the only reader. Keep both files committed so EAS can read them.
 {{else}}
 - `{{PM}} run pods` (Bundler-managed CocoaPods), then `{{PM}} run ios` / `{{PM}} run android`; `{{PM}} run start` for Metro only.
 - Two environments: `{{BUNDLE_ID}}.dev` (Android `dev` flavor / iOS Debug → `.env.development`) and `{{BUNDLE_ID}}` (`prod` flavor / iOS Release → `.env.production`). react-native-config bakes the file in at build time; each flavor applies its own file in `android/app/build.gradle`, and the Podfile maps `ENVFILE` per Xcode configuration. `src/config/env.ts` is the only reader. Editing an env file needs a native rebuild; Metro reload will not pick it up. No `API_BASE_URL` literals elsewhere.

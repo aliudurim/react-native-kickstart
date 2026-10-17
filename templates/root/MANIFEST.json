@@ -167,11 +167,11 @@
   [
     "_env.development.tmpl",
     ".env.development",
-    "bare"
+    null
   ],
   [
     "_env.production.tmpl",
     ".env.production",
-    "bare"
+    null
   ]
 ]
