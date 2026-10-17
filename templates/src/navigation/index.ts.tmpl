@@ -1,0 +1,10 @@
+export { AppTabs } from '@/navigation/AppTabs';
+export { AuthStack } from '@/navigation/AuthStack';
+export { linking } from '@/navigation/linking';
+export { NavigationRoot } from '@/navigation/NavigationRoot';
+export { dispatchWhenReady, flushPendingNavigation, navigate, navigationRef } from '@/navigation/navigationRef';
+{{#if roles}}
+export { OnboardingStack } from '@/navigation/OnboardingStack';
+{{/if}}
+export { RootNavigator } from '@/navigation/RootNavigator';
+export type { AppTabsParamList, AuthStackParamList, RootStackParamList } from '@/navigation/types';

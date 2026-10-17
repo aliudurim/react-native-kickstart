@@ -1,0 +1,14 @@
+appId: {{BUNDLE_ID}}
+name: Login
+---
+- launchApp:
+    clearState: true
+- assertVisible: 'Sign in'
+- takeScreenshot: store/01-login
+- tapOn: 'Email'
+- inputText: 'demo@example.com'
+- tapOn: 'Password'
+- inputText: 'password123'
+- hideKeyboard
+- tapOn: 'Sign in'
+- assertVisible: 'Home'

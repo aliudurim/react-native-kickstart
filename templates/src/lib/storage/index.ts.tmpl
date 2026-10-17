@@ -1,0 +1,85 @@
+{{#if mmkv}}
+import { createMMKV } from 'react-native-mmkv'
+{{/if}}
+{{#if asyncStorage}}
+import AsyncStorage from '@react-native-async-storage/async-storage'
+{{/if}}
+
+export type KeyValueStorage = {
+  getString(key: string): string | undefined
+  set(key: string, value: string): void
+  delete(key: string): void
+  clearAll(): void
+}
+
+{{#if mmkv}}
+function wrap(id: string): KeyValueStorage {
+  const mmkv = createMMKV({ id })
+  return {
+    getString: (key) => mmkv.getString(key),
+    set: (key, value) => mmkv.set(key, value),
+    delete: (key) => {
+      mmkv.remove(key)
+    },
+    clearAll: () => mmkv.clearAll(),
+  }
+}
+
+export const authStorage = wrap('{{APP_SLUG}}.auth')
+export const defaultStorage = wrap('{{APP_SLUG}}.default')
+export const hydrateStorage = async (): Promise<void> => {}
+{{/if}}
+{{#if asyncStorage}}
+// AsyncStorage is async; each namespace is loaded into memory once at boot and written through after that.
+function wrap(namespace: string): KeyValueStorage & { hydrate(): Promise<void> } {
+  const prefix = `${namespace}:`
+  const cache = new Map<string, string>()
+  return {
+    getString: (key) => cache.get(key),
+    set: (key, value) => {
+      cache.set(key, value)
+      void AsyncStorage.setItem(prefix + key, value)
+    },
+    delete: (key) => {
+      cache.delete(key)
+      void AsyncStorage.removeItem(prefix + key)
+    },
+    clearAll: () => {
+      const keys = [...cache.keys()].map((k) => prefix + k)
+      cache.clear()
+      void AsyncStorage.removeMany(keys)
+    },
+    hydrate: async () => {
+      const keys = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith(prefix))
+      for (const [k, v] of Object.entries(await AsyncStorage.getMany(keys))) {
+        if (v !== null) cache.set(k.slice(prefix.length), v)
+      }
+    },
+  }
+}
+
+export const authStorage = wrap('{{APP_SLUG}}.auth')
+export const defaultStorage = wrap('{{APP_SLUG}}.default')
+export const hydrateStorage = async (): Promise<void> => {
+  await Promise.all([authStorage.hydrate(), defaultStorage.hydrate()])
+}
+{{/if}}
+{{#if noStorage}}
+function wrap(): KeyValueStorage {
+  const cache = new Map<string, string>()
+  return {
+    getString: (key) => cache.get(key),
+    set: (key, value) => {
+      cache.set(key, value)
+    },
+    delete: (key) => {
+      cache.delete(key)
+    },
+    clearAll: () => cache.clear(),
+  }
+}
+
+export const authStorage = wrap()
+export const defaultStorage = wrap()
+export const hydrateStorage = async (): Promise<void> => {}
+{{/if}}

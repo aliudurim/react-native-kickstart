@@ -1,0 +1,33 @@
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React from 'react';
+
+import { useAuth } from '@/hooks/useAuth';
+import { AppTabs } from '@/navigation/AppTabs';
+import { AuthStack } from '@/navigation/AuthStack';
+{{#if roles}}
+import { OnboardingStack } from '@/navigation/OnboardingStack';
+{{/if}}
+import type { RootStackParamList } from '@/navigation/types';
+
+const Root = createNativeStackNavigator<RootStackParamList>();
+
+export function RootNavigator() {
+{{#if roles}}
+  const { isSignedIn, isOnboarding } = useAuth();
+{{else}}
+  const { isSignedIn } = useAuth();
+{{/if}}
+  return (
+    <Root.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
+      {!isSignedIn ? (
+        <Root.Screen name="Auth" component={AuthStack} />
+{{#if roles}}
+      ) : isOnboarding ? (
+        <Root.Screen name="Onboarding" component={OnboardingStack} />
+{{/if}}
+      ) : (
+        <Root.Screen name="App" component={AppTabs} />
+      )}
+    </Root.Navigator>
+  );
+}

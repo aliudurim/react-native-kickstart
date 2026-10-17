@@ -1,0 +1,41 @@
+{{#if crash}}
+import * as Sentry from '@sentry/react-native'
+import { env } from '@/config/env'
+
+export function initCrash(): void {
+  Sentry.init({
+    dsn: env.SENTRY_DSN,
+    enabled: Boolean(env.SENTRY_DSN) && !__DEV__,
+    environment: env.APP_ENV,
+    tracesSampleRate: env.APP_ENV === 'prod' ? 0.2 : 1,
+  })
+}
+
+export function identifyCrashUser(id: string, email?: string): void {
+  Sentry.setUser({ id, email })
+}
+
+export function resetCrashUser(): void {
+  Sentry.setUser(null)
+}
+
+export function captureError(error: unknown, context?: Record<string, unknown>): void {
+  Sentry.captureException(error, context ? { extra: context } : undefined)
+}
+
+export const wrapRoot = Sentry.wrap
+{{else}}
+import type { ComponentType } from 'react'
+
+export function initCrash(): void {}
+
+export function identifyCrashUser(_id: string, _email?: string): void {}
+
+export function resetCrashUser(): void {}
+
+export function captureError(error: unknown, context?: Record<string, unknown>): void {
+  if (__DEV__) console.error(error, context)
+}
+
+export const wrapRoot = <P extends object>(Root: ComponentType<P>): ComponentType<P> => Root
+{{/if}}

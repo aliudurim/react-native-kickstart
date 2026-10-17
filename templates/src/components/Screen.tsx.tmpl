@@ -1,0 +1,65 @@
+import React from 'react';
+import { View } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import type { Edge } from 'react-native-safe-area-context';
+{{#if unistyles}}
+import { StyleSheet } from 'react-native-unistyles';
+{{/if}}
+
+import { useTheme } from '@/theme';
+
+export interface ScreenProps {
+  children: React.ReactNode;
+  edges?: Edge[];
+  padded?: boolean;
+  scroll?: boolean;
+  testID?: string;
+  style?: StyleProp<ViewStyle>;
+  contentContainerStyle?: StyleProp<ViewStyle>;
+}
+
+const defaultEdges: Edge[] = ['top', 'bottom'];
+
+export function Screen({
+  children,
+  edges = defaultEdges,
+  padded = true,
+  scroll = false,
+  testID,
+  style,
+  contentContainerStyle,
+}: ScreenProps) {
+  const theme = useTheme();
+  const padding = { paddingHorizontal: padded ? theme.spacing.md : 0 };
+  return (
+    <SafeAreaView
+      edges={edges}
+      testID={testID}
+{{#if unistyles}}
+      style={[styles.root, style]}
+{{else}}
+      style={[{ flex: 1, backgroundColor: theme.colors.background }, style]}
+{{/if}}
+    >
+      {scroll ? (
+        <KeyboardAwareScrollView
+          bottomOffset={theme.spacing.lg}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={[{ flexGrow: 1, paddingVertical: theme.spacing.md }, padding, contentContainerStyle]}
+        >
+          {children}
+        </KeyboardAwareScrollView>
+      ) : (
+        <View style={[{ flex: 1 }, padding, contentContainerStyle]}>{children}</View>
+      )}
+    </SafeAreaView>
+  );
+}
+{{#if unistyles}}
+
+const styles = StyleSheet.create((theme) => ({
+  root: { flex: 1, backgroundColor: theme.colors.background },
+}));
+{{/if}}

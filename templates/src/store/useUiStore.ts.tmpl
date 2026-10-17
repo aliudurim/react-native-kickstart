@@ -1,0 +1,44 @@
+import { create } from 'zustand'
+
+export type ToastKind = 'info' | 'success' | 'error'
+
+export type Toast = {
+  id: string
+  message: string
+  kind: ToastKind
+}
+
+type UiState = {
+  toasts: Toast[]
+  toast: Toast | null
+  activeSheet: string | null
+}
+
+type UiActions = {
+  showToast(message: string, kind?: ToastKind): void
+  pushToast(message: string, kind?: ToastKind): void
+  dismissToast(id: string): void
+  hideToast(): void
+  openSheet(name: string): void
+  closeSheet(): void
+}
+
+export type UiStore = UiState & UiActions
+
+let nextToastId = 0
+
+const withToasts = (toasts: Toast[]) => ({ toasts, toast: toasts[0] ?? null })
+
+export const useUiStore = create<UiStore>()((set) => ({
+  toasts: [],
+  toast: null,
+  activeSheet: null,
+  showToast: (message, kind = 'info') =>
+    set((s) => withToasts([...s.toasts, { id: String(++nextToastId), message, kind }])),
+  pushToast: (message, kind = 'info') =>
+    set((s) => withToasts([...s.toasts, { id: String(++nextToastId), message, kind }])),
+  dismissToast: (id) => set((s) => withToasts(s.toasts.filter((t) => t.id !== id))),
+  hideToast: () => set((s) => withToasts(s.toasts.slice(1))),
+  openSheet: (name) => set({ activeSheet: name }),
+  closeSheet: () => set({ activeSheet: null }),
+}))

@@ -1,0 +1,201 @@
+# {{APP_NAME}} Mobile — Project Guide
+
+## Stack
+
+{{#if expo}}
+Expo prebuild workflow on React Native {{RN_VERSION}} (New Architecture only), bundle id `{{BUNDLE_ID}}`, TypeScript strict.
+{{else}}
+Bare React Native {{RN_VERSION}} (New Architecture only), bundle id `{{BUNDLE_ID}}`, TypeScript strict.
+{{/if}}
+{{#if expoRouter}}
+Navigation: expo-router (file routes in `app/`).
+{{else}}
+Navigation: @react-navigation (native-stack + bottom-tabs) with a conditional `RootNavigator` in `src/navigation/`.
+{{/if}}
+{{#if rtk}}
+State: Redux Toolkit (`src/store/`: slices, listeners, selectors) with RTK Query for server data (`src/store/api/`, one file per resource).
+{{/if}}
+{{#if zustand}}
+State: zustand stores in `src/store/`.
+{{/if}}
+{{#if noState}}
+State: React state + context only.
+{{/if}}
+{{#if tanstack}}
+Server data: TanStack Query (`QueryClientProvider` in `src/app/Providers.tsx`).
+{{/if}}
+{{#if plainFetch}}
+Server data: typed `fetch` wrapper in `src/lib/api.ts`.
+{{/if}}
+{{#if nativewind}}
+Styling: NativeWind 4 + Tailwind 3 (`tailwind.config.js` reads `src/theme/tokens`, `global.css` is the entry).
+{{/if}}
+{{#if unistyles}}
+Styling: react-native-unistyles 3 (babel plugin rooted at `src/`, themes in `src/theme/`).
+{{/if}}
+{{#if stylesheet}}
+Styling: plain `StyleSheet` with tokens from `src/theme/`.
+{{/if}}
+{{#if mmkv}}
+Storage: react-native-mmkv 4 (`src/lib/storage/`, two instances `{{APP_SLUG}}.auth` and `{{APP_SLUG}}.default`); no redux-persist, persistence is a listener.
+{{/if}}
+{{#if asyncStorage}}
+Storage: @react-native-async-storage (`src/lib/storage/`); persistence is explicit, no redux-persist.
+{{/if}}
+{{#if noStorage}}
+Storage: none yet — add mmkv via `src/lib/storage/` when the first persisted value arrives.
+{{/if}}
+{{#if rhf}}
+Forms: react-hook-form + @hookform/resolvers + zod 4 (schemas in `src/validations/`).
+{{/if}}
+{{#if i18n}}
+i18n: i18next + react-i18next + react-native-localize; every string is a key in `src/i18n/locales/en.json` — no inline strings.
+{{/if}}
+{{#if flashList}}
+Lists: @shopify/flash-list 2 (no `estimatedItemSize`; masonry is a prop).
+{{/if}}
+Always on: reanimated 4 + worklets, gesture-handler 3, safe-area-context, react-native-svg, bootsplash, keyboard-controller, date-fns, es-toolkit.
+{{#if crash}}
+Crash reporting: @sentry/react-native, initialised in `src/app/` before the first render (DSN from `.env`).
+{{/if}}
+{{#if analytics}}
+Analytics: facade in `src/lib/analytics.ts` with a no-op driver — swap the vendor without touching call sites.
+{{/if}}
+{{#if push}}
+Push: @react-native-firebase/app + messaging (modular API) + react-native-permissions; background handler registered in `index.js`.
+{{/if}}
+{{#if media}}
+Media: react-native-image-picker + react-native-video 6.
+{{/if}}
+{{#if roles}}
+Roles: capability gating via `src/lib/roles` — gate on capabilities, never on role names, in screens.
+{{/if}}
+
+### Version pairing rules
+
+- JS-only deps float carets; native modules are exact pins in `package.json`. Add a one-line "why" here for every pin that deviates from the resolver's choice.
+- Paired packages move together, never one side alone:
+  - reanimated ↔ worklets ↔ RN (check swmansion's compatibility table on every bump; floor 4.5.0, never 4.4.x)
+{{#if rhf}}
+  - zod ↔ @hookform/resolvers ↔ react-hook-form
+{{/if}}
+{{#if i18n}}
+  - i18next ↔ react-i18next
+{{/if}}
+{{#if mmkv}}
+  - react-native-nitro-modules ↔ react-native-mmkv
+{{/if}}
+{{#if unistyles}}
+  - react-native-nitro-modules ↔ react-native-unistyles
+{{/if}}
+{{#if push}}
+  - @react-native-firebase/app ↔ @react-native-firebase/messaging
+{{/if}}
+{{#if nativewind}}
+- Tailwind stays on 3.x (`~` range). NativeWind 4's peer range admits Tailwind 4, which breaks the build.
+{{/if}}
+- Every native bump: changelog + New-Arch check (reactnative.directory) + full native rebuild + on-device test on both platforms.
+- `@testing-library/react-native` v14 pairs with the npm package `test-renderer` (not `react-test-renderer`); `render`/`fireEvent`/`act` are async — await them.
+
+## Running the app
+
+- Node from `.nvmrc` (`nvm use`), package manager: `{{PM}}`.
+{{#if expo}}
+- `{{PM}} run prebuild` generates `ios/` and `android/`; `{{PM}} run ios` / `{{PM}} run android` build and launch; `{{PM}} run start` for Metro only.
+- Env variant is selected with `APP_VARIANT=development|staging|production` (see `app.config.ts`, `eas.json`).
+{{else}}
+- `{{PM}} run pods` (Bundler-managed CocoaPods), then `{{PM}} run ios` / `{{PM}} run android`; `{{PM}} run start` for Metro only.
+- Three environments: `{{BUNDLE_ID}}`, `{{BUNDLE_ID}}.staging`, `{{BUNDLE_ID}}.dev` via Android flavors / iOS schemes; config comes from `.env*` through react-native-config into the typed `src/config/env.ts`. No `API_BASE_URL` literals elsewhere.
+{{/if}}
+- **Done gate:** `{{PM}} run verify` (typecheck + lint + jest) must be green before any task is called done. CI runs the same on every PR.
+{{#if sample}}
+- E2E smoke: `maestro test .maestro/login.yaml` against a Debug build on a simulator.
+{{/if}}
+
+## Environment gotchas (this machine)
+
+_Record each toolchain fact the first time it bites (Xcode/CocoaPods/JDK/NDK quirks, simulator names, env vars). Nothing here is discoverable from the repo._
+
+## Native rebuild vs JS reload
+
+JS and styling changes hot-reload through Metro over the installed Debug build.
+
+{{#if expo}}
+A **full native rebuild** (`{{PM}} run ios` / `{{PM}} run android`) is required for:
+{{else}}
+A **full native rebuild** (`{{PM}} run ios` / `{{PM}} run android`, after `{{PM}} run pods` on iOS) is required for:
+{{/if}}
+
+- any new native module or any version bump of a native dep (reanimated/worklets especially)
+- fonts, splash assets (bootsplash), app icons
+- Firebase config files, deep-link / URL scheme changes, permissions in Info.plist / AndroidManifest
+{{#if expo}}
+- any change to `app.json` / `app.config.ts` plugins (re-run `{{PM}} run prebuild`)
+{{/if}}
+
+Symptom of forgetting: "the fix didn't work" when it was never loaded.
+{{#if nativewind}}
+After editing design tokens or `tailwind.config.js`, or bumping reanimated, restart Metro with `--reset-cache`.
+{{else}}
+After bumping reanimated or editing babel config, restart Metro with `--reset-cache`.
+{{/if}}
+
+## Architecture & conventions
+
+- Layout follows the mobile architecture template §17: `src/app` (app-level controllers, Providers, ErrorBoundary), `src/navigation`, `src/screens/<name>` (stateful `Screen` + stateless `Content`, fixtures in `__fixtures__`), `src/components` (primitives only), `src/features`, `src/store`, `src/lib`, `src/config`, `src/theme`, `src/i18n`, `src/validations`, `src/hooks`, `src/types`.
+- Import alias `@/` → `src/` (tsconfig paths, Metro resolver, jest moduleNameMapper all agree — keep them in sync).
+- Screens compose primitives from `src/components`; no raw `Text`/`TouchableOpacity` in screens.
+{{#if rtkQuery}}
+- Server data: one RTK Query api file per resource; unwrap envelopes with `pickData` in `src/store/api/helpers.ts` — document the envelope nesting per endpoint there.
+{{/if}}
+{{#if tanstack}}
+- Server data: query hooks per resource in `src/features/<domain>/api.ts`; keys are arrays `[domain, id]`; unwrap envelopes in one helper.
+{{/if}}
+{{#if rhf}}
+- Every form: zod schema in `src/validations/`, resolver via `@hookform/resolvers/zod`.
+{{/if}}
+- Native-stub registry: every native dep gets a jest stub in `jest/` wired via `moduleNameMapper` the day it is added.
+- Secrets: anything in the JS bundle is extractable. `.env*` carries publishable keys only; `.env.example` documents every key.
+
+## Gotchas (learned the hard way)
+
+- RNTL v14 `render` is async — forgetting `await` yields an empty tree, not an error.
+{{#if flashList}}
+- FlashList 2 is JS-only and New-Arch-only; the jest stub swaps it for `FlatList`.
+{{/if}}
+{{#if mmkv}}
+- MMKV 4 is `createMMKV()`, not `new MMKV()`; `remove()` replaced `delete()`.
+{{/if}}
+- Reanimated 4.4.x silently drops animated updates in native-stack screens on Android — stay on ≥ 4.5.0.
+
+## What's built / Deferred
+
+Generated by react-native-kickstart on {{DATE}}:
+
+- Tooling: tsconfig (strict, `@/` alias), babel, metro, jest + `jest/` stubs, eslint flat config, prettier, editorconfig, `.nvmrc`, `.env.example`, CI workflow (typecheck + lint + jest).
+{{#if sample}}
+- Sample app: login + home screens, auth flow, primitives (Text, Button, Input, Screen, NavBar, RemoteImage, Toast, Skeleton, EmptyState), Maestro smoke flows in `.maestro/`.
+{{else}}
+- No sample screens — `src/` holds the skeleton and primitives only.
+{{/if}}
+{{#if store}}
+- Store assets scaffold in `store/` (`kickstart.store.json`, icon placeholder, fastlane metadata tree).
+{{/if}}
+
+Deferred (decide in Sprint 0):
+
+- Signing (Play App Signing, fastlane match / ASC API key in CI) and the tag-triggered release lane.
+- Minimum-supported-version endpoint + forced-upgrade screen.
+- OTA policy (default: store-only releases).
+{{#unless crash}}
+- Crash reporting — not optional per the architecture template; add `--modules=crash` equivalent (Sentry) before the first external build.
+{{/unless}}
+{{#unless analytics}}
+- Analytics facade (`src/lib/analytics.ts`) — add before the first tracked event.
+{{/unless}}
+{{#unless push}}
+- Push notifications (RNFB messaging + permissions).
+{{/unless}}
+{{#unless i18n}}
+- i18n — all strings are inline until i18next is added.
+{{/unless}}

@@ -1,0 +1,20 @@
+const { colors } = require('./src/theme/tokens');
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./App.tsx', './src/**/*.{ts,tsx}', './app/**/*.{ts,tsx}'],
+  presets: [require('nativewind/preset')],
+  theme: {
+    extend: {
+      colors: {
+        background: colors.background,
+        surface: colors.surface,
+        foreground: colors.foreground,
+        muted: colors.muted,
+        primary: colors.primary,
+        border: colors.border,
+      },
+    },
+  },
+  plugins: [],
+};

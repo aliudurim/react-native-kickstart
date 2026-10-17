@@ -1,0 +1,27 @@
+import { CommonActions, createNavigationContainerRef } from '@react-navigation/native';
+import type { NavigationAction } from '@react-navigation/native';
+
+import type { RootStackParamList } from '@/navigation/types';
+
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
+
+const pending: NavigationAction[] = [];
+
+export function dispatchWhenReady(action: NavigationAction): void {
+  if (navigationRef.isReady()) {
+    navigationRef.dispatch(action);
+    return;
+  }
+  pending.push(action);
+}
+
+export function navigate<Name extends keyof RootStackParamList>(name: Name, params?: RootStackParamList[Name]): void {
+  dispatchWhenReady(CommonActions.navigate({ name, params }));
+}
+
+export function flushPendingNavigation(): void {
+  while (pending.length > 0) {
+    const action = pending.shift();
+    if (action) navigationRef.dispatch(action);
+  }
+}

@@ -1,0 +1,13 @@
+import { pickData, type ApiEnvelope } from '@/store/api/helpers'
+
+describe('pickData', () => {
+  it('returns the data member of the envelope', () => {
+    const envelope: ApiEnvelope<{ id: number }> = { success: true, message: 'ok', data: { id: 1 } }
+    expect(pickData(envelope)).toEqual({ id: 1 })
+  })
+
+  it('keeps the raw envelope available for deeper unwraps', () => {
+    const envelope: ApiEnvelope<{ user: { id: number } }> = { success: true, message: 'ok', data: { user: { id: 2 } } }
+    expect(pickData(envelope).user.id).toBe(2)
+  })
+})

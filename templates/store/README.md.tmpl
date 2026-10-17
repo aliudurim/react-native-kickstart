@@ -1,0 +1,60 @@
+# Store assets for {{APP_NAME}}
+
+Everything the App Store and Google Play listings need, generated from `kickstart.store.json`
+with no extra dependencies. The pipeline has three steps: capture raw screenshots, render them
+into framed marketing images, and hand the output to fastlane.
+
+## Files
+
+| Path | What it is |
+|---|---|
+| `kickstart.store.json` | Device, sizes, background, and one entry per screen with localized copy. |
+| `icon.png` | 1024x1024 master icon. Replace the placeholder before shipping. |
+| `shots/<locale>/NN-<id>.png` | Raw captures, one per screen entry (`source`). |
+| `../fastlane/screenshots/<locale>/` | Rendered App Store images, ready for `deliver`. |
+| `../fastlane/metadata/android/<locale>/images/` | Rendered Play images, ready for `supply`. |
+
+## 1. Capture
+
+Run the app on a simulator or emulator, then:
+
+```sh
+npx react-native-kickstart store capture
+```
+
+On iOS this sets a clean status bar (`9:41`, full battery and signal) with `simctl status_bar`
+and screenshots the booted simulator. On Android it enables demo mode and uses
+`adb exec-out screencap`. Each capture is written to `store/shots/<locale>/` using the `source`
+path of the matching screen entry. If `.maestro/store.yaml` exists, the capture command walks
+the flow and shoots after every `takeScreenshot` step; otherwise navigate manually and capture
+one screen at a time with `--screen <id>`.
+
+Headline copy supports `*emphasis*` markup, which renders in the accent weight.
+
+## 2. Render
+
+```sh
+npx react-native-kickstart store render
+```
+
+Draws each capture inside a geometric device frame on the configured background, lays the copy
+out with the `editorial` rhythm, and exports every size listed in `sizes`. Rendering uses
+headless Chrome or Edge when one is installed (detected automatically); otherwise open the GUI
+with `npx react-native-kickstart gui` and use the Screenshots tab, which renders on a canvas and
+saves through the local server.
+
+Icons are produced from `icon.png` in the same step: the iOS single-size asset catalog, Android
+adaptive layers and mipmaps, and the 512 px Play icon.
+
+## 3. Upload with fastlane
+
+The render step writes directly into the layout `deliver` and `supply` expect, so no mapping
+is required:
+
+```sh
+bundle exec fastlane deliver --skip-binary-upload --skip-metadata
+bundle exec fastlane supply --skip-upload-apk --skip-upload-aab --skip-upload-metadata
+```
+
+Add a locale by appending it to `locales`, adding `copy.<locale>` to each screen, and capturing
+a `shots/<locale>/` set.

@@ -1,0 +1,6 @@
+import type { ApiEnvelope } from '@/types/api'
+
+export type { ApiEnvelope }
+
+// Envelope depth varies per resource; each endpoint unwraps explicitly in its own transformResponse.
+export const pickData = <T>(r: ApiEnvelope<T>): T => r.data

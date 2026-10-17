@@ -1,0 +1,13 @@
+export interface SampleItem {
+  id: string;
+  title: string;
+  subtitle: string;
+}
+
+export const sampleItems: SampleItem[] = [
+  { id: 'env', title: 'Point the app at your API', subtitle: 'Edit src/config/env.ts and the per-environment files.' },
+  { id: 'screens', title: 'Replace the sample screens', subtitle: 'Keep the Screen + Content split: state in one, layout in the other.' },
+  { id: 'tokens', title: 'Set your palette', subtitle: 'src/theme/tokens.js feeds every component and the Tailwind config.' },
+  { id: 'tests', title: 'Run the smoke tests', subtitle: 'jest for components, Maestro flows in .maestro/ for the device.' },
+  { id: 'store', title: 'Ship store assets', subtitle: 'store/kickstart.store.json renders framed screenshots for both stores.' },
+];

@@ -1,0 +1,115 @@
+{{#if flashList}}
+import { FlashList } from '@shopify/flash-list';
+{{/if}}
+import React from 'react';
+{{#if flashList}}
+import { View } from 'react-native';
+{{else}}
+import { FlatList, View } from 'react-native';
+{{/if}}
+{{#if i18n}}
+import { useTranslation } from 'react-i18next';
+{{/if}}
+{{#if unistyles}}
+import { StyleSheet } from 'react-native-unistyles';
+{{/if}}
+
+import { Button, EmptyState, NavBar, Screen, Text } from '@/components';
+import type { SampleItem } from '@/screens/home/sampleItems';
+import { useTheme } from '@/theme';
+
+export interface HomeContentProps {
+  greeting: string;
+  items: SampleItem[];
+  onSignOut: () => void;
+}
+
+function ItemRow({ item }: { item: SampleItem }) {
+{{#unless unistyles}}
+  const theme = useTheme();
+{{/unless}}
+  return (
+    <View
+      accessible
+      accessibilityLabel={`${item.title}. ${item.subtitle}`}
+{{#if nativewind}}
+      className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-lg"
+      style={{ padding: theme.spacing.md, gap: theme.spacing.xs }}
+{{/if}}
+{{#if unistyles}}
+      style={styles.row}
+{{/if}}
+{{#if stylesheet}}
+      style={{
+        padding: theme.spacing.md,
+        gap: theme.spacing.xs,
+        borderRadius: theme.radius.lg,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        backgroundColor: theme.colors.surface,
+      }}
+{{/if}}
+    >
+      <Text variant="label">{item.title}</Text>
+      <Text variant="caption">{item.subtitle}</Text>
+    </View>
+  );
+}
+
+export function HomeContent({ greeting, items, onSignOut }: HomeContentProps) {
+  const theme = useTheme();
+{{#if i18n}}
+  const { t } = useTranslation();
+{{else}}
+  const t = (_key: string, fallback: string) => fallback;
+{{/if}}
+  const separator = () => <View style={{ height: theme.spacing.sm }} />;
+  return (
+    <>
+      <NavBar
+        title="{{APP_NAME}}"
+        right={<Button title={t('home.signOut', 'Sign out')} variant="ghost" fullWidth={false} onPress={onSignOut} testID="home-sign-out" />}
+      />
+      <Screen edges={['left', 'right', 'bottom']} padded={false} testID="home-screen">
+{{#if flashList}}
+        <FlashList
+{{else}}
+        <FlatList
+{{/if}}
+          data={items}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <ItemRow item={item} />}
+          ItemSeparatorComponent={separator}
+          ListHeaderComponent={
+            <View style={{ paddingVertical: theme.spacing.lg, gap: theme.spacing.xs }}>
+              <Text variant="title" accessibilityRole="header" testID="home-greeting">
+                {greeting}
+              </Text>
+              <Text color="muted">{t('home.intro', 'A few things to do before this becomes your app.')}</Text>
+            </View>
+          }
+          ListEmptyComponent={
+            <EmptyState
+              title={t('home.emptyTitle', 'Nothing here yet')}
+              message={t('home.emptyMessage', 'Items you add will show up in this list.')}
+            />
+          }
+          contentContainerStyle={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.lg }}
+        />
+      </Screen>
+    </>
+  );
+}
+{{#if unistyles}}
+
+const styles = StyleSheet.create((theme) => ({
+  row: {
+    padding: theme.spacing.md,
+    gap: theme.spacing.xs,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
+  },
+}));
+{{/if}}

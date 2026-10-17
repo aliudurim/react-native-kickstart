@@ -1,0 +1,112 @@
+import { create, type StateCreator } from 'zustand'
+{{#if persist}}
+import { createJSONStorage, persist } from 'zustand/middleware'
+{{/if}}
+import { analytics } from '@/lib/analytics'
+import { setAuthHandlers } from '@/lib/api/client'
+{{#if tanstack}}
+import { queryClient } from '@/lib/api/queryClient'
+{{/if}}
+import { logoutRequest } from '@/lib/api/user'
+{{#if push}}
+import { deregisterDevice } from '@/lib/api/user'
+{{/if}}
+import { identifyCrashUser, resetCrashUser } from '@/lib/crash'
+{{#if push}}
+import { getPushToken } from '@/lib/push'
+{{/if}}
+import { authStorage } from '@/lib/storage'
+{{#if persist}}
+import { SCHEMA_VERSION, toStateStorage } from '@/store/persistStorage'
+{{/if}}
+import type { Session, User } from '@/types/api'
+{{#if roles}}
+import type { Store } from '@/types/api'
+{{/if}}
+
+type AuthState = {
+  token: string | null
+  user: User | null
+{{#if roles}}
+  store: Store | null
+{{/if}}
+}
+
+type AuthActions = {
+  setSession(session: Session & { token?: string }): void
+  logout(): void
+  signOut(): Promise<void>
+}
+
+export type AuthStore = AuthState & AuthActions
+
+const initialState: AuthState = {
+  token: null,
+  user: null,
+{{#if roles}}
+  store: null,
+{{/if}}
+}
+
+const creator: StateCreator<AuthStore> = (set, get) => ({
+  ...initialState,
+  setSession: (session) => {
+    set((prev) => ({
+      token: session.token ?? prev.token,
+      user: session.user,
+{{#if roles}}
+      store: session.store,
+{{/if}}
+    }))
+    analytics.identify(String(session.user.id))
+    identifyCrashUser(String(session.user.id), session.user.email)
+  },
+  // Local reset only; reached from signOut or from a 401 in the api client.
+  logout: () => {
+    set(initialState)
+    authStorage.clearAll()
+{{#if tanstack}}
+    queryClient.clear()
+{{/if}}
+    analytics.track('auth_logout')
+    analytics.reset()
+    resetCrashUser()
+  },
+  signOut: async () => {
+{{#if push}}
+    try {
+      const token = await getPushToken()
+      if (token) await deregisterDevice(token)
+    } catch {}
+{{/if}}
+    try {
+      await logoutRequest()
+    } catch {}
+    get().logout()
+  },
+})
+
+export const useAuthStore = create<AuthStore>()(
+{{#if persist}}
+  persist(creator, {
+    name: 'auth',
+    version: SCHEMA_VERSION,
+    storage: createJSONStorage(() => toStateStorage(authStorage)),
+{{#if roles}}
+    partialize: ({ token, user, store }) => ({ token, user, store }),
+{{else}}
+    partialize: ({ token, user }) => ({ token, user }),
+{{/if}}
+  }),
+{{else}}
+  creator,
+{{/if}}
+)
+
+setAuthHandlers({
+  getToken: () => useAuthStore.getState().token,
+  onUnauthorized: () => useAuthStore.getState().logout(),
+})
+
+// User-initiated sign-out: server calls run while the token is still in state; logout() follows.
+export const signOut = (): Promise<void> => useAuthStore.getState().signOut()

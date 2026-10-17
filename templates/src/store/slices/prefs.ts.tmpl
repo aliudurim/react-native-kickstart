@@ -1,0 +1,37 @@
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+{{#if asyncStorage}}
+import { rehydrate } from '@/lib/storage/persist'
+{{/if}}
+
+export type ThemePreference = 'system' | 'light' | 'dark'
+
+export type PrefsState = {
+  theme: ThemePreference
+  locale: string | null
+}
+
+export const initialPrefsState: PrefsState = {
+  theme: 'system',
+  locale: null,
+}
+
+const prefsSlice = createSlice({
+  name: 'prefs',
+  initialState: initialPrefsState,
+  reducers: {
+    setTheme(state, { payload }: PayloadAction<ThemePreference>) {
+      state.theme = payload
+    },
+    setLocale(state, { payload }: PayloadAction<string | null>) {
+      state.locale = payload
+    },
+  },
+{{#if asyncStorage}}
+  extraReducers: (builder) => {
+    builder.addCase(rehydrate, (state, { payload }) => (payload.prefs as PrefsState | undefined) ?? state)
+  },
+{{/if}}
+})
+
+export const { setTheme, setLocale } = prefsSlice.actions
+export const prefsReducer = prefsSlice.reducer

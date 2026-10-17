@@ -1,0 +1,47 @@
+/**
+ * Design tokens. CommonJS so tailwind.config.js can `require` it; TypeScript
+ * reads the types from tokens.d.ts.
+ * @type {import('./tokens').Tokens}
+ */
+const tokens = {
+  colors: {
+    light: {
+      background: '#F7F8F8',
+      surface: '#FFFFFF',
+      foreground: '#121717',
+      muted: '#5C6B6B',
+      primary: '#0D6E6E',
+      onPrimary: '#FFFFFF',
+      border: '#D9E0E0',
+      danger: '#C2410C',
+    },
+    dark: {
+      background: '#0E1414',
+      surface: '#182020',
+      foreground: '#F1F4F4',
+      muted: '#9AAAAA',
+      primary: '#2A9D8F',
+      onPrimary: '#06201E',
+      border: '#2A3535',
+      danger: '#F97316',
+    },
+  },
+  spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, xxl: 48 },
+  radius: { sm: 6, md: 10, lg: 16, full: 999 },
+  fontSize: { caption: 12, label: 14, body: 16, title: 28 },
+};
+
+/** Shape consumed by tailwind.config.js: `theme: { extend: tailwindTheme }`. */
+const tailwindTheme = {
+  colors: Object.fromEntries(
+    Object.keys(tokens.colors.light).map((key) => [
+      key,
+      { DEFAULT: tokens.colors.light[key], dark: tokens.colors.dark[key] },
+    ]),
+  ),
+  spacing: Object.fromEntries(Object.entries(tokens.spacing).map(([k, v]) => [k, `${v}px`])),
+  borderRadius: Object.fromEntries(Object.entries(tokens.radius).map(([k, v]) => [k, `${v}px`])),
+  fontSize: Object.fromEntries(Object.entries(tokens.fontSize).map(([k, v]) => [k, `${v}px`])),
+};
+
+module.exports = { ...tokens, tokens, tailwindTheme };

@@ -1,0 +1,5 @@
+export async function uploadToPresignedUrl(url: string, fileUri: string, contentType: string): Promise<void> {
+  const blob = await (await fetch(fileUri)).blob()
+  const res = await fetch(url, { method: 'PUT', headers: { 'Content-Type': contentType }, body: blob })
+  if (!res.ok) throw new Error(`Upload failed: ${res.status}`)
+}

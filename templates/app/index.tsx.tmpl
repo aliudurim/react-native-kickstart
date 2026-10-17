@@ -1,0 +1,9 @@
+import { Redirect } from 'expo-router';
+import React from 'react';
+
+import { useAuth } from '@/hooks/useAuth';
+
+export default function Index() {
+  const { isSignedIn } = useAuth();
+  return <Redirect href={isSignedIn ? '/(tabs)/home' : '/(auth)/login'} />;
+}

@@ -1,0 +1,13 @@
+{{#if nativewind}}
+import './global.css';
+{{/if}}
+import { Providers } from '@/app/Providers';
+import { RootNavigator } from '@/navigation/RootNavigator';
+
+export default function App() {
+  return (
+    <Providers>
+      <RootNavigator />
+    </Providers>
+  );
+}

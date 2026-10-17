@@ -1,0 +1,22 @@
+{{#if expo}}
+import { registerRootComponent } from 'expo';
+{{else}}
+import { AppRegistry } from 'react-native';
+{{/if}}
+{{#if push}}
+import { getMessaging, setBackgroundMessageHandler } from '@react-native-firebase/messaging';
+{{/if}}
+import App from './App';
+{{#unless expo}}
+import { name as appName } from './app.json';
+{{/unless}}
+
+{{#if push}}
+setBackgroundMessageHandler(getMessaging(), async () => {});
+
+{{/if}}
+{{#if expo}}
+registerRootComponent(App);
+{{else}}
+AppRegistry.registerComponent(appName, () => App);
+{{/if}}

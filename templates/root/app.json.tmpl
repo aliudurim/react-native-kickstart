@@ -1,0 +1,46 @@
+{{#if expo}}
+{
+  "expo": {
+    "name": "{{APP_NAME}}",
+    "slug": "{{APP_SLUG}}",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "scheme": "{{APP_SLUG}}",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "{{BUNDLE_ID}}",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "{{BUNDLE_ID}}",
+      "edgeToEdgeEnabled": true
+    },
+    "plugins": [
+{{#if expoRouter}}
+      "expo-router",
+{{/if}}
+{{#if crash}}
+      ["@sentry/react-native/expo", { "organization": "", "project": "{{APP_SLUG}}" }],
+{{/if}}
+{{#if push}}
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
+{{/if}}
+      "react-native-bootsplash"
+{{#if expoRouter}}
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+{{else}}
+    ]
+{{/if}}
+  }
+}
+{{else}}
+{
+  "name": "{{APP_NAME}}",
+  "displayName": "{{APP_NAME}}"
+}
+{{/if}}

@@ -1,0 +1,10 @@
+# Copy to .env (and .env.staging / .env.dev). Everything here ends up in the JS bundle,
+# so only publishable keys belong in this file; real secrets stay server-side.
+APP_ENV=dev
+API_BASE_URL=https://api.example.com
+{{#if crash}}
+SENTRY_DSN=
+{{/if}}
+{{#if analytics}}
+ANALYTICS_WRITE_KEY=
+{{/if}}

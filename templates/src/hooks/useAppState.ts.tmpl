@@ -1,0 +1,23 @@
+import { useEffect, useRef, useState } from 'react';
+import { AppState } from 'react-native';
+import type { AppStateStatus } from 'react-native';
+
+export function useAppState(onForeground?: () => void): AppStateStatus {
+  const initial = (AppState.currentState ?? 'unknown') as AppStateStatus;
+  const [status, setStatus] = useState<AppStateStatus>(initial);
+  const previous = useRef<AppStateStatus>(initial);
+  const callback = useRef(onForeground);
+  callback.current = onForeground;
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (next) => {
+      const wasInBackground = previous.current === 'background' || previous.current === 'inactive';
+      if (wasInBackground && next === 'active') callback.current?.();
+      previous.current = next;
+      setStatus(next);
+    });
+    return () => subscription.remove();
+  }, []);
+
+  return status;
+}

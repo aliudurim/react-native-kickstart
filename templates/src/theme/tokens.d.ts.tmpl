@@ -1,0 +1,56 @@
+export type ColorScheme = 'light' | 'dark';
+
+export interface Colors {
+  background: string;
+  surface: string;
+  foreground: string;
+  muted: string;
+  primary: string;
+  onPrimary: string;
+  border: string;
+  danger: string;
+}
+
+export interface Spacing {
+  xs: number;
+  sm: number;
+  md: number;
+  lg: number;
+  xl: number;
+  xxl: number;
+}
+
+export interface Radius {
+  sm: number;
+  md: number;
+  lg: number;
+  full: number;
+}
+
+export interface FontSize {
+  caption: number;
+  label: number;
+  body: number;
+  title: number;
+}
+
+export interface Tokens {
+  colors: Record<ColorScheme, Colors>;
+  spacing: Spacing;
+  radius: Radius;
+  fontSize: FontSize;
+}
+
+export interface TailwindTheme {
+  colors: Record<keyof Colors, { DEFAULT: string; dark: string }>;
+  spacing: Record<keyof Spacing, string>;
+  borderRadius: Record<keyof Radius, string>;
+  fontSize: Record<keyof FontSize, string>;
+}
+
+export const colors: Tokens['colors'];
+export const spacing: Spacing;
+export const radius: Radius;
+export const fontSize: FontSize;
+export const tokens: Tokens;
+export const tailwindTheme: TailwindTheme;

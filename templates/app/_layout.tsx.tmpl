@@ -1,0 +1,28 @@
+import { Stack } from 'expo-router';
+import React from 'react';
+
+import { Providers } from '@/app/Providers';
+import { useAuth } from '@/hooks/useAuth';
+
+function RootStack() {
+  const { isSignedIn } = useAuth();
+  return (
+    <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
+      <Stack.Screen name="index" />
+      <Stack.Protected guard={!isSignedIn}>
+        <Stack.Screen name="(auth)" />
+      </Stack.Protected>
+      <Stack.Protected guard={isSignedIn}>
+        <Stack.Screen name="(tabs)" />
+      </Stack.Protected>
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <Providers>
+      <RootStack />
+    </Providers>
+  );
+}

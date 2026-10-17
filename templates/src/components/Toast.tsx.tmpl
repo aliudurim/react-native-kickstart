@@ -1,0 +1,147 @@
+{{#if noState}}
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+{{else}}
+import React from 'react';
+{{/if}}
+import { Pressable } from 'react-native';
+{{#if unistyles}}
+import { StyleSheet } from 'react-native-unistyles';
+{{/if}}
+
+import { Text } from '@/components/Text';
+{{#if nativewind}}
+import { cn, useTheme } from '@/theme';
+{{else}}
+import { useTheme } from '@/theme';
+{{/if}}
+{{#if rtk}}
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { selectToast } from '@/store/selectors';
+import { uiActions } from '@/store/slices/ui';
+{{/if}}
+{{#if zustand}}
+import { useUiStore } from '@/store/useUiStore';
+{{/if}}
+
+export type ToastKind = 'info' | 'success' | 'error';
+
+export interface ToastMessage {
+  message: string;
+  kind: ToastKind;
+}
+
+export interface ToastController {
+  toast: ToastMessage | null;
+  showToast: (message: string, kind?: ToastKind) => void;
+  hideToast: () => void;
+}
+{{#if rtk}}
+
+export function useToast(): ToastController {
+  const dispatch = useAppDispatch();
+  const toast = useAppSelector(selectToast);
+  return {
+    toast,
+    showToast: (message, kind = 'info') => dispatch(uiActions.showToast({ message, kind })),
+    hideToast: () => dispatch(uiActions.hideToast()),
+  };
+}
+
+export function ToastProvider({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}
+{{/if}}
+{{#if zustand}}
+
+export function useToast(): ToastController {
+  const toast = useUiStore((s) => s.toast);
+  const showToast = useUiStore((s) => s.showToast);
+  const hideToast = useUiStore((s) => s.hideToast);
+  return { toast, showToast, hideToast };
+}
+
+export function ToastProvider({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}
+{{/if}}
+{{#if noState}}
+
+const ToastContext = createContext<ToastController | null>(null);
+
+export function ToastProvider({ children }: { children: React.ReactNode }) {
+  const [toast, setToast] = useState<ToastMessage | null>(null);
+  const showToast = useCallback((message: string, kind: ToastKind = 'info') => setToast({ message, kind }), []);
+  const hideToast = useCallback(() => setToast(null), []);
+  const value = useMemo(() => ({ toast, showToast, hideToast }), [toast, showToast, hideToast]);
+  return <ToastContext.Provider value={value}>{children}</ToastContext.Provider>;
+}
+
+const noop: ToastController = { toast: null, showToast: () => undefined, hideToast: () => undefined };
+
+export function useToast(): ToastController {
+  return useContext(ToastContext) ?? noop;
+}
+{{/if}}
+
+export interface ToastProps extends ToastMessage {
+  onDismiss: () => void;
+}
+
+export function Toast({ message, kind, onDismiss }: ToastProps) {
+  const theme = useTheme();
+{{#if unistyles}}
+  styles.useVariants({ kind });
+{{/if}}
+  return (
+    <Pressable
+      accessibilityRole="alert"
+      accessibilityLiveRegion="polite"
+      accessibilityLabel={message}
+      onPress={onDismiss}
+      testID="toast"
+{{#if nativewind}}
+      className={cn(
+        'rounded-lg',
+        kind === 'error' ? 'bg-danger dark:bg-danger-dark' : 'bg-foreground dark:bg-foreground-dark',
+      )}
+      style={{ minHeight: 44, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.sm, justifyContent: 'center' }}
+{{/if}}
+{{#if unistyles}}
+      style={styles.toast}
+{{/if}}
+{{#if stylesheet}}
+      style={{
+        minHeight: 44,
+        paddingHorizontal: theme.spacing.md,
+        paddingVertical: theme.spacing.sm,
+        justifyContent: 'center',
+        borderRadius: theme.radius.lg,
+        backgroundColor: kind === 'error' ? theme.colors.danger : theme.colors.foreground,
+      }}
+{{/if}}
+    >
+      <Text variant="label" style={{ color: theme.colors.background }}>
+        {message}
+      </Text>
+    </Pressable>
+  );
+}
+{{#if unistyles}}
+
+const styles = StyleSheet.create((theme) => ({
+  toast: {
+    minHeight: 44,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    justifyContent: 'center',
+    borderRadius: theme.radius.lg,
+    variants: {
+      kind: {
+        info: { backgroundColor: theme.colors.foreground },
+        success: { backgroundColor: theme.colors.primary },
+        error: { backgroundColor: theme.colors.danger },
+      },
+    },
+  },
+}));
+{{/if}}

@@ -1,0 +1,32 @@
+import { Tabs } from 'expo-router';
+import React from 'react';
+
+{{#if roles}}
+import { useAuth } from '@/hooks/useAuth';
+{{/if}}
+import { useTheme } from '@/theme';
+
+export default function TabsLayout() {
+  const theme = useTheme();
+{{#if roles}}
+  const { isSeller } = useAuth();
+{{/if}}
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.muted,
+        tabBarStyle: { backgroundColor: theme.colors.background, borderTopColor: theme.colors.border },
+      }}
+    >
+      <Tabs.Screen name="home" options={{ title: 'Home', tabBarButtonTestID: 'tab-home' }} />
+{{#if roles}}
+      <Tabs.Protected guard={isSeller}>
+        <Tabs.Screen name="sell" options={{ title: 'Sell', tabBarButtonTestID: 'tab-sell' }} />
+      </Tabs.Protected>
+{{/if}}
+      <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarButtonTestID: 'tab-profile' }} />
+    </Tabs>
+  );
+}

@@ -1,0 +1,33 @@
+{
+  "bare": { "name": "Bare React Native", "vendor": "Meta", "summary": "Plain react-native with the community template. You own ios/ and android/.", "tradeoff": "Native changes are yours to make and to keep working on upgrades.", "docs": "https://reactnative.dev/docs/getting-started-without-a-framework" },
+  "expo": { "name": "Expo", "vendor": "Expo", "summary": "Expo SDK with Continuous Native Generation. Native folders are generated, not committed.", "tradeoff": "Versions are decided per SDK; custom native code goes through config plugins.", "docs": "https://docs.expo.dev" },
+
+  "rtk": { "name": "Redux Toolkit + RTK Query", "vendor": "Redux", "summary": "Server state in RTK Query per backend resource, three client slices, listener middleware for side effects.", "tradeoff": "More ceremony than Zustand; pays off once there are many resources and cross-slice reactions.", "docs": "https://redux-toolkit.js.org" },
+  "zustand": { "name": "Zustand", "vendor": "pmndrs", "summary": "Small store with hooks, no boilerplate, pairs with TanStack Query for server state.", "tradeoff": "No built-in server cache or middleware bus; you compose those yourself.", "docs": "https://zustand.docs.pmnd.rs" },
+  "rtk-query": { "name": "RTK Query", "vendor": "Redux", "summary": "Cache, refetch, tags and optimistic updates inside the Redux store.", "tradeoff": "Only with Redux Toolkit.", "docs": "https://redux-toolkit.js.org/rtk-query/overview" },
+  "tanstack-query": { "name": "TanStack Query", "vendor": "TanStack", "summary": "Server-state cache independent of your client store.", "tradeoff": "A second source of truth next to the client store; keep the boundary explicit.", "docs": "https://tanstack.com/query" },
+  "fetch": { "name": "Plain fetch", "vendor": "—", "summary": "A typed fetch wrapper with the auth header and 401 handling, nothing cached.", "tradeoff": "You write caching and invalidation yourself when a screen needs it.", "docs": "https://reactnative.dev/docs/network" },
+
+  "react-navigation": { "name": "React Navigation", "vendor": "Callstack / Expo", "summary": "Native stack, bottom tabs, conditional root navigator, deep links.", "tradeoff": "Nested navigation calls need the fully-qualified form from outside a tree.", "docs": "https://reactnavigation.org" },
+  "expo-router": { "name": "Expo Router", "vendor": "Expo", "summary": "File-based routes on top of React Navigation.", "tradeoff": "Expo only. Routes are files, so gating by role moves into layouts.", "docs": "https://docs.expo.dev/router/introduction/" },
+
+  "nativewind": { "name": "NativeWind 4", "vendor": "Mark Lawlor", "summary": "Tailwind classes for React Native, driven by your token file.", "tradeoff": "Structural layout through className is unreliable on Fabric; use inline style for width, height, flex, gaps. Tailwind must stay on 3.x.", "docs": "https://www.nativewind.dev" },
+  "unistyles": { "name": "Unistyles 3", "vendor": "jpudysz", "summary": "StyleSheet superset with themes, breakpoints and variants, computed on the native side.", "tradeoff": "Nitro-based native module; adds a build-time Babel plugin.", "docs": "https://www.unistyl.es" },
+  "stylesheet": { "name": "StyleSheet", "vendor": "Meta", "summary": "Built-in styles with a small tokens module.", "tradeoff": "No theming or responsive helpers out of the box.", "docs": "https://reactnative.dev/docs/stylesheet" },
+
+  "mmkv": { "name": "MMKV", "vendor": "mrousavy", "summary": "Synchronous key-value storage. Two instances: auth (wiped on logout) and default.", "tradeoff": "Native Nitro module; needs a jest stub and a native rebuild on bumps.", "docs": "https://github.com/mrousavy/react-native-mmkv" },
+  "async-storage": { "name": "AsyncStorage", "vendor": "React Native Community", "summary": "Asynchronous key-value storage.", "tradeoff": "Async rehydration gap at startup; slower than MMKV.", "docs": "https://react-native-async-storage.github.io/async-storage/" },
+
+  "rhf-zod": { "name": "React Hook Form + Zod", "vendor": "RHF / Colin McDonnell", "summary": "Uncontrolled forms with schema validation; the trio is pinned together.", "tradeoff": "Resolvers v5 needs RHF 7.55+ and Zod 3.25+ or 4.", "docs": "https://react-hook-form.com" },
+
+  "i18next": { "name": "i18next", "vendor": "i18next", "summary": "All strings keyed in en.json from day one.", "tradeoff": "i18next and react-i18next bump as a pair.", "docs": "https://react.i18next.com" },
+
+  "flash-list": { "name": "FlashList 2", "vendor": "Shopify", "summary": "Recycling list for the New Architecture; no estimatedItemSize.", "tradeoff": "New-Arch only.", "docs": "https://shopify.github.io/flash-list/" },
+  "flatlist": { "name": "FlatList", "vendor": "Meta", "summary": "The built-in list.", "tradeoff": "Slower on long lists.", "docs": "https://reactnative.dev/docs/flatlist" },
+
+  "crash": { "name": "Sentry", "vendor": "Sentry", "summary": "JS and native crashes, release health, source map upload in CI.", "tradeoff": "Changes native builds, so it ships in Sprint 0 or not at all.", "docs": "https://docs.sentry.io/platforms/react-native/" },
+  "analytics": { "name": "Analytics facade", "vendor": "—", "summary": "Typed track/identify/reset with a no-op driver; vendor swapped later in one file.", "tradeoff": "None; retrofitting a taxonomy is what costs.", "docs": "" },
+  "roles": { "name": "Roles & capability gating", "vendor": "—", "summary": "Additive roles on the user; named selectors; conditional navigator registration.", "tradeoff": "Client gating is UX only; the server stays the authority.", "docs": "" },
+  "media": { "name": "Media & uploads", "vendor": "—", "summary": "Image picker, video playback and a presigned-PUT upload helper.", "tradeoff": "Large uploads need a real queue later.", "docs": "" },
+  "push": { "name": "Push (FCM)", "vendor": "Invertase", "summary": "@react-native-firebase/messaging v26+, permission in context, device registration in the session listener.", "tradeoff": "iOS tokens need a real device; Firebase config files per environment.", "docs": "https://rnfirebase.io/messaging/usage" }
+}

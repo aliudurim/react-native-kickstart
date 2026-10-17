@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: typecheck + lint + test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+            ~/.cache/yarn
+            ~/.local/share/pnpm/store
+            ~/.bun/install/cache
+          key: ${{ runner.os }}-{{PM}}-${{ hashFiles('package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lock', 'bun.lockb') }}
+          restore-keys: ${{ runner.os }}-{{PM}}-
+
+      - name: Install
+        run: {{PM}} install
+
+      - name: Typecheck
+        run: {{PM}} run typecheck
+
+      - name: Lint
+        run: {{PM}} run lint
+
+      - name: Test
+        run: {{PM}} run test -- --ci --coverage=false

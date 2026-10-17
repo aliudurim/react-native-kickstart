@@ -1,0 +1,78 @@
+import React from 'react';
+import { View } from 'react-native';
+{{#if i18n}}
+import { useTranslation } from 'react-i18next';
+{{/if}}
+
+import { Button, Input, PasswordInput, Screen, Text } from '@/components';
+import { useTheme } from '@/theme';
+import type { LoginInput } from '@/validations/auth';
+
+export type LoginFieldErrors = Partial<Record<keyof LoginInput, string>>;
+
+export interface LoginContentProps {
+  values: LoginInput;
+  errors: LoginFieldErrors;
+  onChange: (field: keyof LoginInput, value: string) => void;
+  onSubmit: () => void;
+  isSubmitting: boolean;
+  errorMessage: string | null;
+}
+
+export function LoginContent({ values, errors, onChange, onSubmit, isSubmitting, errorMessage }: LoginContentProps) {
+  const theme = useTheme();
+{{#if i18n}}
+  const { t } = useTranslation();
+{{else}}
+  const t = (_key: string, fallback: string) => fallback;
+{{/if}}
+  return (
+    <Screen scroll testID="login-screen" contentContainerStyle={{ justifyContent: 'center' }}>
+      <View style={{ gap: theme.spacing.md }}>
+        <View style={{ gap: theme.spacing.xs, marginBottom: theme.spacing.sm }}>
+          <Text variant="title" accessibilityRole="header">
+            {t('login.title', 'Welcome back')}
+          </Text>
+          <Text color="muted">{t('login.subtitle', 'Sign in to pick up where you left off.')}</Text>
+        </View>
+        <Input
+          label={t('login.email', 'Email')}
+          testID="login-email"
+          value={values.email}
+          onChangeText={(text) => onChange('email', text)}
+          error={errors.email}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete="email"
+          textContentType="emailAddress"
+          returnKeyType="next"
+          editable={!isSubmitting}
+        />
+        <PasswordInput
+          label={t('login.password', 'Password')}
+          testID="login-password"
+          value={values.password}
+          onChangeText={(text) => onChange('password', text)}
+          error={errors.password}
+          autoComplete="password"
+          returnKeyType="go"
+          onSubmitEditing={onSubmit}
+          editable={!isSubmitting}
+        />
+        {errorMessage ? (
+          <Text color="danger" accessibilityLiveRegion="assertive" testID="login-error">
+            {errorMessage}
+          </Text>
+        ) : null}
+        <Button
+          title={t('login.submit', 'Sign in')}
+          testID="login-submit"
+          onPress={onSubmit}
+          loading={isSubmitting}
+          style={{ marginTop: theme.spacing.sm }}
+        />
+      </View>
+    </Screen>
+  );
+}

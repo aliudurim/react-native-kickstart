@@ -1,0 +1,23 @@
+import { StyleSheet } from 'react-native-unistyles';
+
+import { colors, fontSize, radius, spacing } from '@/theme/tokens';
+
+const lightTheme = { scheme: 'light' as const, colors: colors.light, spacing, radius, fontSize };
+const darkTheme = { scheme: 'dark' as const, colors: colors.dark, spacing, radius, fontSize };
+
+export const appThemes = { light: lightTheme, dark: darkTheme };
+export const breakpoints = { xs: 0, sm: 360, md: 600, lg: 900, xl: 1200 };
+
+type AppThemes = typeof appThemes;
+type AppBreakpoints = typeof breakpoints;
+
+declare module 'react-native-unistyles' {
+  export interface UnistylesThemes extends AppThemes {}
+  export interface UnistylesBreakpoints extends AppBreakpoints {}
+}
+
+StyleSheet.configure({
+  themes: appThemes,
+  breakpoints,
+  settings: { adaptiveThemes: true },
+});

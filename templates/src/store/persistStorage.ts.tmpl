@@ -1,0 +1,11 @@
+import type { StateStorage } from 'zustand/middleware'
+import type { KeyValueStorage } from '@/lib/storage'
+
+// Bump when a persisted store's shape changes; zustand's persist drops or migrates the old entry.
+export const SCHEMA_VERSION = 1
+
+export const toStateStorage = (storage: KeyValueStorage): StateStorage => ({
+  getItem: (key) => storage.getString(key) ?? null,
+  setItem: (key, value) => storage.set(key, value),
+  removeItem: (key) => storage.delete(key),
+})

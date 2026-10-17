@@ -1,0 +1,61 @@
+import { fireEvent, render, screen } from '@testing-library/react-native';
+import React from 'react';
+
+import { HomeScreen } from '@/screens/home/HomeScreen';
+import { sampleItems } from '@/screens/home/sampleItems';
+
+const mockSignOut = jest.fn();
+jest.mock('@/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: {
+      id: 1,
+      name: 'Ada Lovelace',
+      email: 'ada@example.com',
+{{#if roles}}
+      roles: ['shopper'],
+{{/if}}
+    },
+    isSignedIn: true,
+{{#if roles}}
+    isSeller: false,
+    isOnboarding: false,
+{{/if}}
+    signOut: mockSignOut,
+  }),
+}));
+{{#if i18n}}
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+}));
+{{/if}}
+{{#if analytics}}
+
+jest.mock('@/lib/analytics', () => ({ track: jest.fn() }));
+{{/if}}
+
+describe('HomeScreen', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('greets the signed-in user', async () => {
+    await render(<HomeScreen />);
+
+    expect(screen.getByText('Hi, Ada Lovelace')).toBeTruthy();
+  });
+
+  it('lists the sample items', async () => {
+    await render(<HomeScreen />);
+
+    expect(screen.getByText(sampleItems[0]!.title)).toBeTruthy();
+  });
+
+  it('signs out', async () => {
+    await render(<HomeScreen />);
+
+    await fireEvent.press(screen.getByLabelText('Sign out'));
+
+    expect(mockSignOut).toHaveBeenCalledTimes(1);
+  });
+});

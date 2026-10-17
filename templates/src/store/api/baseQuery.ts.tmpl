@@ -1,0 +1,45 @@
+import { fetchBaseQuery, type BaseQueryFn, type FetchArgs, type FetchBaseQueryError } from '@reduxjs/toolkit/query'
+import { env } from '@/config/env'
+import { logout } from '@/store/slices/auth'
+
+type StateWithAuth = { auth: { token: string | null } }
+
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: env.API_BASE_URL,
+  prepareHeaders: (headers, { getState }) => {
+    const token = (getState() as StateWithAuth).auth.token
+    headers.set('Accept', 'application/json')
+    if (token) headers.set('Authorization', `Bearer ${token}`)
+    return headers
+  },
+})
+
+type BaseResult = Awaited<ReturnType<typeof rawBaseQuery>>
+let reauthInFlight: Promise<BaseResult> | null = null
+
+// A burst of concurrent 401s coalesces through one probe; the owner is sent at most twice,
+// followers re-send their own args once after a successful probe.
+export const baseQueryWithAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (args, api, extraOptions) => {
+  let result = await rawBaseQuery(args, api, extraOptions)
+  if (result.error?.status === 401) {
+    const owner = reauthInFlight === null
+    if (owner) {
+      reauthInFlight = (async () => {
+        const retry = await rawBaseQuery(args, api, extraOptions)
+        if (retry.error?.status === 401) api.dispatch(logout())
+        return retry
+      })()
+    }
+    try {
+      const probe = await reauthInFlight!
+      if (owner) {
+        result = probe
+      } else if (probe.error?.status !== 401) {
+        result = await rawBaseQuery(args, api, extraOptions)
+      }
+    } finally {
+      if (owner) reauthInFlight = null
+    }
+  }
+  return result
+}

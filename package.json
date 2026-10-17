@@ -1,0 +1,21 @@
+{
+  "name": "react-native-kickstart",
+  "version": "0.1.0",
+  "description": "Pulls the latest compatible React Native dependencies and kickstarts a project in seconds.",
+  "type": "module",
+  "bin": {
+    "rn-kickstart": "bin/kickstart.mjs",
+    "rn-kickstart-gui": "bin/gui.mjs",
+    "rn-versions": "bin/versions.mjs",
+    "rn-kickstart-store": "bin/store.mjs"
+  },
+  "scripts": {
+    "test": "node --test 'test/*.test.mjs' && node tools/audit_templates.mjs",
+    "pin": "node tools/pin_versions.mjs",
+    "matrix": "node test/matrix.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}

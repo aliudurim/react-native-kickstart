@@ -1,0 +1,58 @@
+import { createSlice, nanoid, type PayloadAction } from '@reduxjs/toolkit'
+
+export type ToastKind = 'info' | 'success' | 'error'
+
+export type Toast = {
+  id: string
+  message: string
+  kind: ToastKind
+}
+
+export type UiState = {
+  toasts: Toast[]
+  activeSheet: string | null
+}
+
+export const initialUiState: UiState = {
+  toasts: [],
+  activeSheet: null,
+}
+
+const uiSlice = createSlice({
+  name: 'ui',
+  initialState: initialUiState,
+  reducers: {
+    pushToast: {
+      reducer(state, { payload }: PayloadAction<Toast>) {
+        state.toasts.push(payload)
+      },
+      prepare(message: string, kind: ToastKind = 'info') {
+        return { payload: { id: nanoid(), message, kind } }
+      },
+    },
+    showToast: {
+      reducer(state, { payload }: PayloadAction<Toast>) {
+        state.toasts.push(payload)
+      },
+      prepare({ message, kind = 'info' }: { message: string; kind?: ToastKind }) {
+        return { payload: { id: nanoid(), message, kind } }
+      },
+    },
+    dismissToast(state, { payload }: PayloadAction<string>) {
+      state.toasts = state.toasts.filter((t) => t.id !== payload)
+    },
+    hideToast(state) {
+      state.toasts.shift()
+    },
+    openSheet(state, { payload }: PayloadAction<string>) {
+      state.activeSheet = payload
+    },
+    closeSheet(state) {
+      state.activeSheet = null
+    },
+  },
+})
+
+export const uiActions = uiSlice.actions
+export const { pushToast, showToast, dismissToast, hideToast, openSheet, closeSheet } = uiSlice.actions
+export const uiReducer = uiSlice.reducer

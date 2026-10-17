@@ -1,0 +1,70 @@
+/* global jest */
+const SILENCED = [/ProgressBarAndroid/, /Clipboard has been extracted/, /new NativeEventEmitter/];
+const warn = console.warn;
+console.warn = (...args) => {
+  if (SILENCED.some((re) => re.test(String(args[0])))) return;
+  warn(...args);
+};
+
+jest.mock('react-native-bootsplash', () => ({
+  hide: jest.fn(() => Promise.resolve()),
+  isVisible: jest.fn(() => Promise.resolve(false)),
+  useHideAnimation: jest.fn(() => ({ container: {}, logo: {}, brand: {} })),
+}));
+
+{{#if bare}}
+jest.mock('react-native-config', () => ({
+  __esModule: true,
+  default: { API_BASE_URL: 'http://localhost:3000', APP_ENV: 'test' },
+  Config: { API_BASE_URL: 'http://localhost:3000', APP_ENV: 'test' },
+}));
+{{/if}}
+
+jest.mock('react-native-safe-area-context', () => require('react-native-safe-area-context/jest/mock').default);
+jest.mock('react-native-keyboard-controller', () => require('react-native-keyboard-controller/jest'));
+{{#if unistyles}}
+
+require('react-native-unistyles/mocks');
+require('../src/theme/unistyles');
+jest.mock('react-native-edge-to-edge', () => ({
+  SystemBars: () => null,
+  SystemBarStyle: {},
+}));
+{{/if}}
+{{#if crash}}
+
+jest.mock('@sentry/react-native', () => ({
+  init: jest.fn(),
+  wrap: (component) => component,
+  captureException: jest.fn(),
+  captureMessage: jest.fn(),
+  setUser: jest.fn(),
+  addBreadcrumb: jest.fn(),
+  reactNavigationIntegration: jest.fn(() => ({ registerNavigationContainer: jest.fn() })),
+  ErrorBoundary: ({ children }) => children,
+}));
+{{/if}}
+{{#if push}}
+
+jest.mock('@react-native-firebase/app', () => ({ getApp: jest.fn(() => ({})) }));
+jest.mock('@react-native-firebase/messaging', () => ({
+  getMessaging: jest.fn(() => ({})),
+  getToken: jest.fn(() => Promise.resolve('test-fcm-token')),
+  onMessage: jest.fn(() => () => {}),
+  onTokenRefresh: jest.fn(() => () => {}),
+  onNotificationOpenedApp: jest.fn(() => () => {}),
+  getInitialNotification: jest.fn(() => Promise.resolve(null)),
+  requestPermission: jest.fn(() => Promise.resolve(1)),
+  setBackgroundMessageHandler: jest.fn(),
+  AuthorizationStatus: { NOT_DETERMINED: -1, DENIED: 0, AUTHORIZED: 1, PROVISIONAL: 2 },
+}));
+jest.mock('react-native-permissions', () => require('react-native-permissions/mock'));
+{{/if}}
+{{#if media}}
+
+jest.mock('react-native-image-picker', () => ({
+  launchCamera: jest.fn(() => Promise.resolve({ didCancel: true })),
+  launchImageLibrary: jest.fn(() => Promise.resolve({ didCancel: true })),
+}));
+jest.mock('react-native-video', () => ({ __esModule: true, default: require('react-native').View }));
+{{/if}}

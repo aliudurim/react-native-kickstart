@@ -1,0 +1,45 @@
+# {{APP_NAME}}
+
+{{#if expo}}
+Expo (prebuild) React Native {{RN_VERSION}} app, bundle id `{{BUNDLE_ID}}`.
+{{else}}
+Bare React Native {{RN_VERSION}} app, bundle id `{{BUNDLE_ID}}`.
+{{/if}}
+
+## Requirements
+
+- Node >= {{NODE_MIN}} (`nvm use` reads `.nvmrc`)
+- JDK {{JDK}}, Android SDK with API {{MIN_SDK}}+ installed
+- Xcode (iOS {{IOS_TARGET}} deployment target), CocoaPods via Bundler
+- Watchman (recommended on macOS)
+
+## Run
+
+```sh
+{{PM}} install
+{{#if expo}}
+{{PM}} run prebuild          # generates ios/ and android/
+{{PM}} run ios               # or: {{PM}} run android
+{{else}}
+{{PM}} run pods              # bundle exec pod install (first run: bundle install)
+{{PM}} run ios               # or: {{PM}} run android
+{{/if}}
+{{PM}} run start             # Metro, if not started by the run command
+```
+
+Copy `.env.example` to `.env` before the first run; only publishable keys belong there.
+
+## Verify
+
+`{{PM}} run verify` runs typecheck, lint and jest — the done gate CI enforces on every PR.
+{{#if sample}}
+Smoke flows live in `.maestro/` (`maestro test .maestro/login.yaml`).
+{{/if}}
+
+## Generated with react-native-kickstart
+
+```sh
+{{KICKSTART_CMD}}
+```
+
+See `CLAUDE.md` for the stack, conventions and the native-rebuild-vs-reload rules.

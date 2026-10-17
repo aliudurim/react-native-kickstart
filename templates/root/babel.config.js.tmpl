@@ -1,0 +1,30 @@
+module.exports = function (api) {
+  api.cache(true);
+  return {
+{{#if expo}}
+{{#if nativewind}}
+    presets: [['babel-preset-expo', { jsxImportSource: 'nativewind' }], 'nativewind/babel'],
+{{else}}
+    presets: ['babel-preset-expo'],
+{{/if}}
+{{#if unistyles}}
+    plugins: [['react-native-unistyles/plugin', { root: 'src' }]],
+{{/if}}
+{{else}}
+{{#if nativewind}}
+    presets: [
+      ['module:@react-native/babel-preset', { jsxImportSource: 'nativewind' }],
+      'nativewind/babel',
+    ],
+{{else}}
+    presets: ['module:@react-native/babel-preset'],
+{{/if}}
+    plugins: [
+{{#if unistyles}}
+      ['react-native-unistyles/plugin', { root: 'src' }],
+{{/if}}
+      'react-native-worklets/plugin',
+    ],
+{{/if}}
+  };
+};

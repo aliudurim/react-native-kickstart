@@ -1,0 +1,35 @@
+import React, { useEffect } from 'react';
+import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { Toast, useToast } from '@/components/Toast';
+import { useTheme } from '@/theme';
+
+const autoHideMs = 3500;
+
+export function Toaster() {
+  const { toast, hideToast } = useToast();
+  const insets = useSafeAreaInsets();
+  const theme = useTheme();
+
+  useEffect(() => {
+    if (!toast) return undefined;
+    const timer = setTimeout(hideToast, autoHideMs);
+    return () => clearTimeout(timer);
+  }, [toast, hideToast]);
+
+  if (!toast) return null;
+  return (
+    <View
+      pointerEvents="box-none"
+      style={{
+        position: 'absolute',
+        left: theme.spacing.md,
+        right: theme.spacing.md,
+        bottom: insets.bottom + theme.spacing.lg,
+      }}
+    >
+      <Toast message={toast.message} kind={toast.kind} onDismiss={hideToast} />
+    </View>
+  );
+}

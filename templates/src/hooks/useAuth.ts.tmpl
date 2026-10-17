@@ -1,0 +1,60 @@
+{{#if rtk}}
+import { useCallback } from 'react';
+
+import { useLogoutMutation } from '@/store/api/userApi';
+import { useAppSelector } from '@/store/hooks';
+{{#if roles}}
+import { selectIsOnboarding, selectIsSeller, selectIsSignedIn, selectUser } from '@/store/selectors';
+{{else}}
+import { selectIsSignedIn, selectUser } from '@/store/selectors';
+{{/if}}
+{{/if}}
+{{#if zustand}}
+import { useCallback } from 'react';
+
+import { useAuthStore } from '@/store/useAuthStore';
+{{/if}}
+{{#if noState}}
+import { useSession } from '@/lib/session';
+{{/if}}
+
+export function useAuth() {
+{{#if rtk}}
+  const user = useAppSelector(selectUser);
+  const isSignedIn = useAppSelector(selectIsSignedIn);
+{{#if roles}}
+  const isSeller = useAppSelector(selectIsSeller);
+  const isOnboarding = useAppSelector(selectIsOnboarding);
+{{/if}}
+  const [logout] = useLogoutMutation();
+  const signOut = useCallback(() => {
+    logout().unwrap().catch(() => undefined);
+  }, [logout]);
+{{/if}}
+{{#if zustand}}
+  const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
+  const clearSession = useAuthStore((s) => s.signOut);
+  const isSignedIn = token !== null;
+{{#if roles}}
+  const isSeller = user?.roles.includes('seller') ?? false;
+  const isOnboarding = false;
+{{/if}}
+  const signOut = useCallback(() => clearSession(), [clearSession]);
+{{/if}}
+{{#if noState}}
+  const session = useSession();
+  const user = session.user;
+  const isSignedIn = session.token !== null;
+{{#if roles}}
+  const isSeller = user?.roles.includes('seller') ?? false;
+  const isOnboarding = false;
+{{/if}}
+  const signOut = session.signOut;
+{{/if}}
+{{#if roles}}
+  return { user, isSignedIn, isSeller, isOnboarding, signOut };
+{{else}}
+  return { user, isSignedIn, signOut };
+{{/if}}
+}

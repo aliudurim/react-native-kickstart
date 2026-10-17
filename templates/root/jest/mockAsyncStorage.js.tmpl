@@ -1,0 +1,35 @@
+const data = new Map();
+
+const AsyncStorage = {
+  getItem: async (key) => data.get(key) ?? null,
+  setItem: async (key, value) => {
+    data.set(key, String(value));
+  },
+  removeItem: async (key) => {
+    data.delete(key);
+  },
+  mergeItem: async (key, value) => {
+    const prev = data.get(key);
+    const merged = { ...(prev ? JSON.parse(prev) : {}), ...JSON.parse(value) };
+    data.set(key, JSON.stringify(merged));
+  },
+  clear: async () => data.clear(),
+  getAllKeys: async () => [...data.keys()],
+  getMany: async (keys) => Object.fromEntries(keys.map((k) => [k, data.get(k) ?? null])),
+  setMany: async (entries) => Object.entries(entries).forEach(([k, v]) => data.set(k, String(v))),
+  removeMany: async (keys) => keys.forEach((k) => data.delete(k)),
+  multiGet: async (keys) => keys.map((k) => [k, data.get(k) ?? null]),
+  multiSet: async (pairs) => pairs.forEach(([k, v]) => data.set(k, String(v))),
+  multiRemove: async (keys) => keys.forEach((k) => data.delete(k)),
+  multiMerge: async (pairs) => Promise.all(pairs.map(([k, v]) => AsyncStorage.mergeItem(k, v))),
+  flushGetRequests: () => {},
+};
+
+module.exports = AsyncStorage;
+module.exports.default = AsyncStorage;
+module.exports.useAsyncStorage = (key) => ({
+  getItem: () => AsyncStorage.getItem(key),
+  setItem: (value) => AsyncStorage.setItem(key, value),
+  mergeItem: (value) => AsyncStorage.mergeItem(key, value),
+  removeItem: () => AsyncStorage.removeItem(key),
+});

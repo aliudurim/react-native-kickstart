@@ -1,0 +1,27 @@
+// Event names are `domain_action` in snake_case: auth_login, auth_logout, listing_favorited.
+export type AnalyticsEvent = `${string}_${string}`
+export type AnalyticsProps = Record<string, string | number | boolean | null>
+
+export type AnalyticsDriver = {
+  track(event: AnalyticsEvent, props?: AnalyticsProps): void
+  identify(userId: string, traits?: AnalyticsProps): void
+  reset(): void
+}
+
+const noopDriver: AnalyticsDriver = {
+  track: () => {},
+  identify: () => {},
+  reset: () => {},
+}
+
+let driver: AnalyticsDriver = noopDriver
+
+export function setAnalyticsDriver(next: AnalyticsDriver | null): void {
+  driver = next ?? noopDriver
+}
+
+export const track: AnalyticsDriver['track'] = (event, props) => driver.track(event, props)
+export const identify: AnalyticsDriver['identify'] = (userId, traits) => driver.identify(userId, traits)
+export const reset: AnalyticsDriver['reset'] = () => driver.reset()
+
+export const analytics: AnalyticsDriver = { track, identify, reset }

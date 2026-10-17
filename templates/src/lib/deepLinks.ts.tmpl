@@ -1,0 +1,34 @@
+import { env, APP_SLUG } from '@/config/env'
+
+export const APP_SCHEME = APP_SLUG
+
+export type ParsedLink = { scheme: string; host: string; path: string; query: Record<string, string> }
+
+const LINK = /^([a-z][a-z0-9+.-]*):\/\/([^/?#]*)([^?#]*)(?:\?([^#]*))?/i
+
+export function parseLink(url: string): ParsedLink | null {
+  const m = LINK.exec(url.trim())
+  if (!m) return null
+  const [, scheme = '', host = '', path = '', search = ''] = m
+  const query: Record<string, string> = {}
+  for (const pair of search.split('&')) {
+    if (!pair) continue
+    const [k = '', v = ''] = pair.split('=')
+    query[decodeURIComponent(k)] = decodeURIComponent(v)
+  }
+  return { scheme: scheme.toLowerCase(), host: host.toLowerCase(), path: path || '/', query }
+}
+
+// Only the app scheme and the configured https hosts may drive navigation or a WebView.
+export function isAllowedLink(url: string): boolean {
+  const link = parseLink(url)
+  if (!link) return false
+  if (link.scheme === APP_SCHEME) return true
+  return link.scheme === 'https' && env.DEEP_LINK_HOSTS.includes(link.host)
+}
+
+export const validateDeepLink = isAllowedLink
+
+export function allowedLinkOrNull(url: string): ParsedLink | null {
+  return isAllowedLink(url) ? parseLink(url) : null
+}

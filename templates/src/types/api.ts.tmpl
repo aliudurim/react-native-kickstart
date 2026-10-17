@@ -1,0 +1,49 @@
+export type ApiEnvelope<T> = {
+  success: boolean
+  message: string
+  data: T
+  pagination?: Pagination
+}
+
+export type Pagination = {
+  current_page: number
+  per_page: number
+  total: number
+  last_page: number
+}
+
+export type User = {
+  id: number
+  name: string
+  email: string
+  roles: string[]
+  email_verified_at: string | null
+{{#if roles}}
+  has_store: boolean
+{{/if}}
+}
+{{#if roles}}
+
+export type StoreStatus = 'incomplete' | 'draft' | 'published' | 'unpublished'
+
+export type Store = {
+  id: number
+  slug: string
+  status: StoreStatus
+}
+{{/if}}
+
+export type Session = {
+  user: User
+{{#if roles}}
+  store: Store | null
+{{/if}}
+}
+
+export type AuthResponse = Session & { token: string }
+
+export type LoginRequest = { email: string; password: string }
+{{#if push}}
+
+export type DeviceRegistration = { token: string; platform: 'ios' | 'android' }
+{{/if}}

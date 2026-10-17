@@ -1,0 +1,37 @@
+{{#if asyncStorage}}
+import { createAction } from '@reduxjs/toolkit'
+{{/if}}
+import { authStorage, defaultStorage, type KeyValueStorage } from '@/lib/storage'
+import type { RootState } from '@/store/store'
+
+const PERSISTED = { auth: authStorage, prefs: defaultStorage } as const satisfies Record<string, KeyValueStorage>
+type PersistedSlice = keyof typeof PERSISTED
+
+// Bump when a persisted slice's shape changes; old keys are then ignored (migrate here if the data matters).
+export const SCHEMA_VERSION = 1
+
+const keyFor = (slice: PersistedSlice) => `persist:${slice}:v${SCHEMA_VERSION}`
+
+export function loadPersistedState(): Partial<RootState> {
+  const out: Partial<Record<PersistedSlice, unknown>> = {}
+  for (const slice of Object.keys(PERSISTED) as PersistedSlice[]) {
+    const raw = PERSISTED[slice].getString(keyFor(slice))
+    if (!raw) continue
+    try {
+      out[slice] = JSON.parse(raw)
+    } catch {
+      PERSISTED[slice].delete(keyFor(slice))
+    }
+  }
+  return out as Partial<RootState>
+}
+
+export function savePersistedState(state: RootState): void {
+  for (const slice of Object.keys(PERSISTED) as PersistedSlice[]) {
+    PERSISTED[slice].set(keyFor(slice), JSON.stringify(state[slice]))
+  }
+}
+{{#if asyncStorage}}
+
+export const rehydrate = createAction<Record<string, unknown>>('persist/rehydrate')
+{{/if}}

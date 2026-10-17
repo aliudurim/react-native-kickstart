@@ -1,0 +1,77 @@
+import { env } from '@/config/env'
+import type { ApiEnvelope } from '@/types/api'
+
+export type ApiRequest = {
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  body?: unknown
+  headers?: Record<string, string>
+  signal?: AbortSignal
+}
+
+export class ApiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly body: unknown,
+  ) {
+    super(`API ${status}`)
+    this.name = 'ApiError'
+  }
+}
+
+type AuthHandlers = {
+  getToken: () => string | null
+  onUnauthorized: () => void
+}
+
+let handlers: AuthHandlers = { getToken: () => null, onUnauthorized: () => {} }
+
+export function setAuthHandlers(next: AuthHandlers): void {
+  handlers = next
+}
+
+// Envelope depth varies per resource; each call site unwraps explicitly.
+export const pickData = <T>(r: ApiEnvelope<T>): T => r.data
+
+async function send(path: string, req: ApiRequest): Promise<Response> {
+  const headers: Record<string, string> = { Accept: 'application/json', ...req.headers }
+  const token = handlers.getToken()
+  if (token) headers.Authorization = `Bearer ${token}`
+  let body: RequestInit['body']
+  if (req.body !== undefined) {
+    headers['Content-Type'] = 'application/json'
+    body = JSON.stringify(req.body)
+  }
+  return fetch(`${env.API_BASE_URL}${path}`, { method: req.method ?? 'GET', headers, body, signal: req.signal })
+}
+
+let reauthInFlight: Promise<Response> | null = null
+
+// A burst of concurrent 401s coalesces through one probe; the owner is sent at most twice,
+// followers re-send their own request once after a successful probe.
+export async function apiFetch<T>(path: string, req: ApiRequest = {}): Promise<T> {
+  let res = await send(path, req)
+  if (res.status === 401) {
+    const owner = reauthInFlight === null
+    if (owner) {
+      reauthInFlight = (async () => {
+        const retry = await send(path, req)
+        if (retry.status === 401) handlers.onUnauthorized()
+        return retry
+      })()
+    }
+    try {
+      const probe = await reauthInFlight!
+      if (owner) {
+        res = probe
+      } else if (probe.status !== 401) {
+        res = await send(path, req)
+      }
+    } finally {
+      if (owner) reauthInFlight = null
+    }
+  }
+  const text = await res.text()
+  const parsed: unknown = text ? JSON.parse(text) : undefined
+  if (!res.ok) throw new ApiError(res.status, parsed)
+  return parsed as T
+}

@@ -1,0 +1,22 @@
+import reactNative from '@react-native/eslint-config/flat';
+
+export default [
+  {
+    ignores: ['node_modules/**', 'ios/**', 'android/**', 'coverage/**', 'vendor/**', '.expo/**', 'store/out/**'],
+  },
+  ...reactNative,
+  {
+    rules: {
+      'prettier/prettier': 'off',
+      // eslint-plugin-ft-flow still calls context.getAllComments, which ESLint 9 removed
+      'ft-flow/define-flow-type': 'off',
+      'ft-flow/use-flow-type': 'off',
+      'react-native/no-inline-styles': 'off',
+      'no-void': ['warn', { allowAsStatement: true }],
+    },
+  },
+  {
+    files: ['jest/**/*.js', '**/__tests__/**', '**/*.test.{ts,tsx}'],
+    languageOptions: { globals: { jest: 'readonly', describe: 'readonly', it: 'readonly', expect: 'readonly', beforeEach: 'readonly', afterEach: 'readonly' } },
+  },
+];

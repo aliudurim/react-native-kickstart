@@ -1,0 +1,12 @@
+import { debounce } from 'es-toolkit'
+import { savePersistedState } from '@/lib/storage/persist'
+import { startAppListening } from '@/store/listeners'
+
+const write = debounce(savePersistedState, 250)
+
+startAppListening({
+  predicate: (_action, curr, prev) => curr.auth !== prev.auth || curr.prefs !== prev.prefs,
+  effect: (_action, api) => {
+    write(api.getState())
+  },
+})

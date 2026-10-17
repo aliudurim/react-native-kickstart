@@ -1,0 +1,71 @@
+import React from 'react';
+import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+{{#if unistyles}}
+import { StyleSheet } from 'react-native-unistyles';
+{{/if}}
+
+import { Text } from '@/components/Text';
+import { useTheme } from '@/theme';
+
+export interface NavBarProps {
+  title?: string;
+  left?: React.ReactNode;
+  right?: React.ReactNode;
+  testID?: string;
+}
+
+const barHeight = 44;
+
+export function NavBar({ title, left, right, testID }: NavBarProps) {
+  const insets = useSafeAreaInsets();
+  const theme = useTheme();
+  return (
+    <View
+      testID={testID}
+      accessibilityRole="header"
+{{#if nativewind}}
+      className="bg-background dark:bg-background-dark border-b border-border dark:border-border-dark"
+      style={{ paddingTop: insets.top }}
+{{/if}}
+{{#if unistyles}}
+      style={[styles.bar, { paddingTop: insets.top }]}
+{{/if}}
+{{#if stylesheet}}
+      style={{
+        paddingTop: insets.top,
+        backgroundColor: theme.colors.background,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+      }}
+{{/if}}
+    >
+      <View
+        style={{
+          height: barHeight,
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: theme.spacing.sm,
+        }}
+      >
+        <View style={{ minWidth: 44, alignItems: 'flex-start' }}>{left}</View>
+        <View style={{ flex: 1 }}>
+          <Text variant="label" align="center" numberOfLines={1}>
+            {title}
+          </Text>
+        </View>
+        <View style={{ minWidth: 44, alignItems: 'flex-end' }}>{right}</View>
+      </View>
+    </View>
+  );
+}
+{{#if unistyles}}
+
+const styles = StyleSheet.create((theme) => ({
+  bar: {
+    backgroundColor: theme.colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+}));
+{{/if}}

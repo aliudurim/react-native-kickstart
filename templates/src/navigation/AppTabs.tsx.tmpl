@@ -1,0 +1,40 @@
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import React from 'react';
+
+{{#if roles}}
+import { useAuth } from '@/hooks/useAuth';
+{{/if}}
+import type { AppTabsParamList } from '@/navigation/types';
+import { HomeScreen } from '@/screens/home/HomeScreen';
+import { ProfileScreen } from '@/screens/profile/ProfileScreen';
+{{#if roles}}
+import { SellScreen } from '@/screens/sell/SellScreen';
+{{/if}}
+import { useTheme } from '@/theme';
+
+const Tabs = createBottomTabNavigator<AppTabsParamList>();
+
+export function AppTabs() {
+  const theme = useTheme();
+{{#if roles}}
+  const { isSeller } = useAuth();
+{{/if}}
+  return (
+    <Tabs.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.muted,
+        tabBarStyle: { backgroundColor: theme.colors.background, borderTopColor: theme.colors.border },
+      }}
+    >
+      <Tabs.Screen name="Home" component={HomeScreen} options={{ title: 'Home', tabBarButtonTestID: 'tab-home' }} />
+{{#if roles}}
+      {isSeller ? (
+        <Tabs.Screen name="Sell" component={SellScreen} options={{ title: 'Sell', tabBarButtonTestID: 'tab-sell' }} />
+      ) : null}
+{{/if}}
+      <Tabs.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile', tabBarButtonTestID: 'tab-profile' }} />
+    </Tabs.Navigator>
+  );
+}

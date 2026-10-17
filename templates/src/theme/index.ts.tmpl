@@ -1,0 +1,45 @@
+{{#if nativewind}}
+import { useColorScheme } from 'nativewind';
+
+import { colors, fontSize, radius, spacing } from '@/theme/tokens';
+import type { ColorScheme, Colors, FontSize, Radius, Spacing } from '@/theme/tokens';
+
+export interface Theme {
+  scheme: ColorScheme;
+  colors: Colors;
+  spacing: Spacing;
+  radius: Radius;
+  fontSize: FontSize;
+}
+
+export function useTheme(): Theme {
+  const { colorScheme } = useColorScheme();
+  const scheme: ColorScheme = colorScheme === 'dark' ? 'dark' : 'light';
+  return { scheme, colors: colors[scheme], spacing, radius, fontSize };
+}
+
+export function cn(...classes: Array<string | false | null | undefined>): string {
+  return classes.filter(Boolean).join(' ');
+}
+
+export { ThemeProvider } from '@/theme/ThemeProvider';
+{{/if}}
+{{#if unistyles}}
+import '@/theme/unistyles';
+import { useUnistyles } from 'react-native-unistyles';
+
+import type { appThemes } from '@/theme/unistyles';
+
+export type Theme = (typeof appThemes)[keyof typeof appThemes];
+
+export function useTheme(): Theme {
+  return useUnistyles().theme;
+}
+
+export { ThemeProvider } from '@/theme/ThemeProvider';
+{{/if}}
+{{#if stylesheet}}
+export { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
+export type { Theme } from '@/theme/ThemeProvider';
+{{/if}}
+export { colors, fontSize, radius, spacing } from '@/theme/tokens';

@@ -1,0 +1,39 @@
+import React, { useState } from 'react';
+import { Image, View } from 'react-native';
+import type { ImageProps, ImageStyle, StyleProp } from 'react-native';
+
+import { useTheme } from '@/theme';
+
+export interface RemoteImageProps extends Omit<ImageProps, 'source' | 'style'> {
+  uri: string | null | undefined;
+  style?: StyleProp<ImageStyle>;
+  fallback?: React.ReactNode;
+}
+
+export function RemoteImage({ uri, style, fallback, accessibilityLabel, onError, ...rest }: RemoteImageProps) {
+  const theme = useTheme();
+  const [failed, setFailed] = useState(false);
+  if (!uri || failed) {
+    return (
+      <View
+        accessibilityLabel={accessibilityLabel}
+        style={[{ backgroundColor: theme.colors.surface, overflow: 'hidden' }, style]}
+      >
+        {fallback}
+      </View>
+    );
+  }
+  return (
+    <Image
+      source={{ uri }}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityIgnoresInvertColors
+      style={style}
+      onError={(e) => {
+        setFailed(true);
+        onError?.(e);
+      }}
+      {...rest}
+    />
+  );
+}

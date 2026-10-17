@@ -1,0 +1,28 @@
+import React from 'react';
+
+import { EmptyState, NavBar, Screen, Text } from '@/components';
+import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/theme';
+
+export function SellScreen() {
+  const theme = useTheme();
+  const { isSeller } = useAuth();
+  return (
+    <>
+      <NavBar title="Sell" />
+      <Screen edges={['left', 'right', 'bottom']} testID="sell-screen">
+        {isSeller ? (
+          <Text color="muted" style={{ marginTop: theme.spacing.lg }}>
+            Seller tools go here.
+          </Text>
+        ) : (
+          <EmptyState
+            title="Become a seller"
+            message="Finish seller onboarding to unlock this area."
+            testID="sell-upgrade-prompt"
+          />
+        )}
+      </Screen>
+    </>
+  );
+}

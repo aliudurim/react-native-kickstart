@@ -1,0 +1,42 @@
+import { Component, type ErrorInfo, type PropsWithChildren, type ReactNode } from 'react'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { captureError } from '@/lib/crash'
+
+type Props = PropsWithChildren<{ fallback?: (reset: () => void) => ReactNode }>
+type State = { error: Error | null }
+
+export class ErrorBoundary extends Component<Props, State> {
+  state: State = { error: null }
+
+  static getDerivedStateFromError(error: Error): State {
+    return { error }
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    captureError(error, { componentStack: info.componentStack })
+  }
+
+  reset = () => this.setState({ error: null })
+
+  render() {
+    if (!this.state.error) return this.props.children
+    if (this.props.fallback) return this.props.fallback(this.reset)
+    return (
+      <View style={styles.root}>
+        <Text style={styles.title}>Something went wrong</Text>
+        <Text style={styles.body}>The app hit an unexpected error.</Text>
+        <Pressable accessibilityRole="button" onPress={this.reset} style={styles.button}>
+          <Text style={styles.buttonText}>Try again</Text>
+        </Pressable>
+      </View>
+    )
+  }
+}
+
+const styles = StyleSheet.create({
+  root: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },
+  title: { fontSize: 20, fontWeight: '600' },
+  body: { fontSize: 16, textAlign: 'center', opacity: 0.7 },
+  button: { minHeight: 44, paddingHorizontal: 20, justifyContent: 'center', borderRadius: 8, backgroundColor: '#222' },
+  buttonText: { color: '#fff', fontSize: 16 },
+})

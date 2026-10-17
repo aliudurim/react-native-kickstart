@@ -1,0 +1,32 @@
+import React from 'react';
+{{#if i18n}}
+import { useTranslation } from 'react-i18next';
+{{/if}}
+
+import { useAuth } from '@/hooks/useAuth';
+{{#if analytics}}
+import { track } from '@/lib/analytics';
+{{/if}}
+import { HomeContent } from '@/screens/home/HomeContent';
+import { sampleItems } from '@/screens/home/sampleItems';
+
+export function HomeScreen() {
+  const { user, signOut } = useAuth();
+{{#if i18n}}
+  const { t } = useTranslation();
+  const displayName = user ? user.name || user.email : null;
+  const greeting = displayName ? `${t('home.greeting', 'Hi')}, ${displayName}` : t('home.greetingAnonymous', 'Hi there');
+{{else}}
+  const displayName = user ? user.name || user.email : null;
+  const greeting = displayName ? `Hi, ${displayName}` : 'Hi there';
+{{/if}}
+
+  const onSignOut = () => {
+{{#if analytics}}
+    track('sign_out');
+{{/if}}
+    signOut();
+  };
+
+  return <HomeContent greeting={greeting} items={sampleItems} onSignOut={onSignOut} />;
+}

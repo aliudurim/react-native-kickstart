@@ -1,0 +1,135 @@
+import { createContext, createElement, useCallback, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react'
+import { analytics } from '@/lib/analytics'
+import { setAuthHandlers } from '@/lib/api/client'
+{{#if tanstack}}
+import { queryClient } from '@/lib/api/queryClient'
+{{/if}}
+import { logoutRequest } from '@/lib/api/user'
+{{#if push}}
+import { deregisterDevice } from '@/lib/api/user'
+{{/if}}
+import { identifyCrashUser, resetCrashUser } from '@/lib/crash'
+{{#if push}}
+import { getPushToken } from '@/lib/push'
+{{/if}}
+import { authStorage } from '@/lib/storage'
+import type { Session, User } from '@/types/api'
+{{#if roles}}
+import type { Store } from '@/types/api'
+{{/if}}
+
+export type SessionState = {
+  token: string | null
+  user: User | null
+{{#if roles}}
+  store: Store | null
+{{/if}}
+}
+
+export type SessionValue = SessionState & {
+  isSignedIn: boolean
+  setSession(session: Session & { token?: string }): void
+  clearSession(): void
+  signOut(): Promise<void>
+}
+
+const SCHEMA_VERSION = 1
+const KEY = `session:v${SCHEMA_VERSION}`
+
+const empty: SessionState = {
+  token: null,
+  user: null,
+{{#if roles}}
+  store: null,
+{{/if}}
+}
+
+// Module-level mirror so the api client can read the token outside React.
+let current: SessionState = empty
+let clearFromOutside: (() => void) | null = null
+
+function load(): SessionState {
+  const raw = authStorage.getString(KEY)
+  if (!raw) return empty
+  try {
+    current = { ...empty, ...(JSON.parse(raw) as Partial<SessionState>) }
+  } catch {
+    authStorage.delete(KEY)
+  }
+  return current
+}
+
+setAuthHandlers({
+  getToken: () => current.token,
+  onUnauthorized: () => clearFromOutside?.(),
+})
+
+const SessionContext = createContext<SessionValue | null>(null)
+
+export function SessionProvider({ children }: PropsWithChildren) {
+  const [state, setState] = useState<SessionState>(load)
+
+  const setSession = useCallback((session: Session & { token?: string }) => {
+    setState((prev) => {
+      current = {
+        token: session.token ?? prev.token,
+        user: session.user,
+{{#if roles}}
+        store: session.store,
+{{/if}}
+      }
+      authStorage.set(KEY, JSON.stringify(current))
+      return current
+    })
+    analytics.identify(String(session.user.id))
+    identifyCrashUser(String(session.user.id), session.user.email)
+  }, [])
+
+  const clearSession = useCallback(() => {
+    current = empty
+    setState(empty)
+    authStorage.clearAll()
+{{#if tanstack}}
+    queryClient.clear()
+{{/if}}
+    analytics.track('auth_logout')
+    analytics.reset()
+    resetCrashUser()
+  }, [])
+
+  useEffect(() => {
+    clearFromOutside = clearSession
+    return () => {
+      clearFromOutside = null
+    }
+  }, [clearSession])
+
+  const signOut = useCallback(() => revokeAndClear(clearSession), [clearSession])
+
+  const value = useMemo<SessionValue>(
+    () => ({ ...state, isSignedIn: state.token !== null && state.user !== null, setSession, clearSession, signOut }),
+    [state, setSession, clearSession, signOut],
+  )
+
+  return createElement(SessionContext.Provider, { value }, children)
+}
+
+export function useSession(): SessionValue {
+  const ctx = useContext(SessionContext)
+  if (!ctx) throw new Error('useSession must be used inside <SessionProvider>')
+  return ctx
+}
+
+// User-initiated sign-out: server calls run while the token is still held; clearSession follows.
+async function revokeAndClear(clearSession: () => void): Promise<void> {
+{{#if push}}
+  try {
+    const token = await getPushToken()
+    if (token) await deregisterDevice(token)
+  } catch {}
+{{/if}}
+  try {
+    await logoutRequest()
+  } catch {}
+  clearSession()
+}

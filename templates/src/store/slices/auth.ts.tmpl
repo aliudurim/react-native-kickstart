@@ -1,0 +1,50 @@
+import { createAction, createSlice, type PayloadAction } from '@reduxjs/toolkit'
+{{#if asyncStorage}}
+import { rehydrate } from '@/lib/storage/persist'
+{{/if}}
+import type { Session, User } from '@/types/api'
+{{#if roles}}
+import type { Store } from '@/types/api'
+{{/if}}
+
+export type AuthState = {
+  token: string | null
+  user: User | null
+{{#if roles}}
+  store: Store | null
+{{/if}}
+}
+
+export const initialAuthState: AuthState = {
+  token: null,
+  user: null,
+{{#if roles}}
+  store: null,
+{{/if}}
+}
+
+const authSlice = createSlice({
+  name: 'auth',
+  initialState: initialAuthState,
+  reducers: {
+    setSession(state, { payload }: PayloadAction<Session & { token?: string }>) {
+      if (payload.token) state.token = payload.token
+      state.user = payload.user
+{{#if roles}}
+      state.store = payload.store
+{{/if}}
+    },
+    logout() {
+      return initialAuthState
+    },
+  },
+{{#if asyncStorage}}
+  extraReducers: (builder) => {
+    builder.addCase(rehydrate, (state, { payload }) => (payload.auth as AuthState | undefined) ?? state)
+  },
+{{/if}}
+})
+
+export const { setSession, logout } = authSlice.actions
+export const signOut = createAction('auth/signOut')
+export const authReducer = authSlice.reducer

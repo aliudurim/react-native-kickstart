@@ -1,0 +1,20 @@
+import type { AuthStore } from '@/store/useAuthStore'
+import type { PrefsStore } from '@/store/usePrefsStore'
+import type { UiStore } from '@/store/useUiStore'
+
+export const selectToken = (s: AuthStore) => s.token
+export const selectUser = (s: AuthStore) => s.user
+export const selectIsSignedIn = (s: AuthStore) => s.token !== null && s.user !== null
+{{#if roles}}
+export const selectRoles = (s: AuthStore) => s.user?.roles ?? []
+export const selectIsSeller = (s: AuthStore) => s.user?.roles.includes('seller') ?? false
+export const selectIsOnboarding = (s: AuthStore) => s.store?.status === 'incomplete'
+export const selectStore = (s: AuthStore) => s.store
+{{/if}}
+
+export const selectTheme = (s: PrefsStore) => s.theme
+export const selectLocale = (s: PrefsStore) => s.locale
+
+export const selectToasts = (s: UiStore) => s.toasts
+export const selectToast = (s: UiStore) => s.toast
+export const selectActiveSheet = (s: UiStore) => s.activeSheet

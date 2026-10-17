@@ -1,0 +1,71 @@
+const instances = new Map();
+
+function createInstance(id) {
+  const data = new Map();
+  const listeners = new Set();
+  const notify = (key) => listeners.forEach((fn) => fn(key));
+  return {
+    id,
+    set(key, value) {
+      data.set(key, value);
+      notify(key);
+    },
+    getString: (key) => (typeof data.get(key) === 'string' ? data.get(key) : undefined),
+    getNumber: (key) => (typeof data.get(key) === 'number' ? data.get(key) : undefined),
+    getBoolean: (key) => (typeof data.get(key) === 'boolean' ? data.get(key) : undefined),
+    getBuffer: (key) => (data.get(key) instanceof ArrayBuffer ? data.get(key) : undefined),
+    contains: (key) => data.has(key),
+    remove(key) {
+      const had = data.delete(key);
+      notify(key);
+      return had;
+    },
+    delete(key) {
+      return this.remove(key);
+    },
+    getAllKeys: () => [...data.keys()],
+    clearAll() {
+      const keys = [...data.keys()];
+      data.clear();
+      keys.forEach(notify);
+    },
+    recrypt() {},
+    trim() {},
+    get size() {
+      return data.size;
+    },
+    addOnValueChangedListener(fn) {
+      listeners.add(fn);
+      return { remove: () => listeners.delete(fn) };
+    },
+  };
+}
+
+function createMMKV(config = {}) {
+  const id = config.id ?? 'mmkv.default';
+  if (!instances.has(id)) instances.set(id, createInstance(id));
+  return instances.get(id);
+}
+
+const useMMKV = (config) => createMMKV(config);
+const makeHook = (getter) => (key, instance) => {
+  const store = instance ?? createMMKV();
+  return [store[getter](key), (value) => (value === undefined ? store.remove(key) : store.set(key, value))];
+};
+
+module.exports = {
+  createMMKV,
+  useMMKV,
+  useMMKVString: makeHook('getString'),
+  useMMKVNumber: makeHook('getNumber'),
+  useMMKVBoolean: makeHook('getBoolean'),
+  useMMKVBuffer: makeHook('getBuffer'),
+  useMMKVObject: (key, instance) => {
+    const store = instance ?? createMMKV();
+    const raw = store.getString(key);
+    return [raw ? JSON.parse(raw) : undefined, (v) => (v === undefined ? store.remove(key) : store.set(key, JSON.stringify(v)))];
+  },
+  useMMKVListener: () => {},
+  Mode: { SINGLE_PROCESS: 1, MULTI_PROCESS: 2 },
+  __reset: () => instances.clear(),
+};

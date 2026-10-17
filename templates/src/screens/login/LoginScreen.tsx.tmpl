@@ -1,0 +1,150 @@
+{{#if rhf}}
+import { zodResolver } from '@hookform/resolvers/zod';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+{{else}}
+import React, { useState } from 'react';
+{{/if}}
+{{#if i18n}}
+import { useTranslation } from 'react-i18next';
+{{/if}}
+
+{{#if analytics}}
+import { track } from '@/lib/analytics';
+{{/if}}
+{{#if tanstack}}
+import { useLogin } from '@/lib/api/user';
+{{/if}}
+{{#if plainFetch}}
+import { login as loginRequest } from '@/lib/api/user';
+{{/if}}
+{{#if noState}}
+import { useSession } from '@/lib/session';
+{{/if}}
+import { LoginContent } from '@/screens/login/LoginContent';
+import type { LoginFieldErrors } from '@/screens/login/LoginContent';
+{{#if rtk}}
+import { useLoginMutation } from '@/store/api/userApi';
+{{/if}}
+{{#if zustand}}
+import { useAuthStore } from '@/store/useAuthStore';
+{{/if}}
+import { loginSchema } from '@/validations/auth';
+import type { LoginInput } from '@/validations/auth';
+
+const emptyValues: LoginInput = { email: '', password: '' };
+{{#unless rhf}}
+
+function toFieldErrors(error: { issues: Array<{ path: PropertyKey[]; message: string }> }): LoginFieldErrors {
+  const out: Record<string, string> = {};
+  for (const issue of error.issues) {
+    const key = issue.path[0];
+    if (typeof key === 'string' && !(key in out)) out[key] = issue.message;
+  }
+  return out;
+}
+{{/unless}}
+
+export function LoginScreen() {
+{{#if i18n}}
+  const { t } = useTranslation();
+{{/if}}
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+{{#if rtk}}
+  const [login, { isLoading }] = useLoginMutation();
+{{/if}}
+{{#if tanstack}}
+  const login = useLogin();
+  const isLoading = login.isPending;
+{{/if}}
+{{#if plainFetch}}
+  const [isLoading, setLoading] = useState(false);
+{{/if}}
+{{#if zustand}}
+  const setSession = useAuthStore((s) => s.setSession);
+{{/if}}
+{{#if noState}}
+  const { setSession } = useSession();
+{{/if}}
+
+  const submit = async (input: LoginInput) => {
+    setErrorMessage(null);
+{{#if plainFetch}}
+    setLoading(true);
+{{/if}}
+    try {
+{{#if rtk}}
+      await login(input).unwrap();
+{{/if}}
+{{#if tanstack}}
+      const session = await login.mutateAsync(input);
+      setSession(session);
+{{/if}}
+{{#if plainFetch}}
+      const session = await loginRequest(input);
+      setSession(session);
+{{/if}}
+{{#if analytics}}
+      track('login_succeeded');
+{{/if}}
+    } catch (error) {
+{{#if i18n}}
+      const fallback = t('login.failed', 'We could not sign you in. Check your details and try again.');
+{{else}}
+      const fallback = 'We could not sign you in. Check your details and try again.';
+{{/if}}
+      setErrorMessage(error instanceof Error && error.message ? error.message : fallback);
+{{#if plainFetch}}
+    } finally {
+      setLoading(false);
+{{/if}}
+    }
+  };
+{{#if rhf}}
+
+  const { handleSubmit, setValue, watch, formState } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: emptyValues,
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
+  });
+  const values = watch();
+  const errors: LoginFieldErrors = {
+    email: formState.errors.email?.message,
+    password: formState.errors.password?.message,
+  };
+  const onChange = (field: keyof LoginInput, value: string) =>
+    setValue(field, value, { shouldValidate: formState.isSubmitted });
+  const onSubmit = () => {
+    handleSubmit(submit)().catch(() => {});
+  };
+{{else}}
+
+  const [values, setValues] = useState<LoginInput>(emptyValues);
+  const [errors, setErrors] = useState<LoginFieldErrors>({});
+  const onChange = (field: keyof LoginInput, value: string) => {
+    setValues((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+  const onSubmit = () => {
+    const result = loginSchema.safeParse(values);
+    if (!result.success) {
+      setErrors(toFieldErrors(result.error));
+      return;
+    }
+    setErrors({});
+    submit(result.data).catch(() => {});
+  };
+{{/if}}
+
+  return (
+    <LoginContent
+      values={values}
+      errors={errors}
+      onChange={onChange}
+      onSubmit={onSubmit}
+      isSubmitting={isLoading}
+      errorMessage={errorMessage}
+    />
+  );
+}

@@ -1,0 +1,31 @@
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React from 'react';
+
+import { Button, Screen, Text } from '@/components';
+import { useAuth } from '@/hooks/useAuth';
+import type { OnboardingStackParamList } from '@/navigation/types';
+import { useTheme } from '@/theme';
+
+const Stack = createNativeStackNavigator<OnboardingStackParamList>();
+
+function OnboardingStartScreen() {
+  const theme = useTheme();
+  const { signOut } = useAuth();
+  return (
+    <Screen testID="onboarding-screen">
+      <Text variant="title">Finish setting up</Text>
+      <Text color="muted" style={{ marginTop: theme.spacing.sm }}>
+        Your account needs a few more details before you can continue.
+      </Text>
+      <Button title="Sign out" variant="ghost" onPress={signOut} style={{ marginTop: theme.spacing.lg }} />
+    </Screen>
+  );
+}
+
+export function OnboardingStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="OnboardingStart" component={OnboardingStartScreen} />
+    </Stack.Navigator>
+  );
+}

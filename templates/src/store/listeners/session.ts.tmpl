@@ -1,0 +1,42 @@
+import type { ListenerEffectAPI } from '@reduxjs/toolkit'
+{{#if push}}
+import { checkNotifications } from 'react-native-permissions'
+{{/if}}
+import { analytics } from '@/lib/analytics'
+import { identifyCrashUser } from '@/lib/crash'
+{{#if push}}
+import { devicePlatform, getPushToken } from '@/lib/push'
+{{/if}}
+import { userApi } from '@/store/api/userApi'
+import { startAppListening } from '@/store/listeners'
+import { setSession } from '@/store/slices/auth'
+import type { AppDispatch, RootState } from '@/store/store'
+import type { Session } from '@/types/api'
+
+type SessionAction = { payload: Session }
+type SessionEffectApi = ListenerEffectAPI<RootState, AppDispatch>
+
+function mirrorSession({ payload }: SessionAction, api: SessionEffectApi): void {
+  api.dispatch(setSession(payload))
+  analytics.identify(String(payload.user.id))
+  identifyCrashUser(String(payload.user.id), payload.user.email)
+}
+
+startAppListening({
+  matcher: userApi.endpoints.getMe.matchFulfilled,
+  effect: mirrorSession,
+})
+
+startAppListening({
+  matcher: userApi.endpoints.login.matchFulfilled,
+  effect: async (action, api) => {
+    mirrorSession(action, api)
+    analytics.track('auth_login')
+{{#if push}}
+    const { status } = await checkNotifications()
+    if (status !== 'granted') return
+    const token = await getPushToken()
+    if (token) api.dispatch(userApi.endpoints.registerDevice.initiate({ token, platform: devicePlatform }))
+{{/if}}
+  },
+})

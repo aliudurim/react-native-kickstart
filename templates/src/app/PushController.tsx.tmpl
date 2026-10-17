@@ -1,0 +1,77 @@
+import { useEffect } from 'react'
+{{#unless rtk}}
+import { registerDevice } from '@/lib/api/user'
+{{/unless}}
+import { devicePlatform, getPushToken, hasPushPermission, onForegroundPush, onPushTokenRefresh, requestPushPermission } from '@/lib/push'
+{{#if noState}}
+import { useSession } from '@/lib/session'
+{{/if}}
+{{#if rtk}}
+import { userApi } from '@/store/api/userApi'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { selectIsSignedIn } from '@/store/selectors'
+import { pushToast } from '@/store/slices/ui'
+{{/if}}
+{{#if zustand}}
+import { selectIsSignedIn } from '@/store/selectors'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useUiStore } from '@/store/useUiStore'
+{{/if}}
+
+// Owns the device registration lifecycle while a user is signed in.
+// Permission is requested on the first authenticated launch; move the request behind a motivating moment when one exists.
+export function PushController() {
+{{#if rtk}}
+  const dispatch = useAppDispatch()
+  const isSignedIn = useAppSelector(selectIsSignedIn)
+{{/if}}
+{{#if zustand}}
+  const isSignedIn = useAuthStore(selectIsSignedIn)
+{{/if}}
+{{#if noState}}
+  const { isSignedIn } = useSession()
+{{/if}}
+
+  useEffect(() => {
+    if (!isSignedIn) return
+    let cancelled = false
+    const register = (token: string) => {
+{{#if rtk}}
+      void dispatch(userApi.endpoints.registerDevice.initiate({ token, platform: devicePlatform }))
+{{else}}
+      registerDevice({ token, platform: devicePlatform }).catch(() => {})
+{{/if}}
+    }
+
+    void (async () => {
+      const granted = (await hasPushPermission()) || (await requestPushPermission())
+      if (!granted || cancelled) return
+      const token = await getPushToken()
+      if (token && !cancelled) register(token)
+    })()
+
+    const unsubscribeRefresh = onPushTokenRefresh(register)
+    const unsubscribeMessage = onForegroundPush((message) => {
+      const text = message.notification?.body ?? message.notification?.title
+      if (!text) return
+{{#if rtk}}
+      dispatch(pushToast(text))
+{{/if}}
+{{#if zustand}}
+      useUiStore.getState().pushToast(text)
+{{/if}}
+    })
+
+    return () => {
+      cancelled = true
+      unsubscribeRefresh()
+      unsubscribeMessage()
+    }
+{{#if rtk}}
+  }, [dispatch, isSignedIn])
+{{else}}
+  }, [isSignedIn])
+{{/if}}
+
+  return null
+}

@@ -1,0 +1,39 @@
+{{#if stylesheet}}
+import React, { createContext, useContext, useMemo } from 'react';
+import { useColorScheme } from 'react-native';
+
+import { colors, fontSize, radius, spacing } from '@/theme/tokens';
+import type { ColorScheme, Colors, FontSize, Radius, Spacing } from '@/theme/tokens';
+
+export interface Theme {
+  scheme: ColorScheme;
+  colors: Colors;
+  spacing: Spacing;
+  radius: Radius;
+  fontSize: FontSize;
+}
+
+export function buildTheme(scheme: ColorScheme): Theme {
+  return { scheme, colors: colors[scheme], spacing, radius, fontSize };
+}
+
+const ThemeContext = createContext<Theme | null>(null);
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const systemScheme = useColorScheme();
+  const theme = useMemo(() => buildTheme(systemScheme === 'dark' ? 'dark' : 'light'), [systemScheme]);
+  return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
+}
+
+const fallback = buildTheme('light');
+
+export function useTheme(): Theme {
+  return useContext(ThemeContext) ?? fallback;
+}
+{{else}}
+import React from 'react';
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}
+{{/if}}

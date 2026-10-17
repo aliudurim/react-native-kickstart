@@ -1,0 +1,37 @@
+{{#if tanstack}}
+import { useMutation, useQuery } from '@tanstack/react-query'
+{{/if}}
+import { apiFetch, pickData } from '@/lib/api/client'
+{{#if push}}
+import type { ApiEnvelope, AuthResponse, DeviceRegistration, LoginRequest, Session } from '@/types/api'
+{{else}}
+import type { ApiEnvelope, AuthResponse, LoginRequest, Session } from '@/types/api'
+{{/if}}
+
+export const getMe = async (signal?: AbortSignal): Promise<Session> =>
+  pickData(await apiFetch<ApiEnvelope<Session>>('/user', { signal }))
+
+export const login = async (body: LoginRequest): Promise<AuthResponse> =>
+  pickData(await apiFetch<ApiEnvelope<AuthResponse>>('/login', { method: 'POST', body }))
+
+export const logoutRequest = (): Promise<void> => apiFetch<void>('/logout', { method: 'POST' })
+{{#if push}}
+
+export const registerDevice = (body: DeviceRegistration): Promise<void> =>
+  apiFetch<void>('/user/devices', { method: 'PUT', body })
+
+export const deregisterDevice = (token: string): Promise<void> =>
+  apiFetch<void>(`/user/devices/${encodeURIComponent(token)}`, { method: 'DELETE' })
+{{/if}}
+{{#if tanstack}}
+
+export const userKeys = {
+  me: ['user', 'me'] as const,
+}
+
+export const useMeQuery = (enabled = true) =>
+  useQuery({ queryKey: userKeys.me, queryFn: ({ signal }) => getMe(signal), enabled, staleTime: 0 })
+
+export const useLoginMutation = () => useMutation({ mutationFn: login })
+export const useLogin = useLoginMutation
+{{/if}}

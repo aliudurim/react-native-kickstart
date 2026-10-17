@@ -1,0 +1,40 @@
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { baseQueryWithAuth } from '@/store/api/baseQuery'
+import { pickData, type ApiEnvelope } from '@/store/api/helpers'
+{{#if push}}
+import type { AuthResponse, DeviceRegistration, LoginRequest, Session } from '@/types/api'
+{{else}}
+import type { AuthResponse, LoginRequest, Session } from '@/types/api'
+{{/if}}
+
+export const userApi = createApi({
+  reducerPath: 'userApi',
+  baseQuery: baseQueryWithAuth,
+  tagTypes: ['Me'],
+  endpoints: (b) => ({
+    getMe: b.query<Session, void>({
+      query: () => '/user',
+      transformResponse: (r: ApiEnvelope<Session>) => pickData(r),
+      providesTags: ['Me'],
+      keepUnusedDataFor: 0,
+    }),
+    login: b.mutation<AuthResponse, LoginRequest>({
+      query: (body) => ({ url: '/login', method: 'POST', body }),
+      transformResponse: (r: ApiEnvelope<AuthResponse>) => pickData(r),
+      invalidatesTags: ['Me'],
+    }),
+    logout: b.mutation<void, void>({
+      query: () => ({ url: '/logout', method: 'POST' }),
+    }),
+{{#if push}}
+    registerDevice: b.mutation<void, DeviceRegistration>({
+      query: (body) => ({ url: '/user/devices', method: 'PUT', body }),
+    }),
+    deregisterDevice: b.mutation<void, string>({
+      query: (token) => ({ url: `/user/devices/${encodeURIComponent(token)}`, method: 'DELETE' }),
+    }),
+{{/if}}
+  }),
+})
+
+export const { useGetMeQuery, useLoginMutation, useLogoutMutation } = userApi

@@ -1,0 +1,136 @@
+import React from 'react';
+import { ActivityIndicator, Pressable } from 'react-native';
+import type { PressableProps, StyleProp, ViewStyle } from 'react-native';
+{{#if unistyles}}
+import { StyleSheet } from 'react-native-unistyles';
+{{/if}}
+
+import { Text } from '@/components/Text';
+import type { TextColor } from '@/components/Text';
+{{#if nativewind}}
+import { cn, useTheme } from '@/theme';
+{{else}}
+import { useTheme } from '@/theme';
+{{/if}}
+
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+
+export interface ButtonProps extends Omit<PressableProps, 'children' | 'style'> {
+  title: string;
+  variant?: ButtonVariant;
+  loading?: boolean;
+  fullWidth?: boolean;
+  style?: StyleProp<ViewStyle>;
+{{#if nativewind}}
+  className?: string;
+{{/if}}
+}
+
+const textColor: Record<ButtonVariant, TextColor> = {
+  primary: 'onPrimary',
+  secondary: 'foreground',
+  ghost: 'primary',
+};
+{{#if nativewind}}
+
+const variantClass: Record<ButtonVariant, string> = {
+  primary: 'bg-primary dark:bg-primary-dark rounded-md',
+  secondary: 'bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-md',
+  ghost: 'bg-transparent rounded-md',
+};
+{{/if}}
+
+export function Button({
+  title,
+  variant = 'primary',
+  loading = false,
+  fullWidth = true,
+  disabled,
+  style,
+{{#if nativewind}}
+  className,
+{{/if}}
+  accessibilityLabel,
+  ...rest
+}: ButtonProps) {
+  const theme = useTheme();
+  const isDisabled = disabled || loading;
+{{#if unistyles}}
+  styles.useVariants({ variant });
+{{/if}}
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
+      disabled={isDisabled}
+{{#if nativewind}}
+      className={cn(variantClass[variant], className)}
+      style={({ pressed }) => [
+        {
+          minHeight: 44,
+          paddingHorizontal: theme.spacing.md,
+          alignItems: 'center',
+          justifyContent: 'center',
+          alignSelf: fullWidth ? 'stretch' : 'flex-start',
+          opacity: isDisabled ? 0.5 : pressed ? 0.8 : 1,
+        },
+        style,
+      ]}
+{{/if}}
+{{#if unistyles}}
+      style={({ pressed }) => [
+        styles.base,
+        { alignSelf: fullWidth ? 'stretch' : 'flex-start', opacity: isDisabled ? 0.5 : pressed ? 0.8 : 1 },
+        style,
+      ]}
+{{/if}}
+{{#if stylesheet}}
+      style={({ pressed }) => [
+        {
+          minHeight: 44,
+          paddingHorizontal: theme.spacing.md,
+          borderRadius: theme.radius.md,
+          alignItems: 'center',
+          justifyContent: 'center',
+          alignSelf: fullWidth ? 'stretch' : 'flex-start',
+          backgroundColor:
+            variant === 'primary' ? theme.colors.primary : variant === 'secondary' ? theme.colors.surface : 'transparent',
+          borderWidth: variant === 'secondary' ? 1 : 0,
+          borderColor: theme.colors.border,
+          opacity: isDisabled ? 0.5 : pressed ? 0.8 : 1,
+        },
+        style,
+      ]}
+{{/if}}
+      {...rest}
+    >
+      {loading ? (
+        <ActivityIndicator color={variant === 'primary' ? theme.colors.onPrimary : theme.colors.primary} />
+      ) : (
+        <Text variant="label" color={textColor[variant]}>
+          {title}
+        </Text>
+      )}
+    </Pressable>
+  );
+}
+{{#if unistyles}}
+
+const styles = StyleSheet.create((theme) => ({
+  base: {
+    minHeight: 44,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    variants: {
+      variant: {
+        primary: { backgroundColor: theme.colors.primary },
+        secondary: { backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border },
+        ghost: { backgroundColor: 'transparent' },
+      },
+    },
+  },
+}));
+{{/if}}

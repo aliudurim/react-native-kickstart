@@ -1,0 +1,93 @@
+const esmPackages = [
+  '@react-native',
+  'react-native',
+  '@react-navigation',
+  'react-native-reanimated',
+  'react-native-worklets',
+  'react-native-gesture-handler',
+  'react-native-safe-area-context',
+  'react-native-screens',
+  'react-native-svg',
+  'react-native-bootsplash',
+  'react-native-keyboard-controller',
+  '@gorhom',
+{{#if rtk}}
+  'react-redux',
+  '@reduxjs/toolkit',
+  'immer',
+  'redux',
+  'reselect',
+{{/if}}
+{{#if zustand}}
+  'zustand',
+{{/if}}
+{{#if tanstack}}
+  '@tanstack',
+{{/if}}
+{{#if nativewind}}
+  'nativewind',
+  'react-native-css-interop',
+{{/if}}
+{{#if unistyles}}
+  'react-native-unistyles',
+  'react-native-nitro-modules',
+  'react-native-edge-to-edge',
+{{/if}}
+{{#if mmkv}}
+  'react-native-mmkv',
+  'react-native-nitro-modules',
+{{/if}}
+{{#if asyncStorage}}
+  '@react-native-async-storage',
+{{/if}}
+{{#if flashList}}
+  '@shopify/flash-list',
+{{/if}}
+{{#if i18n}}
+  'react-native-localize',
+{{/if}}
+{{#if crash}}
+  '@sentry',
+{{/if}}
+{{#if push}}
+  '@react-native-firebase',
+  'react-native-permissions',
+{{/if}}
+{{#if media}}
+  'react-native-image-picker',
+  'react-native-video',
+{{/if}}
+{{#if expo}}
+  'expo',
+  'expo-.*',
+  '@expo',
+{{/if}}
+];
+
+module.exports = {
+  preset: '@react-native/jest-preset',
+  setupFiles: ['react-native-gesture-handler/jestSetup', '<rootDir>/jest/setup.js'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^react-native-reanimated$': '<rootDir>/jest/mockReanimated.js',
+{{#if mmkv}}
+    '^react-native-mmkv$': '<rootDir>/jest/mockMmkv.js',
+{{/if}}
+{{#if asyncStorage}}
+    '^@react-native-async-storage/async-storage$': '<rootDir>/jest/mockAsyncStorage.js',
+{{/if}}
+{{#if flashList}}
+    '^@shopify/flash-list$': '<rootDir>/jest/mockFlashList.js',
+{{/if}}
+{{#if i18n}}
+    '^react-native-localize$': '<rootDir>/jest/mockLocalize.js',
+{{/if}}
+{{#if nativewind}}
+    '\\.css$': '<rootDir>/jest/mockCss.js',
+{{/if}}
+  },
+  transformIgnorePatterns: [`node_modules/(?!(${esmPackages.join('|')})/)`],
+  passWithNoTests: true,
+  testPathIgnorePatterns: ['/node_modules/', '/ios/', '/android/', '/.maestro/'],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/__fixtures__/**', '!src/types/**'],
+};

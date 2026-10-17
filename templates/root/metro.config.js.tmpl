@@ -1,0 +1,30 @@
+{{#if expo}}
+const { getDefaultConfig } = require('expo/metro-config');
+{{else}}
+const path = require('path');
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+{{/if}}
+{{#if nativewind}}
+const { withNativeWind } = require('nativewind/metro');
+{{/if}}
+
+{{#if expo}}
+const config = getDefaultConfig(__dirname);
+{{else}}
+const config = mergeConfig(getDefaultConfig(__dirname), {
+  resolver: {
+    resolveRequest: (context, moduleName, platform) => {
+      const target = moduleName.startsWith('@/')
+        ? path.join(__dirname, 'src', moduleName.slice(2))
+        : moduleName;
+      return context.resolveRequest(context, target, platform);
+    },
+  },
+});
+{{/if}}
+
+{{#if nativewind}}
+module.exports = withNativeWind(config, { input: './global.css' });
+{{else}}
+module.exports = config;
+{{/if}}

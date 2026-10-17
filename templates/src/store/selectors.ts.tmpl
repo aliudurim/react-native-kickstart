@@ -1,0 +1,18 @@
+import type { RootState } from '@/store/store'
+
+export const selectToken = (s: RootState) => s.auth.token
+export const selectUser = (s: RootState) => s.auth.user
+export const selectIsSignedIn = (s: RootState) => s.auth.token !== null && s.auth.user !== null
+{{#if roles}}
+export const selectRoles = (s: RootState) => s.auth.user?.roles ?? []
+export const selectIsSeller = (s: RootState) => s.auth.user?.roles.includes('seller') ?? false
+export const selectIsOnboarding = (s: RootState) => s.auth.store?.status === 'incomplete'
+export const selectStore = (s: RootState) => s.auth.store
+{{/if}}
+
+export const selectTheme = (s: RootState) => s.prefs.theme
+export const selectLocale = (s: RootState) => s.prefs.locale
+
+export const selectToasts = (s: RootState) => s.ui.toasts
+export const selectToast = (s: RootState) => s.ui.toasts[0] ?? null
+export const selectActiveSheet = (s: RootState) => s.ui.activeSheet

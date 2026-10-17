@@ -1,0 +1,62 @@
+{{#if rtk}}
+import { useEffect } from 'react'
+import { useAppDispatch, useAppStore } from '@/store/hooks'
+import { userApi } from '@/store/api/userApi'
+
+// Persisted session is already in the store at first render; refresh it in the background.
+// The session listener mirrors the result into auth, and the root navigator re-renders if roles changed.
+export function SessionRefresher() {
+  const dispatch = useAppDispatch()
+  const store = useAppStore()
+
+  useEffect(() => {
+    if (!store.getState().auth.token) return
+    const request = dispatch(userApi.endpoints.getMe.initiate(undefined, { forceRefetch: true }))
+    return () => request.unsubscribe()
+  }, [dispatch, store])
+
+  return null
+}
+{{/if}}
+{{#if zustand}}
+import { useEffect } from 'react'
+import { getMe } from '@/lib/api/user'
+import { useAuthStore } from '@/store/useAuthStore'
+
+// Persisted session is already in the store at first render; refresh it in the background.
+export function SessionRefresher() {
+  useEffect(() => {
+    if (!useAuthStore.getState().token) return
+    const controller = new AbortController()
+    getMe(controller.signal)
+      .then((session) => useAuthStore.getState().setSession(session))
+      .catch(() => {})
+    return () => controller.abort()
+  }, [])
+
+  return null
+}
+{{/if}}
+{{#if noState}}
+import { useEffect, useRef } from 'react'
+import { getMe } from '@/lib/api/user'
+import { useSession } from '@/lib/session'
+
+// Persisted session is already in context at first render; refresh it in the background.
+export function SessionRefresher() {
+  const { token, setSession } = useSession()
+  const didRun = useRef(false)
+
+  useEffect(() => {
+    if (didRun.current || !token) return
+    didRun.current = true
+    const controller = new AbortController()
+    getMe(controller.signal)
+      .then(setSession)
+      .catch(() => {})
+    return () => controller.abort()
+  }, [token, setSession])
+
+  return null
+}
+{{/if}}

@@ -1,0 +1,33 @@
+import { Platform } from 'react-native'
+import { deleteToken, getMessaging, getToken, onMessage, onTokenRefresh } from '@react-native-firebase/messaging'
+import { checkNotifications, requestNotifications } from 'react-native-permissions'
+
+export type RemoteMessage = Parameters<Parameters<typeof onMessage>[1]>[0]
+
+export const devicePlatform: 'ios' | 'android' = Platform.OS === 'ios' ? 'ios' : 'android'
+
+export async function hasPushPermission(): Promise<boolean> {
+  return (await checkNotifications()).status === 'granted'
+}
+
+// Ask in context, after a moment that motivates it; never at first launch.
+export async function requestPushPermission(): Promise<boolean> {
+  return (await requestNotifications(['alert', 'badge', 'sound'])).status === 'granted'
+}
+
+// iOS FCM tokens need a real device; the simulator resolves null.
+export async function getPushToken(): Promise<string | null> {
+  try {
+    return await getToken(getMessaging())
+  } catch {
+    return null
+  }
+}
+
+export const onPushTokenRefresh = (listener: (token: string) => void): (() => void) =>
+  onTokenRefresh(getMessaging(), listener)
+
+export const onForegroundPush = (listener: (message: RemoteMessage) => void): (() => void) =>
+  onMessage(getMessaging(), listener)
+
+export const deletePushToken = (): Promise<void> => deleteToken(getMessaging())

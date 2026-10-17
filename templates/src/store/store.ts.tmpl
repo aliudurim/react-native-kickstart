@@ -1,0 +1,36 @@
+import { combineReducers, configureStore } from '@reduxjs/toolkit'
+{{#if reduxPersist}}
+import { loadPersistedState } from '@/lib/storage/persist'
+{{/if}}
+import { userApi } from '@/store/api/userApi'
+import { listenerMiddleware } from '@/store/listeners'
+import { authReducer } from '@/store/slices/auth'
+import { prefsReducer } from '@/store/slices/prefs'
+import { uiReducer } from '@/store/slices/ui'
+import '@/store/listeners/session'
+import '@/store/listeners/logout'
+{{#if reduxPersist}}
+import '@/store/listeners/persist'
+{{/if}}
+
+// Every new api slice goes in both places below and is reset in listeners/logout.ts.
+// Adding one needs a full app reload: Fast Refresh keeps the old store.
+const rootReducer = combineReducers({
+  auth: authReducer,
+  prefs: prefsReducer,
+  ui: uiReducer,
+  [userApi.reducerPath]: userApi.reducer,
+})
+
+export type RootState = ReturnType<typeof rootReducer>
+
+export const store = configureStore({
+  reducer: rootReducer,
+{{#if reduxPersist}}
+  preloadedState: loadPersistedState(),
+{{/if}}
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().prepend(listenerMiddleware.middleware).concat(userApi.middleware),
+})
+
+export type AppStore = typeof store
+export type AppDispatch = typeof store.dispatch

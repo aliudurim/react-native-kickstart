@@ -1,0 +1,101 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import React from 'react';
+
+import { LoginScreen } from '@/screens/login/LoginScreen';
+import type { LoginInput } from '@/validations/auth';
+
+const mockSession = {
+  token: 'test-token',
+  user: {
+    id: 1,
+    name: 'Ada Lovelace',
+    email: 'ada@example.com',
+{{#if roles}}
+    roles: ['shopper'],
+{{/if}}
+  },
+};
+{{#if i18n}}
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+}));
+{{/if}}
+{{#if analytics}}
+
+jest.mock('@/lib/analytics', () => ({ track: jest.fn() }));
+{{/if}}
+{{#if rtk}}
+
+const mockLogin = jest.fn((_input: LoginInput) => ({ unwrap: () => Promise.resolve(mockSession) }));
+jest.mock('@/store/api/userApi', () => ({
+  useLoginMutation: () => [mockLogin, { isLoading: false }],
+}));
+{{/if}}
+{{#if tanstack}}
+
+const mockLogin = jest.fn((_input: LoginInput) => Promise.resolve(mockSession));
+jest.mock('@/lib/api/user', () => ({
+  useLogin: () => ({ mutateAsync: mockLogin, isPending: false }),
+}));
+{{/if}}
+{{#if plainFetch}}
+
+const mockLogin = jest.fn((_input: LoginInput) => Promise.resolve(mockSession));
+jest.mock('@/lib/api/user', () => ({
+  login: (input: LoginInput) => mockLogin(input),
+}));
+{{/if}}
+{{#if zustand}}
+
+const mockSetSession = jest.fn();
+jest.mock('@/store/useAuthStore', () => ({
+  useAuthStore: (selector: (state: unknown) => unknown) =>
+    selector({ token: null, user: null, setSession: mockSetSession, signOut: jest.fn() }),
+}));
+{{/if}}
+{{#if noState}}
+
+const mockSetSession = jest.fn();
+jest.mock('@/lib/session', () => ({
+  useSession: () => ({ token: null, user: null, setSession: mockSetSession, signOut: jest.fn() }),
+}));
+{{/if}}
+
+describe('LoginScreen', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders the form', async () => {
+    await render(<LoginScreen />);
+
+    expect(screen.getByLabelText('Email')).toBeTruthy();
+    expect(screen.getByLabelText('Password')).toBeTruthy();
+    expect(screen.getByLabelText('Sign in')).toBeTruthy();
+  });
+
+  it('rejects an empty submit without calling the API', async () => {
+    await render(<LoginScreen />);
+
+    await fireEvent.press(screen.getByLabelText('Sign in'));
+
+    await waitFor(() => expect(screen.getByTestId('login-email-error')).toBeTruthy());
+    expect(mockLogin).not.toHaveBeenCalled();
+  });
+
+  it('submits valid credentials', async () => {
+    await render(<LoginScreen />);
+
+    await fireEvent.changeText(screen.getByLabelText('Email'), 'ada@example.com');
+    await fireEvent.changeText(screen.getByLabelText('Password'), 'Correct-horse-1');
+    await fireEvent.press(screen.getByLabelText('Sign in'));
+
+    await waitFor(() =>
+      expect(mockLogin).toHaveBeenCalledWith({ email: 'ada@example.com', password: 'Correct-horse-1' }),
+    );
+{{#unless rtk}}
+    await waitFor(() => expect(mockSetSession).toHaveBeenCalledWith(mockSession));
+{{/unless}}
+  });
+});

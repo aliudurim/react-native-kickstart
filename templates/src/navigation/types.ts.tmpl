@@ -1,0 +1,34 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
+export type AuthStackParamList = {
+  Login: undefined;
+  ResetPassword: { token: string };
+};
+
+export type AppTabsParamList = {
+  Home: undefined;
+{{#if roles}}
+  Sell: undefined;
+{{/if}}
+  Profile: undefined;
+};
+{{#if roles}}
+
+export type OnboardingStackParamList = {
+  OnboardingStart: undefined;
+};
+{{/if}}
+
+export type RootStackParamList = {
+  Auth: NavigatorScreenParams<AuthStackParamList>;
+{{#if roles}}
+  Onboarding: NavigatorScreenParams<OnboardingStackParamList>;
+{{/if}}
+  App: NavigatorScreenParams<AppTabsParamList>;
+};
+
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList extends RootStackParamList {}
+  }
+}

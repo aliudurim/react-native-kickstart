@@ -1,0 +1,42 @@
+{
+  "_lastVerified": "2026-10-17",
+  "_sources": [
+    "https://reactnative.dev/docs/set-up-your-environment",
+    "https://github.com/react-native-community/template (android/build.gradle, Podfile)",
+    "https://developer.apple.com/support/xcode/",
+    "https://github.com/react-native-community/rn-diff-purge/blob/master/RELEASES"
+  ],
+  "_doc": "rn rows are hand-maintained; verify at each RN minor. xcodeMin is the floor the RN release notes name; the toolchain table caps RN to what an installed Xcode can build. These have no machine-readable source, so the resolver warns where a row is missing.",
+  "rn": [
+    { "minor": "0.88", "react": "19.3", "node": "22.13.0", "xcodeMin": "16.1", "jdk": 17, "ndk": "27.1.12297006", "minSdk": 24, "compileSdk": 36, "targetSdk": 36, "iosTarget": "15.1", "hermes": true, "newArchOnly": true, "verified": true },
+    { "minor": "0.87", "react": "19.2", "node": "22.13.0", "xcodeMin": "16.1", "jdk": 17, "ndk": "27.1.12297006", "minSdk": 24, "compileSdk": 36, "targetSdk": 36, "iosTarget": "15.1", "hermes": true, "newArchOnly": true, "verified": true },
+    { "minor": "0.86", "react": "19.2", "node": "22.13.0", "xcodeMin": "16.1", "jdk": 17, "ndk": "27.1.12297006", "minSdk": 24, "compileSdk": 36, "targetSdk": 36, "iosTarget": "15.1", "hermes": true, "newArchOnly": true, "verified": true },
+    { "minor": "0.81", "react": "19.1", "node": "20.19.4", "xcodeMin": "16.1", "jdk": 17, "ndk": "27.1.12297006", "minSdk": 24, "compileSdk": 36, "targetSdk": 36, "iosTarget": "15.1", "hermes": true, "newArchOnly": false, "verified": true }
+  ],
+  "toolchain": {
+    "xcode": [
+      { "version": "26", "rnMax": null },
+      { "version": "16.1", "rnMax": "0.88" },
+      { "version": "16.0", "rnMax": "0.80" },
+      { "version": "15", "rnMax": "0.76" }
+    ]
+  },
+  "pairs": [
+    { "keys": ["reanimated", "worklets"], "why": "each reanimated minor pins a worklets band" },
+    { "keys": ["navNative", "navStack", "navTabs", "screens", "safeArea"], "why": "screens and safe-area are hard peers of every navigator" },
+    { "keys": ["rhf", "resolvers", "zod"], "why": "resolvers v5 needs RHF >= 7.55 and zod 3.25+/4" },
+    { "keys": ["i18next", "reactI18next"], "why": "react-i18next v17 peer-requires i18next >= 26" },
+    { "keys": ["mmkv", "nitro"], "why": "mmkv v4 is a Nitro module built against one nitro minor" },
+    { "keys": ["nativewind", "tailwind"], "why": "NativeWind 4 needs Tailwind 3; NativeWind 5 needs Tailwind 4" }
+  ],
+  "bans": {
+    "redux-persist": "abandoned since 2019; MMKV is synchronous so a 15-line persist replaces it",
+    "@notifee/react-native": "archived 2026-04; FCM displays background pushes, the in-app toaster handles foreground",
+    "react-native-track-player": "v4 frozen with New-Arch crashes, v5 is commercial",
+    "react-native-fast-image": "unmaintained; use expo-image or @d11/react-native-fast-image",
+    "moment": "maintenance mode since 2023; date-fns instead",
+    "lodash": "es-toolkit instead",
+    "react-test-renderer": "deprecated; RNTL 14 pairs with the test-renderer package",
+    "react-native-document-picker": "renamed to @react-native-documents/picker"
+  }
+}

@@ -1,0 +1,40 @@
+import { create, type StateCreator } from 'zustand'
+{{#if persist}}
+import { createJSONStorage, persist } from 'zustand/middleware'
+import { defaultStorage } from '@/lib/storage'
+import { SCHEMA_VERSION, toStateStorage } from '@/store/persistStorage'
+{{/if}}
+
+export type ThemePreference = 'system' | 'light' | 'dark'
+
+type PrefsState = {
+  theme: ThemePreference
+  locale: string | null
+}
+
+type PrefsActions = {
+  setTheme(theme: ThemePreference): void
+  setLocale(locale: string | null): void
+}
+
+export type PrefsStore = PrefsState & PrefsActions
+
+const creator: StateCreator<PrefsStore> = (set) => ({
+  theme: 'system',
+  locale: null,
+  setTheme: (theme) => set({ theme }),
+  setLocale: (locale) => set({ locale }),
+})
+
+export const usePrefsStore = create<PrefsStore>()(
+{{#if persist}}
+  persist(creator, {
+    name: 'prefs',
+    version: SCHEMA_VERSION,
+    storage: createJSONStorage(() => toStateStorage(defaultStorage)),
+    partialize: ({ theme, locale }) => ({ theme, locale }),
+  }),
+{{else}}
+  creator,
+{{/if}}
+)

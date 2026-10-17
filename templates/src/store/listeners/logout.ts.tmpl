@@ -1,0 +1,38 @@
+import { analytics } from '@/lib/analytics'
+import { resetCrashUser } from '@/lib/crash'
+{{#if push}}
+import { getPushToken } from '@/lib/push'
+{{/if}}
+import { authStorage } from '@/lib/storage'
+import { userApi } from '@/store/api/userApi'
+import { startAppListening } from '@/store/listeners'
+import { logout, signOut } from '@/store/slices/auth'
+
+// signOut: user-initiated. Server calls run while the token is still in state; logout() follows.
+startAppListening({
+  actionCreator: signOut,
+  effect: async (_action, api) => {
+{{#if push}}
+    try {
+      const token = await getPushToken()
+      if (token) await api.dispatch(userApi.endpoints.deregisterDevice.initiate(token)).unwrap()
+    } catch {}
+{{/if}}
+    try {
+      await api.dispatch(userApi.endpoints.logout.initiate()).unwrap()
+    } catch {}
+    api.dispatch(logout())
+  },
+})
+
+// logout: reached from signOut or from a 401 in baseQueryWithAuth. Reset every api slice here.
+startAppListening({
+  actionCreator: logout,
+  effect: (_action, api) => {
+    api.dispatch(userApi.util.resetApiState())
+    authStorage.clearAll()
+    analytics.track('auth_logout')
+    analytics.reset()
+    resetCrashUser()
+  },
+})

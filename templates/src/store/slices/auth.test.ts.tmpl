@@ -1,0 +1,50 @@
+import { authReducer, initialAuthState, logout, setSession } from '@/store/slices/auth'
+import type { User } from '@/types/api'
+
+const user: User = {
+  id: 1,
+  name: 'Ada',
+  email: 'ada@example.com',
+  roles: ['shopper'],
+  email_verified_at: null,
+{{#if roles}}
+  has_store: false,
+{{/if}}
+}
+
+describe('auth slice', () => {
+  it('starts signed out', () => {
+    expect(authReducer(undefined, { type: '@@init' })).toEqual(initialAuthState)
+  })
+
+  it('stores token and user on setSession', () => {
+{{#if roles}}
+    const state = authReducer(initialAuthState, setSession({ token: 'abc', user, store: null }))
+{{else}}
+    const state = authReducer(initialAuthState, setSession({ token: 'abc', user }))
+{{/if}}
+    expect(state.token).toBe('abc')
+    expect(state.user).toEqual(user)
+  })
+
+  it('keeps the existing token when a refreshed session carries none', () => {
+{{#if roles}}
+    const signedIn = authReducer(initialAuthState, setSession({ token: 'abc', user, store: null }))
+    const refreshed = authReducer(signedIn, setSession({ user: { ...user, name: 'Ada L.' }, store: null }))
+{{else}}
+    const signedIn = authReducer(initialAuthState, setSession({ token: 'abc', user }))
+    const refreshed = authReducer(signedIn, setSession({ user: { ...user, name: 'Ada L.' } }))
+{{/if}}
+    expect(refreshed.token).toBe('abc')
+    expect(refreshed.user?.name).toBe('Ada L.')
+  })
+
+  it('resets everything on logout', () => {
+{{#if roles}}
+    const signedIn = authReducer(initialAuthState, setSession({ token: 'abc', user, store: null }))
+{{else}}
+    const signedIn = authReducer(initialAuthState, setSession({ token: 'abc', user }))
+{{/if}}
+    expect(authReducer(signedIn, logout())).toEqual(initialAuthState)
+  })
+})

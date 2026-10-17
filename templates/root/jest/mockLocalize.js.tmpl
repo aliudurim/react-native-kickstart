@@ -1,0 +1,14 @@
+module.exports = {
+  getLocales: () => [{ countryCode: 'US', languageTag: 'en-US', languageCode: 'en', isRTL: false }],
+  getNumberFormatSettings: () => ({ decimalSeparator: '.', groupingSeparator: ',' }),
+  getCalendar: () => 'gregorian',
+  getCountry: () => 'US',
+  getCurrencies: () => ['USD'],
+  getTemperatureUnit: () => 'celsius',
+  getTimeZone: () => 'UTC',
+  uses24HourClock: () => true,
+  usesMetricSystem: () => true,
+  usesAutoDateAndTime: () => true,
+  usesAutoTimeZone: () => true,
+  findBestLanguageTag: (tags) => (tags.includes('en') ? { languageTag: 'en', isRTL: false } : undefined),
+};

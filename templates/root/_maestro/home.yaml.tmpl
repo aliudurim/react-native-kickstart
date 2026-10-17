@@ -1,0 +1,8 @@
+appId: {{BUNDLE_ID}}
+name: Home
+---
+- runFlow: login.yaml
+- assertVisible: 'Home'
+- takeScreenshot: store/02-home
+- scroll
+- assertVisible: 'Home'
