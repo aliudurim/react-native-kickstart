@@ -41,7 +41,8 @@ for (const g of Object.keys(GROUPS)) answers[g] = flag(g);
 answers.modules = flag('modules');
 answers.addons = flag('addons');
 if (flag('answers')) {
-  const file = JSON.parse(readFileSync(resolvePath(flag('answers')), 'utf8'));
+  const raw = flag('answers');
+  const file = JSON.parse(raw.trimStart().startsWith('{') ? raw : readFileSync(resolvePath(raw), 'utf8'));
   for (const [k, v] of Object.entries(file)) if (v != null && (k in answers || k === 'build' || k === 'offline' || k === 'force')) answers[k] = Array.isArray(v) ? v.join(',') : v;
   if (file.build != null) argv.push(file.build === 'native' ? '--build=native' : '--build');
   if (file.offline) argv.push('--offline');
@@ -127,7 +128,7 @@ if (has('build')) {
 }
 if (has('open') && env.vscode) spawn('code', [outDir], { detached: true, stdio: 'ignore' }).unref();
 console.log(dim(`\nnext: cd ${outDir} && ${pm} install && ${pm} run ios`));
-if (JSON_OUT) emit({ ok: true, name, bundleId, outDir, pm, workflow: choices.workflow, choices, versions: { rn: versions.rn, react: versions.react, expo: versions.expo ?? null }, toolchain: row, files: written.length, warnings, toolchainWarnings: toolWarnings, build, kickstartCmd, next: `cd ${outDir} && ${pm} install && ${pm} run ${choices.workflow === 'expo' ? 'start' : 'ios'}` });
+if (JSON_OUT) emit({ ok: true, name, bundleId, outDir, pm, workflow: choices.workflow, choices, versions: { rn: versions.rn, react: versions.react, expo: versions.expo ?? null }, toolchain: row, files: written.length, warnings, toolchainWarnings: toolWarnings, build, kickstartCmd, next: choices.workflow === 'expo' ? `cd ${outDir} && ${pm} install && ${pm} run start` : `cd ${outDir} && ${pm} install${process.platform === 'darwin' ? ` && ${pm} run pods && ${pm} run ios` : ` && ${pm} run android`}` });
 
 // ---------------------------------------------------------------------------
 
@@ -208,7 +209,7 @@ function help() {
   rn-kickstart                         interactive
   rn-kickstart --yes --build           flags only, then install + typecheck + lint + jest
   rn-kickstart --yes --dry-run         show the versions you would get, write nothing
-  rn-kickstart --answers=app.json --json   answers from a file, one JSON result line on stdout (for tools and agents)
+  rn-kickstart --answers=app.json --json   answers from a file or inline JSON ('{"name":…}'), one JSON result line on stdout
   rn-kickstart --options               every group, option, module and add-on as JSON
 
   --name=MyApp   --package=com.example.myapp   --out=./myapp   --preset=standard|expo|minimal

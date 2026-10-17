@@ -27,25 +27,20 @@ Map the request onto the catalog. Defaults when the user does not say otherwise:
 
 Ask at most one short question, and only when the answer changes the stack (bare vs Expo, or which company domain). Everything else: choose and state the choice.
 
-## 2. Write the answers file and run
+## 2. Run
 
-Write `.rn-kickstart.json` in the current directory:
-
-```json
-{ "name": "Orders", "package": "com.acme.orders", "preset": "standard",
-  "addons": ["bottom-sheet", "keychain"], "out": "./orders", "pm": "npm", "build": true }
-```
-
-`build: true` installs and runs typecheck + lint + jest + a Metro bundle check; `build: "native"` also runs CocoaPods/Xcode and Gradle (slow, use when they ask to "make sure it builds"). Then:
+Pass the answers inline as JSON (no file to create or clean up):
 
 ```bash
-npx -y -p github:aliudurim/react-native-kickstart rn-kickstart --yes --answers=.rn-kickstart.json --json
+npx -y -p github:aliudurim/react-native-kickstart rn-kickstart --yes --json --answers='{"name":"Orders","package":"com.acme.orders","preset":"standard","addons":["bottom-sheet","keychain"],"out":"./orders","pm":"npm","build":true}'
 ```
 
-stdout is one JSON line; the human log is on stderr. Read `ok`, `warnings`, `toolchainWarnings`, `build.skipped` and `next`. Delete `.rn-kickstart.json` afterwards.
+`out` may be absolute when the user named a folder. `build: true` installs and runs typecheck + lint + jest + a Metro bundle check; `build: "native"` also runs CocoaPods/Xcode and Gradle (slow, use when they ask to "make sure it builds"). Run it in the foreground; it takes one to four minutes.
+
+stdout is one JSON line; the human log is on stderr. Read `ok`, `warnings`, `toolchainWarnings`, `build.skipped` and `next`.
 
 ## 3. Report
 
-In five lines or fewer: the folder, the stack in words (not package names), each `toolchainWarnings` entry as a to-do with its install hint, and the `next` command. If `build.skipped` has entries, say which platform was skipped and why. If `ok` is false, show `error` and fix the answers rather than asking the user to.
+In five lines or fewer: the folder, the stack in words (not package names), each `toolchainWarnings` entry as a to-do with its install hint, and the `next` command verbatim (on bare it already includes `pods`, which both platforms' native add-ons need). If `build.skipped` has entries, say which platform was skipped and why. If `ok` is false, show `error` and fix the answers rather than asking the user to.
 
 Then open the generated `CLAUDE.md` in the new folder and keep following it for any further work in that project: folder layout, env files (`.env.development` / `.env.production`), the splash logo at `assets/logo.png`, and `npm run verify` before claiming anything works.
