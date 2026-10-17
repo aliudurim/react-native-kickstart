@@ -2,7 +2,6 @@
 name: store-assets
 description: Generate App Store and Play Store screenshots, icons and the fastlane metadata tree for a kickstarted app. Use when the user asks for store screenshots, app icons, listing assets or "prepare the store".
 argument-hint: "[app folder]"
-allowed-tools: Bash(npx *) Bash(node *) Bash(npm *) Bash(rn-kickstart-store *) Read Write Glob
 ---
 
 The app was created with react-native-kickstart and has a `store/` folder (`store/config.json`, `store/screens/`, `store/screenshots/`).

@@ -2,7 +2,6 @@
 name: new-app
 description: Create a new React Native or Expo app with the kickstart CLI. Use when the user wants to start, scaffold, bootstrap or set up a new mobile app, or says "new RN app", "create an Expo app", "kickstart".
 argument-hint: "[app name and what it needs, in plain words]"
-allowed-tools: Bash(npx *) Bash(node *) Bash(npm *) Bash(yarn *) Bash(pnpm *) Bash(bun *) Read Write Glob
 ---
 
 Turn the user's description into a finished, verified app. Never make the user type flags.
