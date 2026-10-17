@@ -1,0 +1,20 @@
+import { useEffect, type PropsWithChildren } from 'react'
+{{#if bare}}
+import BootSplash from 'react-native-bootsplash'
+{{else}}
+import * as SplashScreen from 'expo-splash-screen'
+
+void SplashScreen.preventAutoHideAsync()
+{{/if}}
+
+// Mounted once the first real screen is in the tree, so the native splash hides after the first frame.
+export function SplashGate({ children }: PropsWithChildren) {
+  useEffect(() => {
+{{#if bare}}
+    void BootSplash.hide({ fade: true })
+{{else}}
+    void SplashScreen.hideAsync()
+{{/if}}
+  }, [])
+  return <>{children}</>
+}

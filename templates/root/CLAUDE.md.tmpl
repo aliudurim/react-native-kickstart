@@ -129,7 +129,7 @@ A **full native rebuild** (`{{PM}} run ios` / `{{PM}} run android`, after `{{PM}
 {{/if}}
 
 - any new native module or any version bump of a native dep (reanimated/worklets especially)
-- fonts, splash assets (bootsplash), app icons
+- fonts, splash assets (replace `assets/logo.png`, then `{{PM}} run splash` on bare / `expo prebuild` on Expo), app icons
 - Firebase config files, deep-link / URL scheme changes, permissions in Info.plist / AndroidManifest
 {{#if expo}}
 - any change to `app.json` / `app.config.ts` plugins (re-run `{{PM}} run prebuild`)

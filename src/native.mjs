@@ -175,3 +175,57 @@ android {`;
     writeFileSync(podfilePath, podfile);
   }
 }
+
+// react-native-bootsplash: the generator (run on postinstall) writes the storyboard, drawables,
+// styles and plist; the two code hooks below are what it cannot write.
+export function wireBootSplash(outDir, { name }) {
+  const scene = join(outDir, 'ios', name, 'SceneDelegate.swift');
+  if (existsSync(scene)) {
+    let s = readFileSync(scene, 'utf8');
+    if (!s.includes('RNBootSplash')) {
+      s = s.replace('import ReactAppDependencyProvider\n', 'import ReactAppDependencyProvider\nimport RNBootSplash\n');
+      s = s.replace(/\n  override func bundleURL\(\) -> URL\? \{/, `
+  override func customize(_ rootView: RCTRootView) {
+    super.customize(rootView)
+    RNBootSplash.initWithStoryboard("BootSplash", rootView: rootView)
+  }
+
+  override func bundleURL() -> URL? {`);
+      writeFileSync(scene, s);
+    }
+  }
+  const javaRoot = join(outDir, 'android', 'app', 'src', 'main', 'java');
+  const activity = walk(javaRoot).find((p) => p.endsWith('MainActivity.kt'));
+  if (activity) {
+    let k = readFileSync(activity, 'utf8');
+    if (!k.includes('RNBootSplash')) {
+      k = k.replace('import com.facebook.react.ReactActivity\n', 'import android.os.Bundle\nimport com.facebook.react.ReactActivity\n');
+      k = k.replace('import com.facebook.react.defaults.DefaultReactActivityDelegate\n', 'import com.facebook.react.defaults.DefaultReactActivityDelegate\nimport com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory\nimport com.zoontek.rnbootsplash.RNBootSplash\n');
+      k = k.replace(/\n  \/\*\*\n   \* Returns the instance of the \[ReactActivityDelegate\]/, `
+  override fun onCreate(savedInstanceState: Bundle?) {
+    supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
+    RNBootSplash.init(this, R.style.BootTheme)
+    super.onCreate(savedInstanceState)
+  }
+
+  /**
+   * Returns the instance of the [ReactActivityDelegate]`);
+      writeFileSync(activity, k);
+    }
+  }
+}
+
+// A placeholder logo (rounded square with a ring) so the splash and store icons have something to show.
+export function placeholderLogoPng(encodePng, size = 1024, rgb = [14, 124, 107]) {
+  const px = Buffer.alloc(size * size * 4);
+  const r = size * 0.215, cx = size / 2, cy = size / 2;
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    const i = (y * size + x) * 4;
+    const dx = Math.max(r - x, 0, x - (size - 1 - r)), dy = Math.max(r - y, 0, y - (size - 1 - r));
+    if (dx * dx + dy * dy > r * r) { px[i + 3] = 0; continue; }
+    const d = Math.hypot(x - cx, y - cy);
+    const ring = d < size * 0.235 && d > size * 0.165;
+    px[i] = ring ? 255 : rgb[0]; px[i + 1] = ring ? 255 : rgb[1]; px[i + 2] = ring ? 255 : rgb[2]; px[i + 3] = 255;
+  }
+  return encodePng(px, size, size);
+}

@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import React from 'react';
 
 import { Providers } from '@/app/Providers';
+import { SplashGate } from '@/app/SplashGate';
 import { useAuth } from '@/hooks/useAuth';
 
 function RootStack() {
@@ -22,7 +23,9 @@ function RootStack() {
 export default function RootLayout() {
   return (
     <Providers>
-      <RootStack />
+      <SplashGate>
+        <RootStack />
+      </SplashGate>
     </Providers>
   );
 }

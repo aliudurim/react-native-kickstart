@@ -27,7 +27,7 @@
       "@react-native-firebase/app",
       "@react-native-firebase/messaging",
 {{/if}}
-      "expo-splash-screen"
+      ["expo-splash-screen", { "image": "./assets/logo.png", "imageWidth": 100, "resizeMode": "contain", "backgroundColor": "#0E7C6B" }]
 {{#if expoRouter}}
     ],
     "experiments": {

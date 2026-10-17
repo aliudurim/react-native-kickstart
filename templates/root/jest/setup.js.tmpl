@@ -15,6 +15,7 @@ jest.mock('react-native-bootsplash', () => ({
 {{/if}}
 
 {{#if expo}}
+jest.mock('expo-splash-screen', () => ({ preventAutoHideAsync: jest.fn(() => Promise.resolve()), hideAsync: jest.fn(() => Promise.resolve()) }));
 process.env.EXPO_PUBLIC_APP_ENV ??= 'dev';
 process.env.EXPO_PUBLIC_API_BASE_URL ??= 'http://localhost:3000';
 process.env.EXPO_PUBLIC_DEEP_LINK_HOSTS ??= 'localhost';

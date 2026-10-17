@@ -5,7 +5,8 @@ import { render } from './render.mjs';
 import { buildContext, slugify } from './context.mjs';
 import { buildPackageJson } from './packagejson.mjs';
 import { keysFor } from './resolver/index.mjs';
-import { copyNative, wireEnvConfig } from './native.mjs';
+import { copyNative, wireEnvConfig, wireBootSplash, placeholderLogoPng } from './native.mjs';
+import { encodePng } from './store/png.mjs';
 
 const templatesRoot = fileURLToPath(new URL('../templates/', import.meta.url));
 
@@ -48,6 +49,7 @@ export async function scaffold({ name, bundleId, outDir, choices, versions, row,
     if (!template) throw new Error('bare workflow needs the RN community template');
     copyNative(template, outDir, { name, displayName: name, bundleId });
     wireEnvConfig(outDir);
+    wireBootSplash(outDir, { name });
     written.push('ios/', 'android/');
     if (androidSdkDir) {
       writeFileSync(join(outDir, 'android', 'local.properties'), `sdk.dir=${androidSdkDir.replace(/\\/g, '\\\\').replace(/:/g, '\\:')}\n`);
@@ -65,6 +67,8 @@ export async function scaffold({ name, bundleId, outDir, choices, versions, row,
     writeFileSync(out, rendered);
     written.push(dest);
   }
+  mkdirSync(join(outDir, 'assets'), { recursive: true });
+  if (!existsSync(join(outDir, 'assets', 'logo.png'))) { writeFileSync(join(outDir, 'assets', 'logo.png'), placeholderLogoPng(encodePng)); written.push('assets/logo.png'); }
   const pkg = buildPackageJson({ name, slug, keys, versions, choices, row, pm });
   writeFileSync(join(outDir, 'package.json'), JSON.stringify(pkg, null, 2) + '\n');
   written.push('package.json');
