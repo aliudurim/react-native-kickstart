@@ -1,6 +1,12 @@
 {{#if nativewind}}
 import './global.css';
 {{/if}}
+{{#if nativewind}}
+import { LogBox } from 'react-native';
+
+// react-native-css-interop remaps ImageBackground at import; RN 0.88+ warns once about the deprecated component.
+LogBox.ignoreLogs([/ImageBackground is deprecated/]);
+{{/if}}
 import { Providers } from '@/app/Providers';
 import { SplashGate } from '@/app/SplashGate';
 import { NavigationRoot } from '@/navigation/NavigationRoot';
